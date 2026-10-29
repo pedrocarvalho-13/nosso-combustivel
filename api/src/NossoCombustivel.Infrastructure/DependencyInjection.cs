@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NossoCombustivel.Application.Comum;
 using NossoCombustivel.Application.Contas;
+using NossoCombustivel.Application.Sincronizacao;
 using NossoCombustivel.Infrastructure.Identidade;
 using NossoCombustivel.Infrastructure.Persistencia;
 
@@ -41,6 +42,7 @@ public static class DependencyInjection
         services.AddSingleton<IEmissorTokens, EmissorTokensJwt>();
         services.AddScoped<IServicoContas, ServicoContas>();
         services.AddScoped<IRepositorioSessoes, RepositorioSessoes>();
+        services.AddScoped<IRepositorioSincronizacao, RepositorioSincronizacao>();
 
         return services;
     }

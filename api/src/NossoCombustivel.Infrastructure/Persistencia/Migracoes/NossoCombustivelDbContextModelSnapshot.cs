@@ -152,6 +152,192 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("NossoCombustivel.Domain.Registros.Abastecimento", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Combustivel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTimeOffset>("CriadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("Data")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("ExcluidoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("Litros")
+                        .HasPrecision(8, 3)
+                        .HasColumnType("numeric(8,3)");
+
+                    b.Property<int>("Odometro")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Posto")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("PrecoLitro")
+                        .HasPrecision(6, 3)
+                        .HasColumnType("numeric(6,3)");
+
+                    b.Property<DateTimeOffset>("SincronizadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("TanqueCheio")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("ValorTotal")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<Guid>("VeiculoId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VeiculoId", "SincronizadoEm");
+
+                    b.ToTable("Abastecimentos", (string)null);
+                });
+
+            modelBuilder.Entity("NossoCombustivel.Domain.Registros.Recarga", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("CargaCompleta")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset>("CriadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("Data")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("ExcluidoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("Kwh")
+                        .HasPrecision(8, 3)
+                        .HasColumnType("numeric(8,3)");
+
+                    b.Property<string>("Local")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("Odometro")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("PrecoKwh")
+                        .HasPrecision(6, 3)
+                        .HasColumnType("numeric(6,3)");
+
+                    b.Property<DateTimeOffset>("SincronizadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("ValorTotal")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<Guid>("VeiculoId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VeiculoId", "SincronizadoEm");
+
+                    b.ToTable("Recargas", (string)null);
+                });
+
+            modelBuilder.Entity("NossoCombustivel.Domain.Veiculos.Veiculo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("Ano")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Apelido")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("CapacidadeBateriaKwh")
+                        .HasPrecision(8, 3)
+                        .HasColumnType("numeric(8,3)");
+
+                    b.Property<decimal?>("CapacidadeTanqueL")
+                        .HasPrecision(8, 3)
+                        .HasColumnType("numeric(8,3)");
+
+                    b.Property<string>("CodigoFipe")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Combustiveis")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CriadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DonoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ExcluidoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Marca")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Modelo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("OdometroInicial")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("SincronizadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TipoEnergia")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DonoId", "SincronizadoEm");
+
+                    b.ToTable("Veiculos", (string)null);
+                });
+
             modelBuilder.Entity("NossoCombustivel.Infrastructure.Identidade.SessaoRefresh", b =>
                 {
                     b.Property<Guid>("Id")
@@ -305,6 +491,33 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                     b.HasOne("NossoCombustivel.Infrastructure.Identidade.Usuario", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NossoCombustivel.Domain.Registros.Abastecimento", b =>
+                {
+                    b.HasOne("NossoCombustivel.Domain.Veiculos.Veiculo", null)
+                        .WithMany()
+                        .HasForeignKey("VeiculoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NossoCombustivel.Domain.Registros.Recarga", b =>
+                {
+                    b.HasOne("NossoCombustivel.Domain.Veiculos.Veiculo", null)
+                        .WithMany()
+                        .HasForeignKey("VeiculoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NossoCombustivel.Domain.Veiculos.Veiculo", b =>
+                {
+                    b.HasOne("NossoCombustivel.Infrastructure.Identidade.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("DonoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
