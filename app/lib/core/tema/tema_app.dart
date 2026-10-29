@@ -78,6 +78,8 @@ abstract final class TemaApp {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: superficie,
+        helperMaxLines: 2,
+        errorMaxLines: 2,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: borda),

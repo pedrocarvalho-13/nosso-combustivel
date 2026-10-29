@@ -7,6 +7,7 @@ import '../../core/formato.dart';
 import '../../data/fipe/fipe_cliente.dart';
 import '../../domain/calculos/identificacao_energia.dart';
 import '../../domain/veiculo.dart';
+import '../comum/campo_com_rotulo.dart';
 import '../comum/icone_energia.dart';
 import 'cadastro_carro_view_model.dart';
 import 'seletor_energia.dart';
@@ -86,40 +87,50 @@ class _CadastroCarroViewState extends ConsumerState<CadastroCarroView> {
               ),
             ],
             const SizedBox(height: 16),
-            TextField(
-              controller: _apelido,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(labelText: 'Apelido', hintText: 'Ex.: Hilux do trabalho'),
+            CampoComRotulo(
+              rotulo: 'Apelido',
+              child: TextField(
+                controller: _apelido,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: const InputDecoration(hintText: 'Ex.: Hilux do trabalho'),
+              ),
             ),
             const SizedBox(height: 12),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (estado.energia?.tipo.abastece ?? true)
                   Expanded(
-                    child: TextField(
-                      controller: _tanque,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(labelText: 'Tanque (litros)'),
+                    child: CampoComRotulo(
+                      rotulo: 'Tanque (litros)',
+                      child: TextField(
+                        controller: _tanque,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      ),
                     ),
                   ),
                 if ((estado.energia?.tipo.abastece ?? true) && (estado.energia?.tipo.recarrega ?? false))
                   const SizedBox(width: 12),
                 if (estado.energia?.tipo.recarrega ?? false)
                   Expanded(
-                    child: TextField(
-                      controller: _bateria,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(labelText: 'Bateria (kWh)'),
+                    child: CampoComRotulo(
+                      rotulo: 'Bateria (kWh)',
+                      child: TextField(
+                        controller: _bateria,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      ),
                     ),
                   ),
               ],
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: _odometro,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: const InputDecoration(labelText: 'Odômetro atual (km)'),
+            CampoComRotulo(
+              rotulo: 'Odômetro atual (km)',
+              child: TextField(
+                controller: _odometro,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              ),
             ),
             const SizedBox(height: 8),
             Center(
@@ -142,28 +153,27 @@ class _CadastroCarroViewState extends ConsumerState<CadastroCarroView> {
   }
 
   List<Widget> _camposManuais() => [
-        TextField(
-          controller: _marca,
-          textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(labelText: 'Marca'),
+        CampoComRotulo(
+          rotulo: 'Marca',
+          child: TextField(controller: _marca, textCapitalization: TextCapitalization.words),
         ),
         const SizedBox(height: 12),
-        TextField(
-          controller: _modelo,
-          textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(labelText: 'Modelo'),
+        CampoComRotulo(
+          rotulo: 'Modelo',
+          child: TextField(controller: _modelo, textCapitalization: TextCapitalization.words),
         ),
         const SizedBox(height: 12),
-        TextField(
-          controller: _ano,
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(4)],
-          decoration: const InputDecoration(labelText: 'Ano (opcional)'),
+        CampoComRotulo(
+          rotulo: 'Ano (opcional)',
+          child: TextField(
+            controller: _ano,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(4)],
+          ),
         ),
       ];
 
   List<Widget> _camposFipe(CadastroCarroEstado estado) {
-    final textos = Theme.of(context).textTheme;
     return [
       ...estado.marcas.when(
         loading: () => [const LinearProgressIndicator()],
@@ -196,9 +206,8 @@ class _CadastroCarroViewState extends ConsumerState<CadastroCarroView> {
         ),
       ],
       if (estado.modelo != null) ...[
-        const SizedBox(height: 16),
-        Text('Ano e combustível', style: textos.labelLarge),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
+        const CampoComRotulo(rotulo: 'Ano e combustível', child: SizedBox.shrink()),
         ...estado.anos.when(
           loading: () => [const LinearProgressIndicator()],
           error: (_, _) => [_AvisoFipe(aoTentarDeNovo: () => _vm.selecionarModelo(estado.modelo))],
@@ -245,19 +254,21 @@ class _ListaFipe extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownMenu<OpcaoFipe>(
-      expandedInsets: EdgeInsets.zero,
-      label: Text(rotulo),
-      hintText: 'Digite para buscar',
-      enableFilter: true,
-      requestFocusOnTap: true,
-      menuHeight: 320,
-      initialSelection: selecionada,
-      leadingIcon: const Icon(Icons.search),
-      onSelected: aoSelecionar,
-      dropdownMenuEntries: [
-        for (final opcao in opcoes) DropdownMenuEntry(value: opcao, label: opcao.nome),
-      ],
+    return CampoComRotulo(
+      rotulo: rotulo,
+      child: DropdownMenu<OpcaoFipe>(
+        expandedInsets: EdgeInsets.zero,
+        hintText: 'Digite para buscar',
+        enableFilter: true,
+        requestFocusOnTap: true,
+        menuHeight: 320,
+        initialSelection: selecionada,
+        leadingIcon: const Icon(Icons.search),
+        onSelected: aoSelecionar,
+        dropdownMenuEntries: [
+          for (final opcao in opcoes) DropdownMenuEntry(value: opcao, label: opcao.nome),
+        ],
+      ),
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/formato.dart';
 import '../../domain/calculos/calculo_etanol.dart';
 import '../../domain/combustivel.dart';
+import '../comum/campo_com_rotulo.dart';
 import '../comum/campo_data.dart';
 import '../comum/campos_valor.dart';
 import 'novo_abastecimento_view_model.dart';
@@ -92,17 +93,18 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
               const SizedBox(height: 16),
             ],
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(child: CampoData(data: _data, aoMudar: (data) => setState(() => _data = data))),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: TextField(
-                    controller: _odometro,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(
-                      labelText: 'Odômetro (km)',
-                      helperText: 'Última: ${Formato.km(estado.ultimoOdometro)}',
+                  child: CampoComRotulo(
+                    rotulo: 'Odômetro (km)',
+                    child: TextField(
+                      controller: _odometro,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: InputDecoration(helperText: 'Última: ${Formato.km(estado.ultimoOdometro)}'),
                     ),
                   ),
                 ),
@@ -110,31 +112,36 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
             ),
             const SizedBox(height: 12),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _valores.quantidade,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Litros'),
+                  child: CampoComRotulo(
+                    rotulo: 'Litros',
+                    child: TextField(
+                      controller: _valores.quantidade,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: TextField(
-                    controller: _valores.preco,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'R\$ por litro'),
+                  child: CampoComRotulo(
+                    rotulo: 'Preço por litro (R\$)',
+                    child: TextField(
+                      controller: _valores.preco,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: _valores.total,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: 'Total (R\$)',
-                helperText: 'Digite o total e os litros se ajustam',
+            CampoComRotulo(
+              rotulo: 'Total (R\$)',
+              child: TextField(
+                controller: _valores.total,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(helperText: 'Se digitar o total, os litros se ajustam.'),
               ),
             ),
             const SizedBox(height: 8),
@@ -146,10 +153,12 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
               onChanged: (valor) => setState(() => _tanqueCheio = valor),
             ),
             const SizedBox(height: 8),
-            TextField(
-              controller: _posto,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'Posto (opcional)'),
+            CampoComRotulo(
+              rotulo: 'Posto (opcional)',
+              child: TextField(
+                controller: _posto,
+                textCapitalization: TextCapitalization.words,
+              ),
             ),
             const SizedBox(height: 24),
             FilledButton(

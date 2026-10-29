@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/formato.dart';
 import '../../domain/registro_energia.dart';
+import '../comum/campo_com_rotulo.dart';
 import '../comum/campo_data.dart';
 import '../comum/campos_valor.dart';
 import 'nova_recarga_view_model.dart';
@@ -86,17 +87,18 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
             ),
             const SizedBox(height: 16),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(child: CampoData(data: _data, aoMudar: (data) => setState(() => _data = data))),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: TextField(
-                    controller: _odometro,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(
-                      labelText: 'Odômetro (km)',
-                      helperText: 'Última: ${Formato.km(estado.ultimoOdometro)}',
+                  child: CampoComRotulo(
+                    rotulo: 'Odômetro (km)',
+                    child: TextField(
+                      controller: _odometro,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: InputDecoration(helperText: 'Última: ${Formato.km(estado.ultimoOdometro)}'),
                     ),
                   ),
                 ),
@@ -104,32 +106,39 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
             ),
             const SizedBox(height: 12),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _valores.quantidade,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Energia (kWh)'),
+                  child: CampoComRotulo(
+                    rotulo: 'Energia (kWh)',
+                    child: TextField(
+                      controller: _valores.quantidade,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: TextField(
-                    controller: _valores.preco,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText: 'R\$ por kWh',
-                      helperText: estado.local == LocalRecarga.casa ? 'Tarifa da conta de luz' : null,
+                  child: CampoComRotulo(
+                    rotulo: 'Preço por kWh (R\$)',
+                    child: TextField(
+                      controller: _valores.preco,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: InputDecoration(
+                        helperText: estado.local == LocalRecarga.casa ? 'Tarifa da conta de luz' : null,
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: _valores.total,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(labelText: 'Total (R\$)'),
+            CampoComRotulo(
+              rotulo: 'Total (R\$)',
+              child: TextField(
+                controller: _valores.total,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              ),
             ),
             const SizedBox(height: 8),
             SwitchListTile(
