@@ -123,7 +123,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
                   child: TextField(
                     controller: _valores.preco,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(labelText: 'Preço por litro (R\$)'),
+                    decoration: const InputDecoration(labelText: 'R\$ por litro'),
                   ),
                 ),
               ],
@@ -134,7 +134,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
                 labelText: 'Total (R\$)',
-                helperText: 'Calculado pelos litros e preço. Se digitar o total, os litros se ajustam.',
+                helperText: 'Digite o total e os litros se ajustam',
               ),
             ),
             const SizedBox(height: 8),

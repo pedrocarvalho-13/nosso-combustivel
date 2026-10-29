@@ -17,6 +17,8 @@ class RegistroRepositorio {
     }
   }
 
+  Future<List<RegistroEnergia>> listarDoVeiculo(String veiculoId) => _carregar(veiculoId);
+
   Future<void> salvarAbastecimento(Abastecimento abastecimento) async {
     final agora = _agora();
     await _banco.into(_banco.abastecimentos).insertOnConflictUpdate(AbastecimentosCompanion.insert(

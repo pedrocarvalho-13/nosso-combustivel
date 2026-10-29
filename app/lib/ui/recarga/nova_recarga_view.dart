@@ -25,15 +25,6 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
   NovaRecargaViewModel get _vm => ref.read(novaRecargaViewModelProvider.notifier);
 
   @override
-  void initState() {
-    super.initState();
-    final estado = ref.read(novaRecargaViewModelProvider);
-    if (estado.local == LocalRecarga.casa && estado.tarifaCasa != null) {
-      _valores.preco.text = Formato.paraCampo(estado.tarifaCasa!);
-    }
-  }
-
-  @override
   void dispose() {
     _valores.dispose();
     _odometro.dispose();
@@ -64,6 +55,12 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
   Widget build(BuildContext context) {
     final estado = ref.watch(novaRecargaViewModelProvider);
     final veiculo = estado.veiculo;
+    ref.listen(novaRecargaViewModelProvider, (anterior, atual) {
+      final carregouTarifa = anterior?.tarifaCasa == null && atual.tarifaCasa != null;
+      if (carregouTarifa && atual.local == LocalRecarga.casa && _valores.preco.text.isEmpty) {
+        _valores.preco.text = Formato.paraCampo(atual.tarifaCasa!);
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -121,8 +118,8 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
                     controller: _valores.preco,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(
-                      labelText: 'Preço por kWh (R\$)',
-                      helperText: estado.local == LocalRecarga.casa ? 'Tarifa da sua conta de luz' : null,
+                      labelText: 'R\$ por kWh',
+                      helperText: estado.local == LocalRecarga.casa ? 'Tarifa da conta de luz' : null,
                     ),
                   ),
                 ),

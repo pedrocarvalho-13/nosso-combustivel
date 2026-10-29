@@ -14,57 +14,55 @@ class NovoAbastecimentoEstado {
   const NovoAbastecimentoEstado({
     required this.veiculo,
     required this.combustivel,
-    required this.ultimoOdometro,
+    this.registros = const [],
     this.preco,
     this.comparacao,
-    this.precoOutroCombustivel,
     this.salvando = false,
   });
 
   final Veiculo? veiculo;
   final Combustivel? combustivel;
-  final int ultimoOdometro;
+  final List<RegistroEnergia> registros;
   final double? preco;
   final ComparacaoEtanol? comparacao;
-  final double? precoOutroCombustivel;
   final bool salvando;
+
+  int get ultimoOdometro => registros.fold(veiculo?.odometroInicial ?? 0, (maior, r) => max(maior, r.odometro));
 
   NovoAbastecimentoEstado copiar({
     Combustivel? combustivel,
-    double? preco,
-    ComparacaoEtanol? comparacao,
-    double? precoOutroCombustivel,
-    bool limparComparacao = false,
+    List<RegistroEnergia>? registros,
+    double? Function()? preco,
+    ComparacaoEtanol? Function()? comparacao,
     bool? salvando,
   }) =>
       NovoAbastecimentoEstado(
         veiculo: veiculo,
         combustivel: combustivel ?? this.combustivel,
-        ultimoOdometro: ultimoOdometro,
-        preco: preco ?? this.preco,
-        comparacao: limparComparacao ? null : comparacao ?? this.comparacao,
-        precoOutroCombustivel: limparComparacao ? null : precoOutroCombustivel ?? this.precoOutroCombustivel,
+        registros: registros ?? this.registros,
+        preco: preco == null ? this.preco : preco(),
+        comparacao: comparacao == null ? this.comparacao : comparacao(),
         salvando: salvando ?? this.salvando,
       );
 }
 
 class NovoAbastecimentoViewModel extends Notifier<NovoAbastecimentoEstado> {
-  List<RegistroEnergia> get _registros => ref.read(registrosDoAtivoProvider).value ?? const [];
-
   @override
   NovoAbastecimentoEstado build() {
     final veiculo = ref.read(veiculoAtivoProvider).value;
-    final abastecimentos = _registros.whereType<Abastecimento>();
-    final ultimoCombustivel = abastecimentos.firstOrNull?.combustivel;
-    final combustivel = veiculo == null
-        ? null
-        : (veiculo.combustiveis.contains(ultimoCombustivel) ? ultimoCombustivel : veiculo.combustiveis.firstOrNull);
-    final leituras = _registros.map((r) => r.odometro);
-    return NovoAbastecimentoEstado(
-      veiculo: veiculo,
-      combustivel: combustivel,
-      ultimoOdometro: max(veiculo?.odometroInicial ?? 0, leituras.isEmpty ? 0 : leituras.reduce(max)),
+    if (veiculo != null) Future.microtask(() => _carregar(veiculo));
+    return NovoAbastecimentoEstado(veiculo: veiculo, combustivel: veiculo?.combustiveis.firstOrNull);
+  }
+
+  Future<void> _carregar(Veiculo veiculo) async {
+    final registros = await ref.read(registroRepositorioProvider).listarDoVeiculo(veiculo.id);
+    if (!ref.mounted) return;
+    final ultimoCombustivel = registros.whereType<Abastecimento>().firstOrNull?.combustivel;
+    state = state.copiar(
+      registros: registros,
+      combustivel: veiculo.combustiveis.contains(ultimoCombustivel) ? ultimoCombustivel : null,
     );
+    _compararEtanol();
   }
 
   void selecionarCombustivel(Combustivel combustivel) {
@@ -73,42 +71,33 @@ class NovoAbastecimentoViewModel extends Notifier<NovoAbastecimentoEstado> {
   }
 
   void atualizarPreco(double? preco) {
-    state = NovoAbastecimentoEstado(
-      veiculo: state.veiculo,
-      combustivel: state.combustivel,
-      ultimoOdometro: state.ultimoOdometro,
-      preco: preco,
-      salvando: state.salvando,
-    );
+    state = state.copiar(preco: () => preco);
     _compararEtanol();
   }
 
   void _compararEtanol() {
-    final veiculo = state.veiculo;
-    final combustivel = state.combustivel;
-    final preco = state.preco;
+    state = state.copiar(comparacao: () => _comparacao(state));
+  }
+
+  static ComparacaoEtanol? _comparacao(NovoAbastecimentoEstado estado) {
+    final veiculo = estado.veiculo;
+    final combustivel = estado.combustivel;
+    final preco = estado.preco;
     final ehEtanolOuGasolina = combustivel == Combustivel.etanol || combustivel == Combustivel.gasolina;
-    if (veiculo == null || !veiculo.flex || !ehEtanolOuGasolina || preco == null) {
-      state = state.copiar(limparComparacao: true);
-      return;
-    }
+    if (veiculo == null || !veiculo.flex || !ehEtanolOuGasolina || preco == null) return null;
 
     final outro = combustivel == Combustivel.etanol ? Combustivel.gasolina : Combustivel.etanol;
-    final abastecimentos = _registros.whereType<Abastecimento>().toList();
+    final abastecimentos = estado.registros.whereType<Abastecimento>().toList();
     final precoOutro = abastecimentos.where((a) => a.combustivel == outro).firstOrNull?.precoLitro;
-    if (precoOutro == null) {
-      state = state.copiar(limparComparacao: true);
-      return;
-    }
+    if (precoOutro == null) return null;
 
     final ciclos = CalculoConsumo.ciclosDeAbastecimento(abastecimentos);
-    final comparacao = CalculoEtanol.comparar(
+    return CalculoEtanol.comparar(
       precoEtanol: combustivel == Combustivel.etanol ? preco : precoOutro,
       precoGasolina: combustivel == Combustivel.gasolina ? preco : precoOutro,
       kmlEtanol: CalculoConsumo.media(ciclos, combustivel: Combustivel.etanol),
       kmlGasolina: CalculoConsumo.media(ciclos, combustivel: Combustivel.gasolina),
     );
-    state = state.copiar(comparacao: comparacao, precoOutroCombustivel: precoOutro);
   }
 
   Future<String?> salvar({
@@ -127,9 +116,9 @@ class NovoAbastecimentoViewModel extends Notifier<NovoAbastecimentoEstado> {
     if (litros == null || litros <= 0) return 'Informe quantos litros entraram.';
     if (preco == null || preco <= 0) return 'Informe o preço por litro.';
 
-    final registros = await ref.read(registrosDoAtivoProvider.future);
+    final repositorio = ref.read(registroRepositorioProvider);
     final erroOdometro = ValidacaoOdometro.validar(
-      registros: registros,
+      registros: await repositorio.listarDoVeiculo(veiculo.id),
       odometroInicial: veiculo.odometroInicial,
       data: data,
       odometro: odometro,
@@ -137,18 +126,18 @@ class NovoAbastecimentoViewModel extends Notifier<NovoAbastecimentoEstado> {
     if (erroOdometro != null) return erroOdometro;
 
     state = state.copiar(salvando: true);
-    await ref.read(registroRepositorioProvider).salvarAbastecimento(Abastecimento(
-          id: ref.read(geradorIdProvider)(),
-          veiculoId: veiculo.id,
-          data: data,
-          odometro: odometro,
-          valorCentavos: ((total ?? litros * preco) * 100).round(),
-          combustivel: combustivel,
-          litros: litros,
-          precoLitro: preco,
-          tanqueCheio: tanqueCheio,
-          posto: posto.trim().isEmpty ? null : posto.trim(),
-        ));
+    await repositorio.salvarAbastecimento(Abastecimento(
+      id: ref.read(geradorIdProvider)(),
+      veiculoId: veiculo.id,
+      data: data,
+      odometro: odometro,
+      valorCentavos: ((total ?? litros * preco) * 100).round(),
+      combustivel: combustivel,
+      litros: litros,
+      precoLitro: preco,
+      tanqueCheio: tanqueCheio,
+      posto: posto.trim().isEmpty ? null : posto.trim(),
+    ));
     if (ref.mounted) state = state.copiar(salvando: false);
     return null;
   }

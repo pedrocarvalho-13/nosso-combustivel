@@ -11,22 +11,30 @@ class NovaRecargaEstado {
   const NovaRecargaEstado({
     required this.veiculo,
     required this.local,
-    required this.ultimoOdometro,
+    this.registros = const [],
     this.tarifaCasa,
     this.salvando = false,
   });
 
   final Veiculo? veiculo;
   final LocalRecarga local;
-  final int ultimoOdometro;
+  final List<RegistroEnergia> registros;
   final double? tarifaCasa;
   final bool salvando;
 
-  NovaRecargaEstado copiar({LocalRecarga? local, bool? salvando}) => NovaRecargaEstado(
+  int get ultimoOdometro => registros.fold(veiculo?.odometroInicial ?? 0, (maior, r) => max(maior, r.odometro));
+
+  NovaRecargaEstado copiar({
+    LocalRecarga? local,
+    List<RegistroEnergia>? registros,
+    double? tarifaCasa,
+    bool? salvando,
+  }) =>
+      NovaRecargaEstado(
         veiculo: veiculo,
         local: local ?? this.local,
-        ultimoOdometro: ultimoOdometro,
-        tarifaCasa: tarifaCasa,
+        registros: registros ?? this.registros,
+        tarifaCasa: tarifaCasa ?? this.tarifaCasa,
         salvando: salvando ?? this.salvando,
       );
 }
@@ -35,13 +43,18 @@ class NovaRecargaViewModel extends Notifier<NovaRecargaEstado> {
   @override
   NovaRecargaEstado build() {
     final veiculo = ref.read(veiculoAtivoProvider).value;
-    final registros = ref.read(registrosDoAtivoProvider).value ?? const [];
-    final leituras = registros.map((r) => r.odometro);
-    return NovaRecargaEstado(
-      veiculo: veiculo,
-      local: registros.whereType<Recarga>().firstOrNull?.local ?? LocalRecarga.casa,
-      ultimoOdometro: max(veiculo?.odometroInicial ?? 0, leituras.isEmpty ? 0 : leituras.reduce(max)),
-      tarifaCasa: ref.read(tarifaCasaProvider).value,
+    if (veiculo != null) Future.microtask(() => _carregar(veiculo));
+    return NovaRecargaEstado(veiculo: veiculo, local: LocalRecarga.casa);
+  }
+
+  Future<void> _carregar(Veiculo veiculo) async {
+    final registros = await ref.read(registroRepositorioProvider).listarDoVeiculo(veiculo.id);
+    final tarifa = await ref.read(preferenciasRepositorioProvider).observarTarifaCasa().first;
+    if (!ref.mounted) return;
+    state = state.copiar(
+      registros: registros,
+      tarifaCasa: tarifa,
+      local: registros.whereType<Recarga>().firstOrNull?.local,
     );
   }
 
@@ -61,9 +74,9 @@ class NovaRecargaViewModel extends Notifier<NovaRecargaEstado> {
     if (kwh == null || kwh <= 0) return 'Informe quantos kWh entraram.';
     if (preco == null || preco < 0) return 'Informe o preço por kWh.';
 
-    final registros = await ref.read(registrosDoAtivoProvider.future);
+    final repositorio = ref.read(registroRepositorioProvider);
     final erroOdometro = ValidacaoOdometro.validar(
-      registros: registros,
+      registros: await repositorio.listarDoVeiculo(veiculo.id),
       odometroInicial: veiculo.odometroInicial,
       data: data,
       odometro: odometro,
@@ -71,17 +84,17 @@ class NovaRecargaViewModel extends Notifier<NovaRecargaEstado> {
     if (erroOdometro != null) return erroOdometro;
 
     state = state.copiar(salvando: true);
-    await ref.read(registroRepositorioProvider).salvarRecarga(Recarga(
-          id: ref.read(geradorIdProvider)(),
-          veiculoId: veiculo.id,
-          data: data,
-          odometro: odometro,
-          valorCentavos: ((total ?? kwh * preco) * 100).round(),
-          local: state.local,
-          kwh: kwh,
-          precoKwh: preco,
-          cargaCompleta: cargaCompleta,
-        ));
+    await repositorio.salvarRecarga(Recarga(
+      id: ref.read(geradorIdProvider)(),
+      veiculoId: veiculo.id,
+      data: data,
+      odometro: odometro,
+      valorCentavos: ((total ?? kwh * preco) * 100).round(),
+      local: state.local,
+      kwh: kwh,
+      precoKwh: preco,
+      cargaCompleta: cargaCompleta,
+    ));
     if (state.local == LocalRecarga.casa) {
       await ref.read(preferenciasRepositorioProvider).definirTarifaCasa(preco);
     }
