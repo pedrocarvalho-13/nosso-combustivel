@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: nosso-combustivel-api
+    runtime: docker
+    plan: free
+    region: ohio
+    rootDir: api
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: ConnectionStrings__Banco
+        sync: false
+      - key: Jwt__Chave
+        generateValue: true
+      - key: Cors__Origens__0
+        value: https://pedrocarvalho-13.github.io
