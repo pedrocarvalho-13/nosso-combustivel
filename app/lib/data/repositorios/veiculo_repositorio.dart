@@ -10,18 +10,23 @@ class VeiculoRepositorio {
   final BancoLocal _banco;
   final DateTime Function() _agora;
 
-  Stream<List<Veiculo>> observarTodos() {
+  Stream<List<Veiculo>> observarDoUsuario(String usuarioId) {
     final consulta = _banco.select(_banco.veiculos)
-      ..where((v) => v.excluidoEm.isNull())
+      ..where((v) => v.excluidoEm.isNull() & v.usuarioId.equals(usuarioId))
       ..orderBy([(v) => OrderingTerm.asc(v.criadoEm)]);
     return consulta.watch().map((linhas) => linhas.map(_paraDominio).toList());
   }
 
-  Future<void> salvar(Veiculo veiculo) async {
+  Future<void> adotarSemDono(String usuarioId) =>
+      (_banco.update(_banco.veiculos)..where((v) => v.usuarioId.isNull()))
+          .write(VeiculosCompanion(usuarioId: Value(usuarioId), atualizadoEm: Value(_agora())));
+
+  Future<void> salvar(Veiculo veiculo, {required String usuarioId}) async {
     final agora = _agora();
     await _banco.into(_banco.veiculos).insert(
           VeiculosCompanion.insert(
             id: veiculo.id,
+            usuarioId: Value(usuarioId),
             criadoEm: agora,
             atualizadoEm: agora,
             apelido: veiculo.apelido,

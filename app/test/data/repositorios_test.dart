@@ -36,9 +36,9 @@ void main() {
       combustiveis: [Combustivel.dieselS10, Combustivel.dieselS500],
       capacidadeTanqueL: 80,
       odometroInicial: 32540,
-    ));
+    ), usuarioId: 'u1');
 
-    final lidos = await veiculos.observarTodos().first;
+    final lidos = await veiculos.observarDoUsuario('u1').first;
 
     expect(lidos.single.apelido, 'Hilux do trabalho');
     expect(lidos.single.combustiveis, [Combustivel.dieselS10, Combustivel.dieselS500]);
@@ -54,7 +54,7 @@ void main() {
       tipoEnergia: TipoEnergia.eletrico,
       combustiveis: [],
       odometroInicial: 0,
-    ));
+    ), usuarioId: 'u1');
     final recarga = Recarga(
       id: 'r1',
       veiculoId: 'v1',
@@ -75,5 +75,25 @@ void main() {
 
     await registros.excluir(recarga);
     expect(await registros.observarDoVeiculo('v1').first, isEmpty);
+  });
+
+  test('cada conta vê só os próprios carros e o primeiro login adota os carros sem dono', () async {
+    const carro = Veiculo(
+      id: 'v1',
+      apelido: 'Civic',
+      marca: 'Honda',
+      modelo: 'Civic',
+      tipoEnergia: TipoEnergia.combustao,
+      combustiveis: [Combustivel.gasolina],
+      odometroInicial: 0,
+    );
+    await veiculos.salvar(carro, usuarioId: 'u1');
+    await banco.customStatement("UPDATE veiculos SET usuario_id = NULL WHERE id = 'v1'");
+
+    expect(await veiculos.observarDoUsuario('u2').first, isEmpty);
+
+    await veiculos.adotarSemDono('u2');
+
+    expect((await veiculos.observarDoUsuario('u2').first).single.id, 'v1');
   });
 }

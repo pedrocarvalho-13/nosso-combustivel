@@ -19,6 +19,7 @@ mixin Sincronizavel on Table {
 
 @DataClassName('VeiculoLinha')
 class Veiculos extends Table with Sincronizavel {
+  TextColumn get usuarioId => text().nullable()();
   TextColumn get apelido => text()();
   TextColumn get marca => text()();
   TextColumn get modelo => text()();
@@ -70,7 +71,14 @@ class BancoLocal extends _$BancoLocal {
   BancoLocal([QueryExecutor? executor]) : super(executor ?? _abrir());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onUpgrade: (migrador, de, para) async {
+          if (de < 2) await migrador.addColumn(veiculos, veiculos.usuarioId);
+        },
+      );
 
   static QueryExecutor _abrir() => driftDatabase(
         name: 'nosso_combustivel',

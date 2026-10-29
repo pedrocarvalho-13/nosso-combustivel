@@ -51,6 +51,17 @@ class $VeiculosTable extends Veiculos
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _usuarioIdMeta = const VerificationMeta(
+    'usuarioId',
+  );
+  @override
+  late final GeneratedColumn<String> usuarioId = GeneratedColumn<String>(
+    'usuario_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _apelidoMeta = const VerificationMeta(
     'apelido',
   );
@@ -157,6 +168,7 @@ class $VeiculosTable extends Veiculos
     criadoEm,
     atualizadoEm,
     excluidoEm,
+    usuarioId,
     apelido,
     marca,
     modelo,
@@ -208,6 +220,12 @@ class $VeiculosTable extends Veiculos
       context.handle(
         _excluidoEmMeta,
         excluidoEm.isAcceptableOrUnknown(data['excluido_em']!, _excluidoEmMeta),
+      );
+    }
+    if (data.containsKey('usuario_id')) {
+      context.handle(
+        _usuarioIdMeta,
+        usuarioId.isAcceptableOrUnknown(data['usuario_id']!, _usuarioIdMeta),
       );
     }
     if (data.containsKey('apelido')) {
@@ -311,6 +329,10 @@ class $VeiculosTable extends Veiculos
         DriftSqlType.dateTime,
         data['${effectivePrefix}excluido_em'],
       ),
+      usuarioId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}usuario_id'],
+      ),
       apelido: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}apelido'],
@@ -370,6 +392,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
   final DateTime criadoEm;
   final DateTime atualizadoEm;
   final DateTime? excluidoEm;
+  final String? usuarioId;
   final String apelido;
   final String marca;
   final String modelo;
@@ -385,6 +408,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
     required this.criadoEm,
     required this.atualizadoEm,
     this.excluidoEm,
+    this.usuarioId,
     required this.apelido,
     required this.marca,
     required this.modelo,
@@ -404,6 +428,9 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
     map['atualizado_em'] = Variable<DateTime>(atualizadoEm);
     if (!nullToAbsent || excluidoEm != null) {
       map['excluido_em'] = Variable<DateTime>(excluidoEm);
+    }
+    if (!nullToAbsent || usuarioId != null) {
+      map['usuario_id'] = Variable<String>(usuarioId);
     }
     map['apelido'] = Variable<String>(apelido);
     map['marca'] = Variable<String>(marca);
@@ -438,6 +465,9 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
       excluidoEm: excluidoEm == null && nullToAbsent
           ? const Value.absent()
           : Value(excluidoEm),
+      usuarioId: usuarioId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(usuarioId),
       apelido: Value(apelido),
       marca: Value(marca),
       modelo: Value(modelo),
@@ -467,6 +497,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
       criadoEm: serializer.fromJson<DateTime>(json['criadoEm']),
       atualizadoEm: serializer.fromJson<DateTime>(json['atualizadoEm']),
       excluidoEm: serializer.fromJson<DateTime?>(json['excluidoEm']),
+      usuarioId: serializer.fromJson<String?>(json['usuarioId']),
       apelido: serializer.fromJson<String>(json['apelido']),
       marca: serializer.fromJson<String>(json['marca']),
       modelo: serializer.fromJson<String>(json['modelo']),
@@ -491,6 +522,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
       'criadoEm': serializer.toJson<DateTime>(criadoEm),
       'atualizadoEm': serializer.toJson<DateTime>(atualizadoEm),
       'excluidoEm': serializer.toJson<DateTime?>(excluidoEm),
+      'usuarioId': serializer.toJson<String?>(usuarioId),
       'apelido': serializer.toJson<String>(apelido),
       'marca': serializer.toJson<String>(marca),
       'modelo': serializer.toJson<String>(modelo),
@@ -511,6 +543,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
     DateTime? criadoEm,
     DateTime? atualizadoEm,
     Value<DateTime?> excluidoEm = const Value.absent(),
+    Value<String?> usuarioId = const Value.absent(),
     String? apelido,
     String? marca,
     String? modelo,
@@ -526,6 +559,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
     criadoEm: criadoEm ?? this.criadoEm,
     atualizadoEm: atualizadoEm ?? this.atualizadoEm,
     excluidoEm: excluidoEm.present ? excluidoEm.value : this.excluidoEm,
+    usuarioId: usuarioId.present ? usuarioId.value : this.usuarioId,
     apelido: apelido ?? this.apelido,
     marca: marca ?? this.marca,
     modelo: modelo ?? this.modelo,
@@ -551,6 +585,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
       excluidoEm: data.excluidoEm.present
           ? data.excluidoEm.value
           : this.excluidoEm,
+      usuarioId: data.usuarioId.present ? data.usuarioId.value : this.usuarioId,
       apelido: data.apelido.present ? data.apelido.value : this.apelido,
       marca: data.marca.present ? data.marca.value : this.marca,
       modelo: data.modelo.present ? data.modelo.value : this.modelo,
@@ -583,6 +618,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
           ..write('criadoEm: $criadoEm, ')
           ..write('atualizadoEm: $atualizadoEm, ')
           ..write('excluidoEm: $excluidoEm, ')
+          ..write('usuarioId: $usuarioId, ')
           ..write('apelido: $apelido, ')
           ..write('marca: $marca, ')
           ..write('modelo: $modelo, ')
@@ -603,6 +639,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
     criadoEm,
     atualizadoEm,
     excluidoEm,
+    usuarioId,
     apelido,
     marca,
     modelo,
@@ -622,6 +659,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
           other.criadoEm == this.criadoEm &&
           other.atualizadoEm == this.atualizadoEm &&
           other.excluidoEm == this.excluidoEm &&
+          other.usuarioId == this.usuarioId &&
           other.apelido == this.apelido &&
           other.marca == this.marca &&
           other.modelo == this.modelo &&
@@ -639,6 +677,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
   final Value<DateTime> criadoEm;
   final Value<DateTime> atualizadoEm;
   final Value<DateTime?> excluidoEm;
+  final Value<String?> usuarioId;
   final Value<String> apelido;
   final Value<String> marca;
   final Value<String> modelo;
@@ -655,6 +694,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
     this.criadoEm = const Value.absent(),
     this.atualizadoEm = const Value.absent(),
     this.excluidoEm = const Value.absent(),
+    this.usuarioId = const Value.absent(),
     this.apelido = const Value.absent(),
     this.marca = const Value.absent(),
     this.modelo = const Value.absent(),
@@ -672,6 +712,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
     required DateTime criadoEm,
     required DateTime atualizadoEm,
     this.excluidoEm = const Value.absent(),
+    this.usuarioId = const Value.absent(),
     required String apelido,
     required String marca,
     required String modelo,
@@ -697,6 +738,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
     Expression<DateTime>? criadoEm,
     Expression<DateTime>? atualizadoEm,
     Expression<DateTime>? excluidoEm,
+    Expression<String>? usuarioId,
     Expression<String>? apelido,
     Expression<String>? marca,
     Expression<String>? modelo,
@@ -714,6 +756,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
       if (criadoEm != null) 'criado_em': criadoEm,
       if (atualizadoEm != null) 'atualizado_em': atualizadoEm,
       if (excluidoEm != null) 'excluido_em': excluidoEm,
+      if (usuarioId != null) 'usuario_id': usuarioId,
       if (apelido != null) 'apelido': apelido,
       if (marca != null) 'marca': marca,
       if (modelo != null) 'modelo': modelo,
@@ -735,6 +778,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
     Value<DateTime>? criadoEm,
     Value<DateTime>? atualizadoEm,
     Value<DateTime?>? excluidoEm,
+    Value<String?>? usuarioId,
     Value<String>? apelido,
     Value<String>? marca,
     Value<String>? modelo,
@@ -752,6 +796,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
       criadoEm: criadoEm ?? this.criadoEm,
       atualizadoEm: atualizadoEm ?? this.atualizadoEm,
       excluidoEm: excluidoEm ?? this.excluidoEm,
+      usuarioId: usuarioId ?? this.usuarioId,
       apelido: apelido ?? this.apelido,
       marca: marca ?? this.marca,
       modelo: modelo ?? this.modelo,
@@ -780,6 +825,9 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
     }
     if (excluidoEm.present) {
       map['excluido_em'] = Variable<DateTime>(excluidoEm.value);
+    }
+    if (usuarioId.present) {
+      map['usuario_id'] = Variable<String>(usuarioId.value);
     }
     if (apelido.present) {
       map['apelido'] = Variable<String>(apelido.value);
@@ -826,6 +874,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
           ..write('criadoEm: $criadoEm, ')
           ..write('atualizadoEm: $atualizadoEm, ')
           ..write('excluidoEm: $excluidoEm, ')
+          ..write('usuarioId: $usuarioId, ')
           ..write('apelido: $apelido, ')
           ..write('marca: $marca, ')
           ..write('modelo: $modelo, ')
@@ -2600,6 +2649,7 @@ typedef $$VeiculosTableCreateCompanionBuilder =
       required DateTime criadoEm,
       required DateTime atualizadoEm,
       Value<DateTime?> excluidoEm,
+      Value<String?> usuarioId,
       required String apelido,
       required String marca,
       required String modelo,
@@ -2618,6 +2668,7 @@ typedef $$VeiculosTableUpdateCompanionBuilder =
       Value<DateTime> criadoEm,
       Value<DateTime> atualizadoEm,
       Value<DateTime?> excluidoEm,
+      Value<String?> usuarioId,
       Value<String> apelido,
       Value<String> marca,
       Value<String> modelo,
@@ -2698,6 +2749,11 @@ class $$VeiculosTableFilterComposer
 
   ColumnFilters<DateTime> get excluidoEm => $composableBuilder(
     column: $table.excluidoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get usuarioId => $composableBuilder(
+    column: $table.usuarioId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2832,6 +2888,11 @@ class $$VeiculosTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get usuarioId => $composableBuilder(
+    column: $table.usuarioId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get apelido => $composableBuilder(
     column: $table.apelido,
     builder: (column) => ColumnOrderings(column),
@@ -2907,6 +2968,9 @@ class $$VeiculosTableAnnotationComposer
     column: $table.excluidoEm,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get usuarioId =>
+      $composableBuilder(column: $table.usuarioId, builder: (column) => column);
 
   GeneratedColumn<String> get apelido =>
       $composableBuilder(column: $table.apelido, builder: (column) => column);
@@ -3034,6 +3098,7 @@ class $$VeiculosTableTableManager
                 Value<DateTime> criadoEm = const Value.absent(),
                 Value<DateTime> atualizadoEm = const Value.absent(),
                 Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<String?> usuarioId = const Value.absent(),
                 Value<String> apelido = const Value.absent(),
                 Value<String> marca = const Value.absent(),
                 Value<String> modelo = const Value.absent(),
@@ -3050,6 +3115,7 @@ class $$VeiculosTableTableManager
                 criadoEm: criadoEm,
                 atualizadoEm: atualizadoEm,
                 excluidoEm: excluidoEm,
+                usuarioId: usuarioId,
                 apelido: apelido,
                 marca: marca,
                 modelo: modelo,
@@ -3068,6 +3134,7 @@ class $$VeiculosTableTableManager
                 required DateTime criadoEm,
                 required DateTime atualizadoEm,
                 Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<String?> usuarioId = const Value.absent(),
                 required String apelido,
                 required String marca,
                 required String modelo,
@@ -3084,6 +3151,7 @@ class $$VeiculosTableTableManager
                 criadoEm: criadoEm,
                 atualizadoEm: atualizadoEm,
                 excluidoEm: excluidoEm,
+                usuarioId: usuarioId,
                 apelido: apelido,
                 marca: marca,
                 modelo: modelo,

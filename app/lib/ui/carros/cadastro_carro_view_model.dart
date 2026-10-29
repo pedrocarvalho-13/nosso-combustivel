@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/fipe/fipe_cliente.dart';
 import '../../data/provedores.dart';
+import '../../data/sessao/sessao_controller.dart';
 import '../../domain/calculos/identificacao_energia.dart';
 import '../../domain/combustivel.dart';
 import '../../domain/tipo_energia.dart';
@@ -161,6 +162,8 @@ class CadastroCarroViewModel extends Notifier<CadastroCarroEstado> {
   }) async {
     final energia = state.energia;
     final detalhe = state.detalhe;
+    final usuarioId = ref.read(sessaoProvider).value?.usuario.id;
+    if (usuarioId == null) return 'Entre na sua conta para cadastrar um carro.';
     if (energia == null) return 'Escolha o carro antes de salvar.';
     if (odometro == null) return 'Informe o odômetro atual.';
     final marca = state.manual ? marcaManual.trim() : detalhe!.marca;
@@ -181,7 +184,7 @@ class CadastroCarroViewModel extends Notifier<CadastroCarroEstado> {
       capacidadeBateriaKwh: energia.tipo.recarrega ? bateriaKwh : null,
       odometroInicial: odometro,
     );
-    await ref.read(veiculoRepositorioProvider).salvar(veiculo);
+    await ref.read(veiculoRepositorioProvider).salvar(veiculo, usuarioId: usuarioId);
     await ref.read(preferenciasRepositorioProvider).definirVeiculoAtivo(veiculo.id);
     if (ref.mounted) state = state.copiar(salvando: false);
     return null;

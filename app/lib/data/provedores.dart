@@ -9,6 +9,7 @@ import 'fipe/fipe_cliente.dart';
 import 'repositorios/preferencias_repositorio.dart';
 import 'repositorios/registro_repositorio.dart';
 import 'repositorios/veiculo_repositorio.dart';
+import 'sessao/sessao_controller.dart';
 
 final relogioProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
@@ -36,9 +37,11 @@ final fipeClienteProvider = Provider<FipeCliente>(
   (ref) => FipeCliente(Dio(BaseOptions(connectTimeout: const Duration(seconds: 10)))),
 );
 
-final veiculosProvider = StreamProvider<List<Veiculo>>(
-  (ref) => ref.watch(veiculoRepositorioProvider).observarTodos(),
-);
+final veiculosProvider = StreamProvider<List<Veiculo>>((ref) {
+  final usuarioId = ref.watch(sessaoProvider.select((s) => s.value?.usuario.id));
+  if (usuarioId == null) return Stream.value(const []);
+  return ref.watch(veiculoRepositorioProvider).observarDoUsuario(usuarioId);
+});
 
 final veiculoAtivoIdProvider = StreamProvider<String?>(
   (ref) => ref.watch(preferenciasRepositorioProvider).observarVeiculoAtivo(),

@@ -7,6 +7,7 @@ import '../../core/rotas/rotas.dart';
 import '../comum/estado_vazio.dart';
 import '../comum/icone_energia.dart';
 import '../comum/registro_tile.dart';
+import '../conta/menu_perfil.dart';
 import 'inicio_view_model.dart';
 
 class InicioView extends ConsumerWidget {
@@ -19,13 +20,18 @@ class InicioView extends ConsumerWidget {
           error: (erro, _) => Center(child: Text('Não foi possível carregar: $erro')),
           data: (estado) {
             if (estado == null) {
-              return EstadoVazio(
-                icone: Icons.local_gas_station_outlined,
-                titulo: 'Cadastre seu primeiro carro',
-                mensagem:
-                    'Com o carro cadastrado, você acompanha o gasto da semana, do mês e quanto ele faz por litro ou por kWh.',
-                rotuloAcao: 'Adicionar carro',
-                aoAcionar: () => context.push(Rotas.novoCarro),
+              return Stack(
+                children: [
+                  EstadoVazio(
+                    icone: Icons.local_gas_station_outlined,
+                    titulo: 'Cadastre seu primeiro carro',
+                    mensagem:
+                        'Com o carro cadastrado, você acompanha o gasto da semana, do mês e quanto ele faz por litro ou por kWh.',
+                    rotuloAcao: 'Adicionar carro',
+                    aoAcionar: () => context.push(Rotas.novoCarro),
+                  ),
+                  const Positioned(top: 12, right: 16, child: BotaoPerfil()),
+                ],
               );
             }
             return _Painel(estado: estado);
@@ -51,35 +57,53 @@ class _Painel extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Material(
-            color: esquema.surfaceContainer,
-            shape: StadiumBorder(side: BorderSide(color: esquema.outline)),
-            child: InkWell(
-              customBorder: const StadiumBorder(),
-              onTap: () => context.go(Rotas.carros),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(6, 6, 14, 6),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconeEnergia(icone: iconeDoTipo(veiculo.tipoEnergia), tamanho: 32),
-                    const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(veiculo.apelido, style: textos.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
-                        Text(veiculo.descricaoEnergia, style: textos.bodySmall?.copyWith(color: esquema.onSurfaceVariant)),
-                      ],
+        Row(
+          children: [
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Material(
+                  color: esquema.surfaceContainer,
+                  shape: StadiumBorder(side: BorderSide(color: esquema.outline)),
+                  child: InkWell(
+                    customBorder: const StadiumBorder(),
+                    onTap: () => context.go(Rotas.carros),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(6, 6, 14, 6),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconeEnergia(icone: iconeDoTipo(veiculo.tipoEnergia), tamanho: 32),
+                          const SizedBox(width: 10),
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  veiculo.apelido,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: textos.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                                ),
+                                Text(
+                                  veiculo.descricaoEnergia,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: textos.bodySmall?.copyWith(color: esquema.onSurfaceVariant),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Icon(Icons.expand_more, size: 18, color: esquema.onSurfaceVariant),
+                        ],
+                      ),
                     ),
-                    const SizedBox(width: 6),
-                    Icon(Icons.expand_more, size: 18, color: esquema.onSurfaceVariant),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+            const SizedBox(width: 8),
+            const BotaoPerfil(),
+          ],
         ),
         const SizedBox(height: 14),
         Card(
