@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/NossoCombustivel.Api/NossoCombustivel.Api.csproj" />
+    <Project Path="src/NossoCombustivel.Application/NossoCombustivel.Application.csproj" />
+    <Project Path="src/NossoCombustivel.Domain/NossoCombustivel.Domain.csproj" />
+    <Project Path="src/NossoCombustivel.Infrastructure/NossoCombustivel.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NossoCombustivel.Api.Tests/NossoCombustivel.Api.Tests.csproj" />
+    <Project Path="tests/NossoCombustivel.Domain.Tests/NossoCombustivel.Domain.Tests.csproj" />
+  </Folder>
+</Solution>
