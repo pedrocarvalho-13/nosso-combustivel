@@ -1,9 +1,8 @@
 using System.Net;
-using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace NossoCombustivel.Api.Tests;
 
-public class HealthTests(WebApplicationFactory<Program> fabrica) : IClassFixture<WebApplicationFactory<Program>>
+public class HealthTests(FabricaApi fabrica) : IClassFixture<FabricaApi>
 {
     [Fact]
     public async Task Health_responde_ok_sem_consultar_o_banco()
