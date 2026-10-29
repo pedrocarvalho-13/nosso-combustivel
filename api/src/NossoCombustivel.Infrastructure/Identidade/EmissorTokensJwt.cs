@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -16,7 +18,11 @@ public sealed class OpcoesJwt
     public string Chave { get; set; } = string.Empty;
     public int MinutosAcesso { get; set; } = 15;
 
-    public SymmetricSecurityKey ChaveDeAssinatura() => new(Convert.FromBase64String(Chave));
+    public const int TamanhoMinimoDaChave = 32;
+
+    public bool ChaveValida => !string.IsNullOrWhiteSpace(Chave) && Chave.Length >= TamanhoMinimoDaChave;
+
+    public SymmetricSecurityKey ChaveDeAssinatura() => new(SHA256.HashData(Encoding.UTF8.GetBytes(Chave)));
 }
 
 public sealed class EmissorTokensJwt(IOptions<OpcoesJwt> opcoes, IRelogio relogio) : IEmissorTokens

@@ -33,8 +33,8 @@ public static class DependencyInjection
         services
             .AddOptions<OpcoesJwt>()
             .Bind(configuration.GetSection(OpcoesJwt.Secao))
-            .Validate(o => !string.IsNullOrWhiteSpace(o.Chave) && Convert.FromBase64String(o.Chave).Length >= 32,
-                "Configure Jwt:Chave com pelo menos 32 bytes em base64 (user-secrets em desenvolvimento).")
+            .Validate(o => o.ChaveValida,
+                $"Configure Jwt:Chave com pelo menos {OpcoesJwt.TamanhoMinimoDaChave} caracteres (user-secrets em desenvolvimento).")
             .ValidateOnStart();
         services.Configure<OpcoesSessao>(configuration.GetSection("Sessao"));
 
