@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/rotas/rotas.dart';
@@ -19,6 +20,9 @@ class NossoCombustivelApp extends ConsumerWidget {
       theme: TemaApp.claro(paleta),
       darkTheme: TemaApp.escuro(paleta),
       themeMode: ThemeMode.dark,
+      locale: const Locale('pt', 'BR'),
+      supportedLocales: const [Locale('pt', 'BR')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       routerConfig: ref.watch(rotasProvider),
     );
   }

@@ -1,13 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../data/provedores.dart';
 import '../../domain/tipo_energia.dart';
 
-class TipoEnergiaAtivo extends Notifier<TipoEnergia> {
-  @override
-  TipoEnergia build() => TipoEnergia.combustao;
-
-  void definir(TipoEnergia tipo) => state = tipo;
-}
-
-final tipoEnergiaAtivoProvider =
-    NotifierProvider<TipoEnergiaAtivo, TipoEnergia>(TipoEnergiaAtivo.new);
+final tipoEnergiaAtivoProvider = Provider<TipoEnergia>(
+  (ref) => ref.watch(veiculoAtivoProvider).value?.tipoEnergia ?? TipoEnergia.combustao,
+);
