@@ -12,6 +12,7 @@ mixin Sincronizavel on Table {
   DateTimeColumn get criadoEm => dateTime()();
   DateTimeColumn get atualizadoEm => dateTime()();
   DateTimeColumn get excluidoEm => dateTime().nullable()();
+  BoolColumn get pendente => boolean().withDefault(const Constant(true))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -71,12 +72,17 @@ class BancoLocal extends _$BancoLocal {
   BancoLocal([QueryExecutor? executor]) : super(executor ?? _abrir());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onUpgrade: (migrador, de, para) async {
           if (de < 2) await migrador.addColumn(veiculos, veiculos.usuarioId);
+          if (de < 3) {
+            await migrador.addColumn(veiculos, veiculos.pendente);
+            await migrador.addColumn(abastecimentos, abastecimentos.pendente);
+            await migrador.addColumn(recargas, recargas.pendente);
+          }
         },
       );
 

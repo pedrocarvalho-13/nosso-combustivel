@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class ShellView extends StatelessWidget {
+import '../../data/sync/sincronizacao_controller.dart';
+
+class ShellView extends ConsumerWidget {
   const ShellView({super.key, required this.navegacao});
 
   final StatefulNavigationShell navegacao;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(sincronizacaoProvider);
     return Scaffold(
       body: SafeArea(child: navegacao),
       bottomNavigationBar: NavigationBar(

@@ -6,6 +6,7 @@ import '../../core/formato.dart';
 import '../../core/rotas/rotas.dart';
 import '../comum/estado_vazio.dart';
 import '../comum/icone_energia.dart';
+import '../comum/indicador_sincronizacao.dart';
 import '../comum/registro_tile.dart';
 import '../conta/menu_perfil.dart';
 import 'inicio_view_model.dart';
@@ -105,7 +106,8 @@ class _Painel extends StatelessWidget {
             const BotaoPerfil(),
           ],
         ),
-        const SizedBox(height: 14),
+        const IndicadorSincronizacao(),
+        const SizedBox(height: 6),
         Card(
           child: Padding(
             padding: const EdgeInsets.all(20),

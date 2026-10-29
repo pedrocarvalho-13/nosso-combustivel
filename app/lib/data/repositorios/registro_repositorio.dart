@@ -34,6 +34,7 @@ class RegistroRepositorio {
           valorCentavos: abastecimento.valorCentavos,
           tanqueCheio: abastecimento.tanqueCheio,
           posto: Value(abastecimento.posto),
+          pendente: const Value(true),
         ));
   }
 
@@ -51,6 +52,7 @@ class RegistroRepositorio {
           precoKwhMilesimos: (recarga.precoKwh * 1000).round(),
           valorCentavos: recarga.valorCentavos,
           cargaCompleta: recarga.cargaCompleta,
+          pendente: const Value(true),
         ));
   }
 
@@ -59,10 +61,10 @@ class RegistroRepositorio {
     switch (registro) {
       case Abastecimento():
         await (_banco.update(_banco.abastecimentos)..where((a) => a.id.equals(registro.id)))
-            .write(AbastecimentosCompanion(excluidoEm: Value(agora), atualizadoEm: Value(agora)));
+            .write(AbastecimentosCompanion(excluidoEm: Value(agora), atualizadoEm: Value(agora), pendente: const Value(true)));
       case Recarga():
         await (_banco.update(_banco.recargas)..where((r) => r.id.equals(registro.id)))
-            .write(RecargasCompanion(excluidoEm: Value(agora), atualizadoEm: Value(agora)));
+            .write(RecargasCompanion(excluidoEm: Value(agora), atualizadoEm: Value(agora), pendente: const Value(true)));
     }
   }
 

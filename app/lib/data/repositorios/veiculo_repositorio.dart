@@ -19,7 +19,11 @@ class VeiculoRepositorio {
 
   Future<void> adotarSemDono(String usuarioId) =>
       (_banco.update(_banco.veiculos)..where((v) => v.usuarioId.isNull()))
-          .write(VeiculosCompanion(usuarioId: Value(usuarioId), atualizadoEm: Value(_agora())));
+          .write(VeiculosCompanion(
+            usuarioId: Value(usuarioId),
+            atualizadoEm: Value(_agora()),
+            pendente: const Value(true),
+          ));
 
   Future<void> salvar(Veiculo veiculo, {required String usuarioId}) async {
     final agora = _agora();
@@ -42,6 +46,7 @@ class VeiculoRepositorio {
           ),
           onConflict: DoUpdate((_) => VeiculosCompanion(
                 atualizadoEm: Value(agora),
+                pendente: const Value(true),
                 apelido: Value(veiculo.apelido),
                 capacidadeTanqueMl: Value(_milesimos(veiculo.capacidadeTanqueL)),
                 capacidadeBateriaWh: Value(_milesimos(veiculo.capacidadeBateriaKwh)),

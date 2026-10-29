@@ -51,6 +51,21 @@ class $VeiculosTable extends Veiculos
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _pendenteMeta = const VerificationMeta(
+    'pendente',
+  );
+  @override
+  late final GeneratedColumn<bool> pendente = GeneratedColumn<bool>(
+    'pendente',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("pendente" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
   static const VerificationMeta _usuarioIdMeta = const VerificationMeta(
     'usuarioId',
   );
@@ -168,6 +183,7 @@ class $VeiculosTable extends Veiculos
     criadoEm,
     atualizadoEm,
     excluidoEm,
+    pendente,
     usuarioId,
     apelido,
     marca,
@@ -220,6 +236,12 @@ class $VeiculosTable extends Veiculos
       context.handle(
         _excluidoEmMeta,
         excluidoEm.isAcceptableOrUnknown(data['excluido_em']!, _excluidoEmMeta),
+      );
+    }
+    if (data.containsKey('pendente')) {
+      context.handle(
+        _pendenteMeta,
+        pendente.isAcceptableOrUnknown(data['pendente']!, _pendenteMeta),
       );
     }
     if (data.containsKey('usuario_id')) {
@@ -329,6 +351,10 @@ class $VeiculosTable extends Veiculos
         DriftSqlType.dateTime,
         data['${effectivePrefix}excluido_em'],
       ),
+      pendente: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}pendente'],
+      )!,
       usuarioId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}usuario_id'],
@@ -392,6 +418,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
   final DateTime criadoEm;
   final DateTime atualizadoEm;
   final DateTime? excluidoEm;
+  final bool pendente;
   final String? usuarioId;
   final String apelido;
   final String marca;
@@ -408,6 +435,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
     required this.criadoEm,
     required this.atualizadoEm,
     this.excluidoEm,
+    required this.pendente,
     this.usuarioId,
     required this.apelido,
     required this.marca,
@@ -429,6 +457,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
     if (!nullToAbsent || excluidoEm != null) {
       map['excluido_em'] = Variable<DateTime>(excluidoEm);
     }
+    map['pendente'] = Variable<bool>(pendente);
     if (!nullToAbsent || usuarioId != null) {
       map['usuario_id'] = Variable<String>(usuarioId);
     }
@@ -465,6 +494,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
       excluidoEm: excluidoEm == null && nullToAbsent
           ? const Value.absent()
           : Value(excluidoEm),
+      pendente: Value(pendente),
       usuarioId: usuarioId == null && nullToAbsent
           ? const Value.absent()
           : Value(usuarioId),
@@ -497,6 +527,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
       criadoEm: serializer.fromJson<DateTime>(json['criadoEm']),
       atualizadoEm: serializer.fromJson<DateTime>(json['atualizadoEm']),
       excluidoEm: serializer.fromJson<DateTime?>(json['excluidoEm']),
+      pendente: serializer.fromJson<bool>(json['pendente']),
       usuarioId: serializer.fromJson<String?>(json['usuarioId']),
       apelido: serializer.fromJson<String>(json['apelido']),
       marca: serializer.fromJson<String>(json['marca']),
@@ -522,6 +553,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
       'criadoEm': serializer.toJson<DateTime>(criadoEm),
       'atualizadoEm': serializer.toJson<DateTime>(atualizadoEm),
       'excluidoEm': serializer.toJson<DateTime?>(excluidoEm),
+      'pendente': serializer.toJson<bool>(pendente),
       'usuarioId': serializer.toJson<String?>(usuarioId),
       'apelido': serializer.toJson<String>(apelido),
       'marca': serializer.toJson<String>(marca),
@@ -543,6 +575,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
     DateTime? criadoEm,
     DateTime? atualizadoEm,
     Value<DateTime?> excluidoEm = const Value.absent(),
+    bool? pendente,
     Value<String?> usuarioId = const Value.absent(),
     String? apelido,
     String? marca,
@@ -559,6 +592,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
     criadoEm: criadoEm ?? this.criadoEm,
     atualizadoEm: atualizadoEm ?? this.atualizadoEm,
     excluidoEm: excluidoEm.present ? excluidoEm.value : this.excluidoEm,
+    pendente: pendente ?? this.pendente,
     usuarioId: usuarioId.present ? usuarioId.value : this.usuarioId,
     apelido: apelido ?? this.apelido,
     marca: marca ?? this.marca,
@@ -585,6 +619,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
       excluidoEm: data.excluidoEm.present
           ? data.excluidoEm.value
           : this.excluidoEm,
+      pendente: data.pendente.present ? data.pendente.value : this.pendente,
       usuarioId: data.usuarioId.present ? data.usuarioId.value : this.usuarioId,
       apelido: data.apelido.present ? data.apelido.value : this.apelido,
       marca: data.marca.present ? data.marca.value : this.marca,
@@ -618,6 +653,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
           ..write('criadoEm: $criadoEm, ')
           ..write('atualizadoEm: $atualizadoEm, ')
           ..write('excluidoEm: $excluidoEm, ')
+          ..write('pendente: $pendente, ')
           ..write('usuarioId: $usuarioId, ')
           ..write('apelido: $apelido, ')
           ..write('marca: $marca, ')
@@ -639,6 +675,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
     criadoEm,
     atualizadoEm,
     excluidoEm,
+    pendente,
     usuarioId,
     apelido,
     marca,
@@ -659,6 +696,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
           other.criadoEm == this.criadoEm &&
           other.atualizadoEm == this.atualizadoEm &&
           other.excluidoEm == this.excluidoEm &&
+          other.pendente == this.pendente &&
           other.usuarioId == this.usuarioId &&
           other.apelido == this.apelido &&
           other.marca == this.marca &&
@@ -677,6 +715,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
   final Value<DateTime> criadoEm;
   final Value<DateTime> atualizadoEm;
   final Value<DateTime?> excluidoEm;
+  final Value<bool> pendente;
   final Value<String?> usuarioId;
   final Value<String> apelido;
   final Value<String> marca;
@@ -694,6 +733,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
     this.criadoEm = const Value.absent(),
     this.atualizadoEm = const Value.absent(),
     this.excluidoEm = const Value.absent(),
+    this.pendente = const Value.absent(),
     this.usuarioId = const Value.absent(),
     this.apelido = const Value.absent(),
     this.marca = const Value.absent(),
@@ -712,6 +752,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
     required DateTime criadoEm,
     required DateTime atualizadoEm,
     this.excluidoEm = const Value.absent(),
+    this.pendente = const Value.absent(),
     this.usuarioId = const Value.absent(),
     required String apelido,
     required String marca,
@@ -738,6 +779,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
     Expression<DateTime>? criadoEm,
     Expression<DateTime>? atualizadoEm,
     Expression<DateTime>? excluidoEm,
+    Expression<bool>? pendente,
     Expression<String>? usuarioId,
     Expression<String>? apelido,
     Expression<String>? marca,
@@ -756,6 +798,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
       if (criadoEm != null) 'criado_em': criadoEm,
       if (atualizadoEm != null) 'atualizado_em': atualizadoEm,
       if (excluidoEm != null) 'excluido_em': excluidoEm,
+      if (pendente != null) 'pendente': pendente,
       if (usuarioId != null) 'usuario_id': usuarioId,
       if (apelido != null) 'apelido': apelido,
       if (marca != null) 'marca': marca,
@@ -778,6 +821,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
     Value<DateTime>? criadoEm,
     Value<DateTime>? atualizadoEm,
     Value<DateTime?>? excluidoEm,
+    Value<bool>? pendente,
     Value<String?>? usuarioId,
     Value<String>? apelido,
     Value<String>? marca,
@@ -796,6 +840,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
       criadoEm: criadoEm ?? this.criadoEm,
       atualizadoEm: atualizadoEm ?? this.atualizadoEm,
       excluidoEm: excluidoEm ?? this.excluidoEm,
+      pendente: pendente ?? this.pendente,
       usuarioId: usuarioId ?? this.usuarioId,
       apelido: apelido ?? this.apelido,
       marca: marca ?? this.marca,
@@ -825,6 +870,9 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
     }
     if (excluidoEm.present) {
       map['excluido_em'] = Variable<DateTime>(excluidoEm.value);
+    }
+    if (pendente.present) {
+      map['pendente'] = Variable<bool>(pendente.value);
     }
     if (usuarioId.present) {
       map['usuario_id'] = Variable<String>(usuarioId.value);
@@ -874,6 +922,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
           ..write('criadoEm: $criadoEm, ')
           ..write('atualizadoEm: $atualizadoEm, ')
           ..write('excluidoEm: $excluidoEm, ')
+          ..write('pendente: $pendente, ')
           ..write('usuarioId: $usuarioId, ')
           ..write('apelido: $apelido, ')
           ..write('marca: $marca, ')
@@ -938,6 +987,21 @@ class $AbastecimentosTable extends Abastecimentos
     true,
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
+  );
+  static const VerificationMeta _pendenteMeta = const VerificationMeta(
+    'pendente',
+  );
+  @override
+  late final GeneratedColumn<bool> pendente = GeneratedColumn<bool>(
+    'pendente',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("pendente" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
   );
   static const VerificationMeta _veiculoIdMeta = const VerificationMeta(
     'veiculoId',
@@ -1043,6 +1107,7 @@ class $AbastecimentosTable extends Abastecimentos
     criadoEm,
     atualizadoEm,
     excluidoEm,
+    pendente,
     veiculoId,
     data,
     odometro,
@@ -1093,6 +1158,12 @@ class $AbastecimentosTable extends Abastecimentos
       context.handle(
         _excluidoEmMeta,
         excluidoEm.isAcceptableOrUnknown(data['excluido_em']!, _excluidoEmMeta),
+      );
+    }
+    if (data.containsKey('pendente')) {
+      context.handle(
+        _pendenteMeta,
+        pendente.isAcceptableOrUnknown(data['pendente']!, _pendenteMeta),
       );
     }
     if (data.containsKey('veiculo_id')) {
@@ -1191,6 +1262,10 @@ class $AbastecimentosTable extends Abastecimentos
         DriftSqlType.dateTime,
         data['${effectivePrefix}excluido_em'],
       ),
+      pendente: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}pendente'],
+      )!,
       veiculoId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}veiculo_id'],
@@ -1247,6 +1322,7 @@ class AbastecimentoLinha extends DataClass
   final DateTime criadoEm;
   final DateTime atualizadoEm;
   final DateTime? excluidoEm;
+  final bool pendente;
   final String veiculoId;
   final DateTime data;
   final int odometro;
@@ -1261,6 +1337,7 @@ class AbastecimentoLinha extends DataClass
     required this.criadoEm,
     required this.atualizadoEm,
     this.excluidoEm,
+    required this.pendente,
     required this.veiculoId,
     required this.data,
     required this.odometro,
@@ -1280,6 +1357,7 @@ class AbastecimentoLinha extends DataClass
     if (!nullToAbsent || excluidoEm != null) {
       map['excluido_em'] = Variable<DateTime>(excluidoEm);
     }
+    map['pendente'] = Variable<bool>(pendente);
     map['veiculo_id'] = Variable<String>(veiculoId);
     map['data'] = Variable<DateTime>(data);
     map['odometro'] = Variable<int>(odometro);
@@ -1306,6 +1384,7 @@ class AbastecimentoLinha extends DataClass
       excluidoEm: excluidoEm == null && nullToAbsent
           ? const Value.absent()
           : Value(excluidoEm),
+      pendente: Value(pendente),
       veiculoId: Value(veiculoId),
       data: Value(data),
       odometro: Value(odometro),
@@ -1330,6 +1409,7 @@ class AbastecimentoLinha extends DataClass
       criadoEm: serializer.fromJson<DateTime>(json['criadoEm']),
       atualizadoEm: serializer.fromJson<DateTime>(json['atualizadoEm']),
       excluidoEm: serializer.fromJson<DateTime?>(json['excluidoEm']),
+      pendente: serializer.fromJson<bool>(json['pendente']),
       veiculoId: serializer.fromJson<String>(json['veiculoId']),
       data: serializer.fromJson<DateTime>(json['data']),
       odometro: serializer.fromJson<int>(json['odometro']),
@@ -1353,6 +1433,7 @@ class AbastecimentoLinha extends DataClass
       'criadoEm': serializer.toJson<DateTime>(criadoEm),
       'atualizadoEm': serializer.toJson<DateTime>(atualizadoEm),
       'excluidoEm': serializer.toJson<DateTime?>(excluidoEm),
+      'pendente': serializer.toJson<bool>(pendente),
       'veiculoId': serializer.toJson<String>(veiculoId),
       'data': serializer.toJson<DateTime>(data),
       'odometro': serializer.toJson<int>(odometro),
@@ -1372,6 +1453,7 @@ class AbastecimentoLinha extends DataClass
     DateTime? criadoEm,
     DateTime? atualizadoEm,
     Value<DateTime?> excluidoEm = const Value.absent(),
+    bool? pendente,
     String? veiculoId,
     DateTime? data,
     int? odometro,
@@ -1386,6 +1468,7 @@ class AbastecimentoLinha extends DataClass
     criadoEm: criadoEm ?? this.criadoEm,
     atualizadoEm: atualizadoEm ?? this.atualizadoEm,
     excluidoEm: excluidoEm.present ? excluidoEm.value : this.excluidoEm,
+    pendente: pendente ?? this.pendente,
     veiculoId: veiculoId ?? this.veiculoId,
     data: data ?? this.data,
     odometro: odometro ?? this.odometro,
@@ -1406,6 +1489,7 @@ class AbastecimentoLinha extends DataClass
       excluidoEm: data.excluidoEm.present
           ? data.excluidoEm.value
           : this.excluidoEm,
+      pendente: data.pendente.present ? data.pendente.value : this.pendente,
       veiculoId: data.veiculoId.present ? data.veiculoId.value : this.veiculoId,
       data: data.data.present ? data.data.value : this.data,
       odometro: data.odometro.present ? data.odometro.value : this.odometro,
@@ -1433,6 +1517,7 @@ class AbastecimentoLinha extends DataClass
           ..write('criadoEm: $criadoEm, ')
           ..write('atualizadoEm: $atualizadoEm, ')
           ..write('excluidoEm: $excluidoEm, ')
+          ..write('pendente: $pendente, ')
           ..write('veiculoId: $veiculoId, ')
           ..write('data: $data, ')
           ..write('odometro: $odometro, ')
@@ -1452,6 +1537,7 @@ class AbastecimentoLinha extends DataClass
     criadoEm,
     atualizadoEm,
     excluidoEm,
+    pendente,
     veiculoId,
     data,
     odometro,
@@ -1470,6 +1556,7 @@ class AbastecimentoLinha extends DataClass
           other.criadoEm == this.criadoEm &&
           other.atualizadoEm == this.atualizadoEm &&
           other.excluidoEm == this.excluidoEm &&
+          other.pendente == this.pendente &&
           other.veiculoId == this.veiculoId &&
           other.data == this.data &&
           other.odometro == this.odometro &&
@@ -1486,6 +1573,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
   final Value<DateTime> criadoEm;
   final Value<DateTime> atualizadoEm;
   final Value<DateTime?> excluidoEm;
+  final Value<bool> pendente;
   final Value<String> veiculoId;
   final Value<DateTime> data;
   final Value<int> odometro;
@@ -1501,6 +1589,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     this.criadoEm = const Value.absent(),
     this.atualizadoEm = const Value.absent(),
     this.excluidoEm = const Value.absent(),
+    this.pendente = const Value.absent(),
     this.veiculoId = const Value.absent(),
     this.data = const Value.absent(),
     this.odometro = const Value.absent(),
@@ -1517,6 +1606,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     required DateTime criadoEm,
     required DateTime atualizadoEm,
     this.excluidoEm = const Value.absent(),
+    this.pendente = const Value.absent(),
     required String veiculoId,
     required DateTime data,
     required int odometro,
@@ -1543,6 +1633,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     Expression<DateTime>? criadoEm,
     Expression<DateTime>? atualizadoEm,
     Expression<DateTime>? excluidoEm,
+    Expression<bool>? pendente,
     Expression<String>? veiculoId,
     Expression<DateTime>? data,
     Expression<int>? odometro,
@@ -1559,6 +1650,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
       if (criadoEm != null) 'criado_em': criadoEm,
       if (atualizadoEm != null) 'atualizado_em': atualizadoEm,
       if (excluidoEm != null) 'excluido_em': excluidoEm,
+      if (pendente != null) 'pendente': pendente,
       if (veiculoId != null) 'veiculo_id': veiculoId,
       if (data != null) 'data': data,
       if (odometro != null) 'odometro': odometro,
@@ -1578,6 +1670,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     Value<DateTime>? criadoEm,
     Value<DateTime>? atualizadoEm,
     Value<DateTime?>? excluidoEm,
+    Value<bool>? pendente,
     Value<String>? veiculoId,
     Value<DateTime>? data,
     Value<int>? odometro,
@@ -1594,6 +1687,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
       criadoEm: criadoEm ?? this.criadoEm,
       atualizadoEm: atualizadoEm ?? this.atualizadoEm,
       excluidoEm: excluidoEm ?? this.excluidoEm,
+      pendente: pendente ?? this.pendente,
       veiculoId: veiculoId ?? this.veiculoId,
       data: data ?? this.data,
       odometro: odometro ?? this.odometro,
@@ -1621,6 +1715,9 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     }
     if (excluidoEm.present) {
       map['excluido_em'] = Variable<DateTime>(excluidoEm.value);
+    }
+    if (pendente.present) {
+      map['pendente'] = Variable<bool>(pendente.value);
     }
     if (veiculoId.present) {
       map['veiculo_id'] = Variable<String>(veiculoId.value);
@@ -1664,6 +1761,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
           ..write('criadoEm: $criadoEm, ')
           ..write('atualizadoEm: $atualizadoEm, ')
           ..write('excluidoEm: $excluidoEm, ')
+          ..write('pendente: $pendente, ')
           ..write('veiculoId: $veiculoId, ')
           ..write('data: $data, ')
           ..write('odometro: $odometro, ')
@@ -1726,6 +1824,21 @@ class $RecargasTable extends Recargas
     true,
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
+  );
+  static const VerificationMeta _pendenteMeta = const VerificationMeta(
+    'pendente',
+  );
+  @override
+  late final GeneratedColumn<bool> pendente = GeneratedColumn<bool>(
+    'pendente',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("pendente" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
   );
   static const VerificationMeta _veiculoIdMeta = const VerificationMeta(
     'veiculoId',
@@ -1823,6 +1936,7 @@ class $RecargasTable extends Recargas
     criadoEm,
     atualizadoEm,
     excluidoEm,
+    pendente,
     veiculoId,
     data,
     odometro,
@@ -1872,6 +1986,12 @@ class $RecargasTable extends Recargas
       context.handle(
         _excluidoEmMeta,
         excluidoEm.isAcceptableOrUnknown(data['excluido_em']!, _excluidoEmMeta),
+      );
+    }
+    if (data.containsKey('pendente')) {
+      context.handle(
+        _pendenteMeta,
+        pendente.isAcceptableOrUnknown(data['pendente']!, _pendenteMeta),
       );
     }
     if (data.containsKey('veiculo_id')) {
@@ -1964,6 +2084,10 @@ class $RecargasTable extends Recargas
         DriftSqlType.dateTime,
         data['${effectivePrefix}excluido_em'],
       ),
+      pendente: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}pendente'],
+      )!,
       veiculoId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}veiculo_id'],
@@ -2015,6 +2139,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
   final DateTime criadoEm;
   final DateTime atualizadoEm;
   final DateTime? excluidoEm;
+  final bool pendente;
   final String veiculoId;
   final DateTime data;
   final int odometro;
@@ -2028,6 +2153,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
     required this.criadoEm,
     required this.atualizadoEm,
     this.excluidoEm,
+    required this.pendente,
     required this.veiculoId,
     required this.data,
     required this.odometro,
@@ -2046,6 +2172,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
     if (!nullToAbsent || excluidoEm != null) {
       map['excluido_em'] = Variable<DateTime>(excluidoEm);
     }
+    map['pendente'] = Variable<bool>(pendente);
     map['veiculo_id'] = Variable<String>(veiculoId);
     map['data'] = Variable<DateTime>(data);
     map['odometro'] = Variable<int>(odometro);
@@ -2069,6 +2196,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
       excluidoEm: excluidoEm == null && nullToAbsent
           ? const Value.absent()
           : Value(excluidoEm),
+      pendente: Value(pendente),
       veiculoId: Value(veiculoId),
       data: Value(data),
       odometro: Value(odometro),
@@ -2090,6 +2218,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
       criadoEm: serializer.fromJson<DateTime>(json['criadoEm']),
       atualizadoEm: serializer.fromJson<DateTime>(json['atualizadoEm']),
       excluidoEm: serializer.fromJson<DateTime?>(json['excluidoEm']),
+      pendente: serializer.fromJson<bool>(json['pendente']),
       veiculoId: serializer.fromJson<String>(json['veiculoId']),
       data: serializer.fromJson<DateTime>(json['data']),
       odometro: serializer.fromJson<int>(json['odometro']),
@@ -2110,6 +2239,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
       'criadoEm': serializer.toJson<DateTime>(criadoEm),
       'atualizadoEm': serializer.toJson<DateTime>(atualizadoEm),
       'excluidoEm': serializer.toJson<DateTime?>(excluidoEm),
+      'pendente': serializer.toJson<bool>(pendente),
       'veiculoId': serializer.toJson<String>(veiculoId),
       'data': serializer.toJson<DateTime>(data),
       'odometro': serializer.toJson<int>(odometro),
@@ -2128,6 +2258,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
     DateTime? criadoEm,
     DateTime? atualizadoEm,
     Value<DateTime?> excluidoEm = const Value.absent(),
+    bool? pendente,
     String? veiculoId,
     DateTime? data,
     int? odometro,
@@ -2141,6 +2272,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
     criadoEm: criadoEm ?? this.criadoEm,
     atualizadoEm: atualizadoEm ?? this.atualizadoEm,
     excluidoEm: excluidoEm.present ? excluidoEm.value : this.excluidoEm,
+    pendente: pendente ?? this.pendente,
     veiculoId: veiculoId ?? this.veiculoId,
     data: data ?? this.data,
     odometro: odometro ?? this.odometro,
@@ -2160,6 +2292,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
       excluidoEm: data.excluidoEm.present
           ? data.excluidoEm.value
           : this.excluidoEm,
+      pendente: data.pendente.present ? data.pendente.value : this.pendente,
       veiculoId: data.veiculoId.present ? data.veiculoId.value : this.veiculoId,
       data: data.data.present ? data.data.value : this.data,
       odometro: data.odometro.present ? data.odometro.value : this.odometro,
@@ -2184,6 +2317,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
           ..write('criadoEm: $criadoEm, ')
           ..write('atualizadoEm: $atualizadoEm, ')
           ..write('excluidoEm: $excluidoEm, ')
+          ..write('pendente: $pendente, ')
           ..write('veiculoId: $veiculoId, ')
           ..write('data: $data, ')
           ..write('odometro: $odometro, ')
@@ -2202,6 +2336,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
     criadoEm,
     atualizadoEm,
     excluidoEm,
+    pendente,
     veiculoId,
     data,
     odometro,
@@ -2219,6 +2354,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
           other.criadoEm == this.criadoEm &&
           other.atualizadoEm == this.atualizadoEm &&
           other.excluidoEm == this.excluidoEm &&
+          other.pendente == this.pendente &&
           other.veiculoId == this.veiculoId &&
           other.data == this.data &&
           other.odometro == this.odometro &&
@@ -2234,6 +2370,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
   final Value<DateTime> criadoEm;
   final Value<DateTime> atualizadoEm;
   final Value<DateTime?> excluidoEm;
+  final Value<bool> pendente;
   final Value<String> veiculoId;
   final Value<DateTime> data;
   final Value<int> odometro;
@@ -2248,6 +2385,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
     this.criadoEm = const Value.absent(),
     this.atualizadoEm = const Value.absent(),
     this.excluidoEm = const Value.absent(),
+    this.pendente = const Value.absent(),
     this.veiculoId = const Value.absent(),
     this.data = const Value.absent(),
     this.odometro = const Value.absent(),
@@ -2263,6 +2401,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
     required DateTime criadoEm,
     required DateTime atualizadoEm,
     this.excluidoEm = const Value.absent(),
+    this.pendente = const Value.absent(),
     required String veiculoId,
     required DateTime data,
     required int odometro,
@@ -2288,6 +2427,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
     Expression<DateTime>? criadoEm,
     Expression<DateTime>? atualizadoEm,
     Expression<DateTime>? excluidoEm,
+    Expression<bool>? pendente,
     Expression<String>? veiculoId,
     Expression<DateTime>? data,
     Expression<int>? odometro,
@@ -2303,6 +2443,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
       if (criadoEm != null) 'criado_em': criadoEm,
       if (atualizadoEm != null) 'atualizado_em': atualizadoEm,
       if (excluidoEm != null) 'excluido_em': excluidoEm,
+      if (pendente != null) 'pendente': pendente,
       if (veiculoId != null) 'veiculo_id': veiculoId,
       if (data != null) 'data': data,
       if (odometro != null) 'odometro': odometro,
@@ -2320,6 +2461,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
     Value<DateTime>? criadoEm,
     Value<DateTime>? atualizadoEm,
     Value<DateTime?>? excluidoEm,
+    Value<bool>? pendente,
     Value<String>? veiculoId,
     Value<DateTime>? data,
     Value<int>? odometro,
@@ -2335,6 +2477,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
       criadoEm: criadoEm ?? this.criadoEm,
       atualizadoEm: atualizadoEm ?? this.atualizadoEm,
       excluidoEm: excluidoEm ?? this.excluidoEm,
+      pendente: pendente ?? this.pendente,
       veiculoId: veiculoId ?? this.veiculoId,
       data: data ?? this.data,
       odometro: odometro ?? this.odometro,
@@ -2361,6 +2504,9 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
     }
     if (excluidoEm.present) {
       map['excluido_em'] = Variable<DateTime>(excluidoEm.value);
+    }
+    if (pendente.present) {
+      map['pendente'] = Variable<bool>(pendente.value);
     }
     if (veiculoId.present) {
       map['veiculo_id'] = Variable<String>(veiculoId.value);
@@ -2401,6 +2547,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
           ..write('criadoEm: $criadoEm, ')
           ..write('atualizadoEm: $atualizadoEm, ')
           ..write('excluidoEm: $excluidoEm, ')
+          ..write('pendente: $pendente, ')
           ..write('veiculoId: $veiculoId, ')
           ..write('data: $data, ')
           ..write('odometro: $odometro, ')
@@ -2649,6 +2796,7 @@ typedef $$VeiculosTableCreateCompanionBuilder =
       required DateTime criadoEm,
       required DateTime atualizadoEm,
       Value<DateTime?> excluidoEm,
+      Value<bool> pendente,
       Value<String?> usuarioId,
       required String apelido,
       required String marca,
@@ -2668,6 +2816,7 @@ typedef $$VeiculosTableUpdateCompanionBuilder =
       Value<DateTime> criadoEm,
       Value<DateTime> atualizadoEm,
       Value<DateTime?> excluidoEm,
+      Value<bool> pendente,
       Value<String?> usuarioId,
       Value<String> apelido,
       Value<String> marca,
@@ -2749,6 +2898,11 @@ class $$VeiculosTableFilterComposer
 
   ColumnFilters<DateTime> get excluidoEm => $composableBuilder(
     column: $table.excluidoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get pendente => $composableBuilder(
+    column: $table.pendente,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2888,6 +3042,11 @@ class $$VeiculosTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get pendente => $composableBuilder(
+    column: $table.pendente,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get usuarioId => $composableBuilder(
     column: $table.usuarioId,
     builder: (column) => ColumnOrderings(column),
@@ -2968,6 +3127,9 @@ class $$VeiculosTableAnnotationComposer
     column: $table.excluidoEm,
     builder: (column) => column,
   );
+
+  GeneratedColumn<bool> get pendente =>
+      $composableBuilder(column: $table.pendente, builder: (column) => column);
 
   GeneratedColumn<String> get usuarioId =>
       $composableBuilder(column: $table.usuarioId, builder: (column) => column);
@@ -3098,6 +3260,7 @@ class $$VeiculosTableTableManager
                 Value<DateTime> criadoEm = const Value.absent(),
                 Value<DateTime> atualizadoEm = const Value.absent(),
                 Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<bool> pendente = const Value.absent(),
                 Value<String?> usuarioId = const Value.absent(),
                 Value<String> apelido = const Value.absent(),
                 Value<String> marca = const Value.absent(),
@@ -3115,6 +3278,7 @@ class $$VeiculosTableTableManager
                 criadoEm: criadoEm,
                 atualizadoEm: atualizadoEm,
                 excluidoEm: excluidoEm,
+                pendente: pendente,
                 usuarioId: usuarioId,
                 apelido: apelido,
                 marca: marca,
@@ -3134,6 +3298,7 @@ class $$VeiculosTableTableManager
                 required DateTime criadoEm,
                 required DateTime atualizadoEm,
                 Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<bool> pendente = const Value.absent(),
                 Value<String?> usuarioId = const Value.absent(),
                 required String apelido,
                 required String marca,
@@ -3151,6 +3316,7 @@ class $$VeiculosTableTableManager
                 criadoEm: criadoEm,
                 atualizadoEm: atualizadoEm,
                 excluidoEm: excluidoEm,
+                pendente: pendente,
                 usuarioId: usuarioId,
                 apelido: apelido,
                 marca: marca,
@@ -3253,6 +3419,7 @@ typedef $$AbastecimentosTableCreateCompanionBuilder =
       required DateTime criadoEm,
       required DateTime atualizadoEm,
       Value<DateTime?> excluidoEm,
+      Value<bool> pendente,
       required String veiculoId,
       required DateTime data,
       required int odometro,
@@ -3270,6 +3437,7 @@ typedef $$AbastecimentosTableUpdateCompanionBuilder =
       Value<DateTime> criadoEm,
       Value<DateTime> atualizadoEm,
       Value<DateTime?> excluidoEm,
+      Value<bool> pendente,
       Value<String> veiculoId,
       Value<DateTime> data,
       Value<int> odometro,
@@ -3335,6 +3503,11 @@ class $$AbastecimentosTableFilterComposer
 
   ColumnFilters<DateTime> get excluidoEm => $composableBuilder(
     column: $table.excluidoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get pendente => $composableBuilder(
+    column: $table.pendente,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3432,6 +3605,11 @@ class $$AbastecimentosTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get pendente => $composableBuilder(
+    column: $table.pendente,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get data => $composableBuilder(
     column: $table.data,
     builder: (column) => ColumnOrderings(column),
@@ -3520,6 +3698,9 @@ class $$AbastecimentosTableAnnotationComposer
     column: $table.excluidoEm,
     builder: (column) => column,
   );
+
+  GeneratedColumn<bool> get pendente =>
+      $composableBuilder(column: $table.pendente, builder: (column) => column);
 
   GeneratedColumn<DateTime> get data =>
       $composableBuilder(column: $table.data, builder: (column) => column);
@@ -3610,6 +3791,7 @@ class $$AbastecimentosTableTableManager
                 Value<DateTime> criadoEm = const Value.absent(),
                 Value<DateTime> atualizadoEm = const Value.absent(),
                 Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<bool> pendente = const Value.absent(),
                 Value<String> veiculoId = const Value.absent(),
                 Value<DateTime> data = const Value.absent(),
                 Value<int> odometro = const Value.absent(),
@@ -3625,6 +3807,7 @@ class $$AbastecimentosTableTableManager
                 criadoEm: criadoEm,
                 atualizadoEm: atualizadoEm,
                 excluidoEm: excluidoEm,
+                pendente: pendente,
                 veiculoId: veiculoId,
                 data: data,
                 odometro: odometro,
@@ -3642,6 +3825,7 @@ class $$AbastecimentosTableTableManager
                 required DateTime criadoEm,
                 required DateTime atualizadoEm,
                 Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<bool> pendente = const Value.absent(),
                 required String veiculoId,
                 required DateTime data,
                 required int odometro,
@@ -3657,6 +3841,7 @@ class $$AbastecimentosTableTableManager
                 criadoEm: criadoEm,
                 atualizadoEm: atualizadoEm,
                 excluidoEm: excluidoEm,
+                pendente: pendente,
                 veiculoId: veiculoId,
                 data: data,
                 odometro: odometro,
@@ -3742,6 +3927,7 @@ typedef $$RecargasTableCreateCompanionBuilder =
       required DateTime criadoEm,
       required DateTime atualizadoEm,
       Value<DateTime?> excluidoEm,
+      Value<bool> pendente,
       required String veiculoId,
       required DateTime data,
       required int odometro,
@@ -3758,6 +3944,7 @@ typedef $$RecargasTableUpdateCompanionBuilder =
       Value<DateTime> criadoEm,
       Value<DateTime> atualizadoEm,
       Value<DateTime?> excluidoEm,
+      Value<bool> pendente,
       Value<String> veiculoId,
       Value<DateTime> data,
       Value<int> odometro,
@@ -3817,6 +4004,11 @@ class $$RecargasTableFilterComposer
 
   ColumnFilters<DateTime> get excluidoEm => $composableBuilder(
     column: $table.excluidoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get pendente => $composableBuilder(
+    column: $table.pendente,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3909,6 +4101,11 @@ class $$RecargasTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get pendente => $composableBuilder(
+    column: $table.pendente,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get data => $composableBuilder(
     column: $table.data,
     builder: (column) => ColumnOrderings(column),
@@ -3993,6 +4190,9 @@ class $$RecargasTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<bool> get pendente =>
+      $composableBuilder(column: $table.pendente, builder: (column) => column);
+
   GeneratedColumn<DateTime> get data =>
       $composableBuilder(column: $table.data, builder: (column) => column);
 
@@ -4076,6 +4276,7 @@ class $$RecargasTableTableManager
                 Value<DateTime> criadoEm = const Value.absent(),
                 Value<DateTime> atualizadoEm = const Value.absent(),
                 Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<bool> pendente = const Value.absent(),
                 Value<String> veiculoId = const Value.absent(),
                 Value<DateTime> data = const Value.absent(),
                 Value<int> odometro = const Value.absent(),
@@ -4090,6 +4291,7 @@ class $$RecargasTableTableManager
                 criadoEm: criadoEm,
                 atualizadoEm: atualizadoEm,
                 excluidoEm: excluidoEm,
+                pendente: pendente,
                 veiculoId: veiculoId,
                 data: data,
                 odometro: odometro,
@@ -4106,6 +4308,7 @@ class $$RecargasTableTableManager
                 required DateTime criadoEm,
                 required DateTime atualizadoEm,
                 Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<bool> pendente = const Value.absent(),
                 required String veiculoId,
                 required DateTime data,
                 required int odometro,
@@ -4120,6 +4323,7 @@ class $$RecargasTableTableManager
                 criadoEm: criadoEm,
                 atualizadoEm: atualizadoEm,
                 excluidoEm: excluidoEm,
+                pendente: pendente,
                 veiculoId: veiculoId,
                 data: data,
                 odometro: odometro,

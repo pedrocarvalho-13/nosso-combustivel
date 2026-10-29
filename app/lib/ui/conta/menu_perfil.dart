@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/sessao/sessao_controller.dart';
+import '../comum/indicador_sincronizacao.dart';
 
 Future<void> mostrarMenuPerfil(BuildContext context, WidgetRef ref) {
   final usuario = ref.read(sessaoProvider).value?.usuario;
@@ -24,7 +25,9 @@ Future<void> mostrarMenuPerfil(BuildContext context, WidgetRef ref) {
                 usuario?.email ?? '',
                 style: textos.bodyMedium?.copyWith(color: Theme.of(contexto).colorScheme.onSurfaceVariant),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+              const IndicadorSincronizacao(),
+              const SizedBox(height: 16),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                 icon: const Icon(Icons.logout),

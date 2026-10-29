@@ -10,6 +10,7 @@ import 'package:nosso_combustivel/data/provedores.dart';
 import 'package:nosso_combustivel/data/sessao/armazenamento_sessao.dart';
 import 'package:nosso_combustivel/data/sessao/servico_autenticacao.dart';
 import 'package:nosso_combustivel/data/sessao/sessao_controller.dart';
+import 'package:nosso_combustivel/data/sync/sincronizacao_controller.dart';
 import 'package:nosso_combustivel/domain/sessao.dart';
 import 'package:nosso_combustivel/domain/combustivel.dart';
 import 'package:nosso_combustivel/domain/registro_energia.dart';
@@ -69,6 +70,14 @@ class ArmazenamentoEmMemoria implements ArmazenamentoSessao {
   Future<void> limpar() async => _sessao = null;
 }
 
+class SincronizacaoParada extends SincronizacaoController {
+  @override
+  EstadoSincronizacao build() => const EstadoSincronizacao();
+
+  @override
+  Future<void> sincronizar() async {}
+}
+
 class AutenticacaoFalsa extends ServicoAutenticacao {
   AutenticacaoFalsa() : super(Dio());
 
@@ -92,6 +101,8 @@ ProviderScope app({
         ),
         servicoAutenticacaoProvider.overrideWithValue(AutenticacaoFalsa()),
         if (banco != null) bancoLocalProvider.overrideWithValue(banco),
+        sincronizacaoProvider.overrideWith(SincronizacaoParada.new),
+        pendentesProvider.overrideWith((ref) => Stream.value(0)),
         veiculosProvider.overrideWith((ref) => Stream.value(veiculos)),
         veiculoAtivoIdProvider.overrideWith((ref) => Stream.value(veiculos.firstOrNull?.id)),
         registrosDoAtivoProvider.overrideWith((ref) => Stream.value(registros)),
