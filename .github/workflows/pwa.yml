@@ -37,6 +37,7 @@ jobs:
           flutter build web --release
           --base-href /nosso-combustivel/
           --dart-define=API_URL=${{ vars.API_URL || 'https://nosso-combustivel-api.onrender.com' }}
+          --dart-define=VERSAO=${{ github.run_number }}
       - uses: actions/upload-pages-artifact@v4
         with:
           path: app/build/web

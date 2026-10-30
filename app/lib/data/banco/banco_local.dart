@@ -90,7 +90,11 @@ class BancoLocal extends _$BancoLocal {
   Future<void> _adicionarSeFaltar(Migrator migrador, TableInfo tabela, GeneratedColumn coluna) async {
     final existentes = await customSelect('PRAGMA table_info("${tabela.actualTableName}")').get();
     if (existentes.any((linha) => linha.read<String>('name') == coluna.name)) return;
-    await migrador.addColumn(tabela, coluna);
+    try {
+      await migrador.addColumn(tabela, coluna);
+    } on Object catch (erro) {
+      if (!erro.toString().contains('duplicate column name')) rethrow;
+    }
   }
 
   static QueryExecutor _abrir() => driftDatabase(

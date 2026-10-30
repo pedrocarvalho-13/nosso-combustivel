@@ -174,6 +174,12 @@ class _ContaViewState extends ConsumerState<ContaView> {
                     onPressed: estado.enviando ? null : () => context.go(criando ? Rotas.entrar : Rotas.criarConta),
                     child: Text(criando ? 'Já tenho conta' : 'Ainda não tenho conta'),
                   ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Versão ${const String.fromEnvironment('VERSAO', defaultValue: 'local')}',
+                    textAlign: TextAlign.center,
+                    style: textos.bodySmall?.copyWith(color: esquema.onSurfaceVariant),
+                  ),
                 ],
               ),
             ),

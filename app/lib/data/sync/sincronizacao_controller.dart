@@ -97,6 +97,10 @@ class SincronizacaoController extends Notifier<EstadoSincronizacao> {
           ultimaEm: state.ultimaEm,
         );
       }
+    } on Object {
+      if (ref.mounted) {
+        state = EstadoSincronizacao(situacao: SituacaoSync.erro, ultimaEm: state.ultimaEm);
+      }
     } finally {
       _emAndamento = false;
     }
