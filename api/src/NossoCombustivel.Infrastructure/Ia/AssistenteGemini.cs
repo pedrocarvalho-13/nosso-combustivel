@@ -41,19 +41,13 @@ public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opc
 
     public async Task<LeituraFoto?> LerFotoAsync(byte[] imagem, string tipoMime, TipoLeitura tipo, CancellationToken cancelamento)
     {
-        var instrucao = tipo == TipoLeitura.Abastecimento
-            ? "A foto é do visor de uma bomba de combustível, de um comprovante de posto ou do painel de um veículo, no Brasil.\n" +
-              "Extraia os litros abastecidos, o preço por litro em reais, o valor total em reais, o odômetro em km " +
-              "(só se aparecer o painel) e o combustível.\n" +
-              "Use null no que não aparecer com clareza. Não calcule nem invente valores que não estejam visíveis."
-            : "A foto é da tela de um carregador de veículo elétrico, de um aplicativo de recarga, de um comprovante ou do painel do veículo, no Brasil.\n" +
-              "Extraia a energia em kWh, o preço por kWh em reais, o valor total em reais e o odômetro em km (só se aparecer o painel).\n" +
-              "Use null no que não aparecer com clareza. Não calcule nem invente valores que não estejam visíveis.";
+        var instrucao = tipo == TipoLeitura.Abastecimento ? InstrucaoAbastecimento : InstrucaoRecarga;
         var esquema = new JsonObject
         {
             ["type"] = "OBJECT",
             ["properties"] = new JsonObject
             {
+                ["descricao"] = new JsonObject { ["type"] = "STRING" },
                 ["litros"] = Numero(),
                 ["precoLitro"] = Numero(),
                 ["kwh"] = Numero(),
@@ -66,7 +60,9 @@ public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opc
                     ["nullable"] = true,
                     ["enum"] = new JsonArray("gasolina", "etanol", "dieselS10", "dieselS500", "gnv")
                 }
-            }
+            },
+            ["propertyOrdering"] = new JsonArray(
+                "descricao", "litros", "precoLitro", "kwh", "precoKwh", "valorTotal", "odometro", "combustivel")
         };
         JsonNode[] partes =
         [
@@ -76,10 +72,11 @@ public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opc
                 ["inline_data"] = new JsonObject { ["mime_type"] = tipoMime, ["data"] = Convert.ToBase64String(imagem) }
             }
         ];
-        var texto = await GerarAsync(partes, esquema, cancelamento);
+        var texto = await GerarAsync(partes, esquema, cancelamento, altaResolucao: true);
         if (texto is null) return null;
         var bruta = JsonSerializer.Deserialize<LeituraBruta>(texto, Json);
         if (bruta is null) return null;
+        log.LogInformation("Leitura de foto ({Tipo}): {Descricao}", tipo, bruta.Descricao);
         return new LeituraFoto(
             Positivo(bruta.Litros),
             Positivo(bruta.PrecoLitro),
@@ -90,17 +87,20 @@ public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opc
             Enum.TryParse<Combustivel>(bruta.Combustivel, ignoreCase: true, out var combustivel) ? combustivel : null);
     }
 
-    private async Task<string?> GerarAsync(JsonNode[] partes, JsonObject esquema, CancellationToken cancelamento)
+    private async Task<string?> GerarAsync(
+        JsonNode[] partes, JsonObject esquema, CancellationToken cancelamento, bool altaResolucao = false)
     {
+        var configuracao = new JsonObject
+        {
+            ["temperature"] = 0,
+            ["responseMimeType"] = "application/json",
+            ["responseSchema"] = esquema
+        };
+        if (altaResolucao) configuracao["mediaResolution"] = "MEDIA_RESOLUTION_HIGH";
         var corpo = new JsonObject
         {
             ["contents"] = new JsonArray(new JsonObject { ["parts"] = new JsonArray(partes) }),
-            ["generationConfig"] = new JsonObject
-            {
-                ["temperature"] = 0,
-                ["responseMimeType"] = "application/json",
-                ["responseSchema"] = esquema
-            }
+            ["generationConfig"] = configuracao
         };
         using var requisicao = new HttpRequestMessage(HttpMethod.Post, $"models/{opcoes.Value.Modelo}:generateContent")
         {
@@ -127,10 +127,35 @@ public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opc
         }
     }
 
+    private const string InstrucaoAbastecimento = """
+        Leia a foto de um abastecimento feito no Brasil. Ela pode ser do visor da bomba, do comprovante do posto ou do painel do veículo.
+        Visor da bomba: normalmente tem três mostradores de dígitos luminosos, cada um com um rótulo impresso ao lado ou acima.
+        - "Total a pagar", "Valor", "R$" ou "Importe": o valor total em reais, com 2 casas decimais.
+        - "Litros", "Volume" ou "L": a quantidade abastecida, normalmente com 2 ou 3 casas decimais.
+        - "Preço por litro", "R$/L" ou "Preço/L": quase sempre com 3 casas decimais, entre R$ 3,000 e R$ 9,000.
+        Ignore o encerrante ou totalizador (contador acumulado da bomba, com muitos dígitos e sem vírgula) e qualquer número de bico ou de bomba.
+        Os mostradores usam vírgula ou ponto como separador decimal; quando o separador não aparecer, use as casas decimais típicas acima.
+        Confira a coerência: litros vezes preço por litro deve dar o valor total, com diferença de poucos centavos.
+        Comprovante: procure as linhas de quantidade em litros, valor unitário e valor total.
+        Painel do veículo: leia só o odômetro total em km, não o parcial (trip).
+        Em descricao, diga em uma frase quais rótulos e números você leu em cada mostrador.
+        Use null no que não estiver visível com clareza. Não invente valores.
+        """;
+
+    private const string InstrucaoRecarga = """
+        Leia a foto de uma recarga de veículo elétrico feita no Brasil. Ela pode ser da tela de um carregador, de um aplicativo de recarga, de um comprovante ou do painel do veículo.
+        Extraia a energia entregue em kWh, o preço por kWh em reais (normalmente entre R$ 0,50 e R$ 4,00), o valor total em reais e o odômetro total em km (só se aparecer o painel; ignore o parcial).
+        Ignore percentuais de bateria, tempo de recarga e potência em kW.
+        Confira a coerência: kWh vezes preço por kWh deve dar o valor total.
+        Em descricao, diga em uma frase quais rótulos e números você leu.
+        Use null no que não estiver visível com clareza. Não invente valores.
+        """;
+
     private static JsonObject Numero() => new() { ["type"] = "NUMBER", ["nullable"] = true };
 
     private static decimal? Positivo(decimal? valor) => valor is > 0 ? valor : null;
 
     private sealed record LeituraBruta(
+        string? Descricao,
         decimal? Litros, decimal? PrecoLitro, decimal? Kwh, decimal? PrecoKwh, decimal? ValorTotal, int? Odometro, string? Combustivel);
 }

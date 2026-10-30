@@ -48,7 +48,8 @@ public sealed class ServicoIa(IAssistenteIa assistente, IRepositorioCapacidades 
         if (!assistente.Disponivel)
             return Resultado<LeituraFoto>.Falha(TipoErro.Indisponivel, "A IA não está configurada.");
 
-        var leitura = await assistente.LerFotoAsync(imagem, tipoMime, tipo, cancelamento);
+        var lida = await assistente.LerFotoAsync(imagem, tipoMime, tipo, cancelamento);
+        var leitura = lida is null ? null : ConferenciaLeitura.Conferir(lida, tipo);
         var vazia = leitura is null || leitura == new LeituraFoto(null, null, null, null, null, null, null);
         return vazia
             ? Resultado<LeituraFoto>.Falha(TipoErro.NaoEncontrado, "Não consegui ler valores nessa foto. Tente outra mais nítida.")
