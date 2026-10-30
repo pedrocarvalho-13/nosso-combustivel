@@ -10,6 +10,7 @@ namespace NossoCombustivel.Infrastructure.Ia;
 
 public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opcoes, ILogger<AssistenteGemini> log) : IAssistenteIa
 {
+    private const int TentativasPorModelo = 2;
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     public bool Disponivel => !string.IsNullOrWhiteSpace(opcoes.Value.Chave);
@@ -103,9 +104,26 @@ public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opc
             ["contents"] = new JsonArray(new JsonObject { ["parts"] = new JsonArray(partes) }),
             ["generationConfig"] = configuracao
         };
-        using var requisicao = new HttpRequestMessage(HttpMethod.Post, $"models/{opcoes.Value.Modelo}:generateContent")
+
+        string[] modelos = [opcoes.Value.Modelo, opcoes.Value.ModeloReserva];
+        foreach (var modelo in modelos.Where(m => !string.IsNullOrWhiteSpace(m)).Distinct())
         {
-            Content = JsonContent.Create(corpo)
+            for (var tentativa = 1; tentativa <= TentativasPorModelo; tentativa++)
+            {
+                var (texto, repetir) = await ChamarAsync(modelo, corpo, cancelamento);
+                if (texto is not null) return texto;
+                if (!repetir) break;
+                if (tentativa < TentativasPorModelo) await Task.Delay(TimeSpan.FromSeconds(2 * tentativa), cancelamento);
+            }
+        }
+        throw new IaIndisponivelException();
+    }
+
+    private async Task<(string? Texto, bool Repetir)> ChamarAsync(string modelo, JsonObject corpo, CancellationToken cancelamento)
+    {
+        using var requisicao = new HttpRequestMessage(HttpMethod.Post, $"models/{modelo}:generateContent")
+        {
+            Content = JsonContent.Create(corpo.DeepClone())
         };
         requisicao.Headers.Add("x-goog-api-key", opcoes.Value.Chave);
 
@@ -113,20 +131,27 @@ public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opc
         try
         {
             using var resposta = await http.SendAsync(requisicao, cancelamento);
-            log.LogInformation("Gemini respondeu {Status} em {Segundos:F1} s", (int)resposta.StatusCode, cronometro.Elapsed.TotalSeconds);
+            log.LogInformation("Gemini ({Modelo}) respondeu {Status} em {Segundos:F1} s",
+                modelo, (int)resposta.StatusCode, cronometro.Elapsed.TotalSeconds);
             if (!resposta.IsSuccessStatusCode)
             {
-                log.LogWarning("Gemini respondeu {Status}: {Corpo}", (int)resposta.StatusCode,
+                log.LogWarning("Gemini ({Modelo}) respondeu {Status}: {Corpo}", modelo, (int)resposta.StatusCode,
                     await resposta.Content.ReadAsStringAsync(cancelamento));
-                return null;
+                var codigo = (int)resposta.StatusCode;
+                return (null, codigo is 429 or >= 500);
             }
             var json = await resposta.Content.ReadFromJsonAsync<JsonNode>(cancelamento);
-            return json?["candidates"]?[0]?["content"]?["parts"]?[0]?["text"]?.GetValue<string>();
+            var partesResposta = json?["candidates"]?[0]?["content"]?["parts"]?.AsArray() ?? [];
+            var texto = string.Concat(partesResposta
+                .Where(p => p?["thought"]?.GetValue<bool>() != true)
+                .Select(p => p?["text"]?.GetValue<string>()));
+            return (string.IsNullOrWhiteSpace(texto) ? null : texto, false);
         }
         catch (Exception erro) when (erro is HttpRequestException or TaskCanceledException or JsonException)
         {
-            log.LogWarning(erro, "Falha ao chamar o Gemini depois de {Segundos:F1} s", cronometro.Elapsed.TotalSeconds);
-            return null;
+            log.LogWarning(erro, "Falha ao chamar o Gemini ({Modelo}) depois de {Segundos:F1} s",
+                modelo, cronometro.Elapsed.TotalSeconds);
+            return (null, erro is HttpRequestException);
         }
     }
 

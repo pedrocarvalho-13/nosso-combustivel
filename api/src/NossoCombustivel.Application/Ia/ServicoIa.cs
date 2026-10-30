@@ -6,6 +6,7 @@ namespace NossoCombustivel.Application.Ia;
 
 public sealed class ServicoIa(IAssistenteIa assistente, IRepositorioCapacidades capacidades)
 {
+    private const string MensagemOcupada = "A IA do Google está ocupada agora. Tente de novo em alguns instantes.";
     public const int TamanhoMaximoImagem = 4 * 1024 * 1024;
     private static readonly string[] TiposAceitos = ["image/jpeg", "image/png", "image/webp", "image/heic"];
 
@@ -22,7 +23,15 @@ public sealed class ServicoIa(IAssistenteIa assistente, IRepositorioCapacidades 
         if (!assistente.Disponivel)
             return Resultado<CapacidadeEstimada>.Falha(TipoErro.Indisponivel, "A IA não está configurada.");
 
-        var estimada = await assistente.EstimarCapacidadeAsync(veiculo, cancelamento);
+        CapacidadeEstimada? estimada;
+        try
+        {
+            estimada = await assistente.EstimarCapacidadeAsync(veiculo, cancelamento);
+        }
+        catch (IaIndisponivelException)
+        {
+            return Resultado<CapacidadeEstimada>.Falha(TipoErro.Indisponivel, MensagemOcupada);
+        }
         if (estimada is null || (estimada.TanqueL is null && estimada.BateriaKwh is null))
             return Resultado<CapacidadeEstimada>.Falha(TipoErro.NaoEncontrado, "A IA não soube a capacidade deste veículo.");
 
@@ -48,7 +57,15 @@ public sealed class ServicoIa(IAssistenteIa assistente, IRepositorioCapacidades 
         if (!assistente.Disponivel)
             return Resultado<LeituraFoto>.Falha(TipoErro.Indisponivel, "A IA não está configurada.");
 
-        var lida = await assistente.LerFotoAsync(imagem, tipoMime, tipo, cancelamento);
+        LeituraFoto? lida;
+        try
+        {
+            lida = await assistente.LerFotoAsync(imagem, tipoMime, tipo, cancelamento);
+        }
+        catch (IaIndisponivelException)
+        {
+            return Resultado<LeituraFoto>.Falha(TipoErro.Indisponivel, MensagemOcupada);
+        }
         var leitura = lida is null ? null : ConferenciaLeitura.Conferir(lida, tipo);
         var vazia = leitura is null || leitura == new LeituraFoto(null, null, null, null, null, null, null);
         return vazia

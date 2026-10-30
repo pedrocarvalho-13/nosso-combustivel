@@ -21,6 +21,8 @@ public sealed record LeituraFoto(
     int? Odometro,
     Combustivel? Combustivel);
 
+public sealed class IaIndisponivelException() : Exception("A IA está ocupada agora.");
+
 public interface IAssistenteIa
 {
     bool Disponivel { get; }

@@ -16,6 +16,7 @@ public sealed class AssistenteFalso : IAssistenteIa
 {
     public int ChamadasCapacidade { get; private set; }
     public bool Disponivel { get; set; } = true;
+    public bool Ocupada { get; set; }
     public CapacidadeEstimada? Capacidade { get; set; } = new(55m, null);
     public LeituraFoto? Leitura { get; set; } = new(40.5m, 6.19m, null, null, 250.70m, null, Combustivel.Gasolina);
 
@@ -26,7 +27,7 @@ public sealed class AssistenteFalso : IAssistenteIa
     }
 
     public Task<LeituraFoto?> LerFotoAsync(byte[] imagem, string tipoMime, TipoLeitura tipo, CancellationToken cancelamento) =>
-        Task.FromResult(Leitura);
+        Ocupada ? throw new IaIndisponivelException() : Task.FromResult(Leitura);
 }
 
 public sealed class FabricaApiComIa : IDisposable
@@ -133,5 +134,24 @@ public class IaTests(FabricaApiComIa fabrica) : IClassFixture<FabricaApiComIa>
             new LeituraRequisicao(TipoLeitura.Abastecimento, Convert.ToBase64String([1]), "application/pdf"), Json);
 
         Assert.Equal(HttpStatusCode.BadRequest, resposta.StatusCode);
+    }
+
+    [Fact]
+    public async Task Leitura_com_a_ia_ocupada_avisa_para_tentar_de_novo()
+    {
+        var cliente = await ClienteLogadoAsync();
+        fabrica.Assistente.Ocupada = true;
+        try
+        {
+            var resposta = await cliente.PostAsJsonAsync("/ia/leitura",
+                new LeituraRequisicao(TipoLeitura.Abastecimento, Convert.ToBase64String([1, 2]), "image/jpeg"), Json);
+
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, resposta.StatusCode);
+            Assert.Contains("ocupada", await resposta.Content.ReadAsStringAsync());
+        }
+        finally
+        {
+            fabrica.Assistente.Ocupada = false;
+        }
     }
 }
