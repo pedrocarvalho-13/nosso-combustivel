@@ -94,7 +94,8 @@ public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opc
         {
             ["temperature"] = 0,
             ["responseMimeType"] = "application/json",
-            ["responseSchema"] = esquema
+            ["responseSchema"] = esquema,
+            ["thinkingConfig"] = new JsonObject { ["thinkingBudget"] = opcoes.Value.OrcamentoRaciocinio }
         };
         if (altaResolucao) configuracao["mediaResolution"] = "MEDIA_RESOLUTION_HIGH";
         var corpo = new JsonObject
@@ -108,9 +109,11 @@ public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opc
         };
         requisicao.Headers.Add("x-goog-api-key", opcoes.Value.Chave);
 
+        var cronometro = System.Diagnostics.Stopwatch.StartNew();
         try
         {
             using var resposta = await http.SendAsync(requisicao, cancelamento);
+            log.LogInformation("Gemini respondeu {Status} em {Segundos:F1} s", (int)resposta.StatusCode, cronometro.Elapsed.TotalSeconds);
             if (!resposta.IsSuccessStatusCode)
             {
                 log.LogWarning("Gemini respondeu {Status}: {Corpo}", (int)resposta.StatusCode,
@@ -122,7 +125,7 @@ public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opc
         }
         catch (Exception erro) when (erro is HttpRequestException or TaskCanceledException or JsonException)
         {
-            log.LogWarning(erro, "Falha ao chamar o Gemini");
+            log.LogWarning(erro, "Falha ao chamar o Gemini depois de {Segundos:F1} s", cronometro.Elapsed.TotalSeconds);
             return null;
         }
     }

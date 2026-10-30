@@ -94,7 +94,11 @@ class ClienteIa {
 
   Future<Map<String, dynamic>> _enviar(String caminho, Map<String, dynamic> corpo) async {
     try {
-      final resposta = await _dio.post<Map<String, dynamic>>(caminho, data: corpo);
+      final resposta = await _dio.post<Map<String, dynamic>>(
+        caminho,
+        data: corpo,
+        options: Options(receiveTimeout: const Duration(seconds: 100)),
+      );
       return resposta.data!;
     } on DioException catch (erro) {
       final dados = erro.response?.data;

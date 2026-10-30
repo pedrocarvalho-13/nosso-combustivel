@@ -51,8 +51,9 @@ public static class DependencyInjection
         services.Configure<OpcoesGemini>(configuration.GetSection(OpcoesGemini.Secao));
         services.AddHttpClient<IAssistenteIa, AssistenteGemini>((provedor, http) =>
         {
-            http.BaseAddress = new Uri(provedor.GetRequiredService<IOptions<OpcoesGemini>>().Value.Endereco);
-            http.Timeout = TimeSpan.FromSeconds(40);
+            var gemini = provedor.GetRequiredService<IOptions<OpcoesGemini>>().Value;
+            http.BaseAddress = new Uri(gemini.Endereco);
+            http.Timeout = TimeSpan.FromSeconds(gemini.SegundosLimite);
         });
 
         return services;
