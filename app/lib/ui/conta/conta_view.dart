@@ -57,17 +57,7 @@ class _ContaViewState extends ConsumerState<ContaView> {
               shrinkWrap: true,
               padding: const EdgeInsets.all(24),
               children: [
-                Center(
-                  child: Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: esquema.primaryContainer,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Icon(Icons.local_gas_station, color: esquema.primary, size: 32),
-                  ),
-                ),
+                Center(child: Image.asset('assets/logo.png', width: 72, height: 72, semanticLabel: 'Logo do Nosso Combustível')),
                 const SizedBox(height: 16),
                 Text(
                   'Nosso Combustível',

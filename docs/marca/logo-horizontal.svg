@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-label="Nosso Combustível">
+  <defs>
+    <linearGradient id="energia" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#F97316"/>
+      <stop offset="0.52" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#10B981"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="360" fill="#0F1115"/>
+  <g transform="translate(60 52) scale(0.5)">
+    <path d="M256 70C256 70 124 222 124 316a132 132 0 0 0 264 0C388 222 256 70 256 70Z" fill="url(#energia)"/>
+    <path d="M278 196 204 322h50l-18 96 80-134h-50l12-88Z" fill="#0F1115"/>
+  </g>
+  <text x="340" y="172" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="92" font-weight="700" fill="#E6E8EC">Nosso</text>
+  <text x="340" y="270" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="92" font-weight="700" fill="#E6E8EC">Combustível</text>
+  <rect x="344" y="296" width="72" height="8" rx="4" fill="#F97316"/>
+  <rect x="428" y="296" width="72" height="8" rx="4" fill="#3B82F6"/>
+  <rect x="512" y="296" width="72" height="8" rx="4" fill="#10B981"/>
+</svg>
