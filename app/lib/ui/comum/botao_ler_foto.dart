@@ -52,7 +52,9 @@ class _BotaoLerFotoState extends ConsumerState<BotaoLerFoto> {
       final leitura = await ref.read(clienteIaProvider).lerFoto(bytes, _tipoMime(foto), widget.tipo);
       if (!mounted) return;
       widget.aoLer(leitura);
-      _avisar('Valores preenchidos pela foto. Confira antes de salvar.');
+      _avisar(widget.tipo == TipoLeitura.hodometro
+          ? 'Hodômetro preenchido pela foto. Confira antes de salvar.'
+          : 'Valores preenchidos pela foto. Confira antes de salvar.');
     } on ErroIa catch (erro) {
       if (mounted) _avisar(erro.mensagem);
     } finally {
@@ -72,18 +74,23 @@ class _BotaoLerFotoState extends ConsumerState<BotaoLerFoto> {
 
   @override
   Widget build(BuildContext context) {
-    final texto = widget.tipo == TipoLeitura.abastecimento
-        ? 'Foto da bomba, do comprovante ou do painel'
-        : 'Foto do carregador, do comprovante ou do painel';
+    final (rotulo, texto, icone) = switch (widget.tipo) {
+      TipoLeitura.abastecimento => ('Foto da bomba', 'Foto do visor da bomba ou do comprovante', Icons.local_gas_station_outlined),
+      TipoLeitura.recarga => ('Foto do carregador', 'Foto da tela do carregador ou do comprovante', Icons.ev_station_outlined),
+      TipoLeitura.hodometro => ('Foto do hodômetro', 'Foto do painel mostrando o hodômetro total', Icons.speed_outlined),
+    };
     return Tooltip(
       message: texto,
       child: OutlinedButton.icon(
         onPressed: _lendo ? null : _ler,
         icon: _lendo
             ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-            : const Icon(Icons.document_scanner_outlined),
-        label: Text(_lendo ? 'Lendo a foto...' : 'Preencher com foto'),
-        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+            : Icon(icone),
+        label: FittedBox(fit: BoxFit.scaleDown, child: Text(_lendo ? 'Lendo...' : rotulo)),
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size.fromHeight(48),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+        ),
       ),
     );
   }

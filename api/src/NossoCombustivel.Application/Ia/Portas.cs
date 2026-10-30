@@ -9,7 +9,8 @@ public sealed record CapacidadeEstimada(decimal? TanqueL, decimal? BateriaKwh);
 public enum TipoLeitura
 {
     Abastecimento,
-    Recarga
+    Recarga,
+    Hodometro
 }
 
 public sealed record LeituraFoto(

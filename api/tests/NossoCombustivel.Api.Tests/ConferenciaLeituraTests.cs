@@ -54,4 +54,22 @@ public class ConferenciaLeituraTests
         Assert.Equal(1.2m, conferida.PrecoKwh);
         Assert.Equal(36m, conferida.ValorTotal);
     }
+
+    [Fact]
+    public void Foto_do_hodometro_traz_so_a_quilometragem()
+    {
+        var lida = new LeituraFoto(40m, 6m, null, null, 240m, 52_318, Combustivel.Gasolina);
+
+        var conferida = ConferenciaLeitura.Conferir(lida, TipoLeitura.Hodometro);
+
+        Assert.Equal(new LeituraFoto(null, null, null, null, null, 52_318, null), conferida);
+    }
+
+    [Fact]
+    public void Foto_da_bomba_nao_traz_hodometro()
+    {
+        var lida = new LeituraFoto(40.5m, 6.19m, null, null, 250.70m, 52_318, Combustivel.Gasolina);
+
+        Assert.Null(ConferenciaLeitura.Conferir(lida, TipoLeitura.Abastecimento).Odometro);
+    }
 }

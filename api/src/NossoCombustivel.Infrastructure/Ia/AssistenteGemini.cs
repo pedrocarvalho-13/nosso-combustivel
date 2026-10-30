@@ -42,7 +42,12 @@ public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opc
 
     public async Task<LeituraFoto?> LerFotoAsync(byte[] imagem, string tipoMime, TipoLeitura tipo, CancellationToken cancelamento)
     {
-        var instrucao = tipo == TipoLeitura.Abastecimento ? InstrucaoAbastecimento : InstrucaoRecarga;
+        var instrucao = tipo switch
+        {
+            TipoLeitura.Abastecimento => InstrucaoAbastecimento,
+            TipoLeitura.Recarga => InstrucaoRecarga,
+            _ => InstrucaoHodometro
+        };
         var esquema = new JsonObject
         {
             ["type"] = "OBJECT",
@@ -156,7 +161,7 @@ public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opc
     }
 
     private const string InstrucaoAbastecimento = """
-        Leia a foto de um abastecimento feito no Brasil. Ela pode ser do visor da bomba, do comprovante do posto ou do painel do veículo.
+        Leia a foto de um abastecimento feito no Brasil. Ela pode ser do visor da bomba ou do comprovante do posto.
         Visor da bomba: normalmente tem três mostradores de dígitos luminosos, cada um com um rótulo impresso ao lado ou acima.
         - "Total a pagar", "Valor", "R$" ou "Importe": o valor total em reais, com 2 casas decimais.
         - "Litros", "Volume" ou "L": a quantidade abastecida, normalmente com 2 ou 3 casas decimais.
@@ -165,18 +170,30 @@ public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opc
         Os mostradores usam vírgula ou ponto como separador decimal; quando o separador não aparecer, use as casas decimais típicas acima.
         Confira a coerência: litros vezes preço por litro deve dar o valor total, com diferença de poucos centavos.
         Comprovante: procure as linhas de quantidade em litros, valor unitário e valor total.
-        Painel do veículo: leia só o odômetro total em km, não o parcial (trip).
+        Não preencha odometro.
         Em descricao, diga em uma frase quais rótulos e números você leu em cada mostrador.
         Use null no que não estiver visível com clareza. Não invente valores.
         """;
 
     private const string InstrucaoRecarga = """
-        Leia a foto de uma recarga de veículo elétrico feita no Brasil. Ela pode ser da tela de um carregador, de um aplicativo de recarga, de um comprovante ou do painel do veículo.
-        Extraia a energia entregue em kWh, o preço por kWh em reais (normalmente entre R$ 0,50 e R$ 4,00), o valor total em reais e o odômetro total em km (só se aparecer o painel; ignore o parcial).
+        Leia a foto de uma recarga de veículo elétrico feita no Brasil. Ela pode ser da tela de um carregador, de um aplicativo de recarga ou de um comprovante.
+        Extraia a energia entregue em kWh, o preço por kWh em reais (normalmente entre R$ 0,50 e R$ 4,00) e o valor total em reais. Não preencha odometro.
         Ignore percentuais de bateria, tempo de recarga e potência em kW.
         Confira a coerência: kWh vezes preço por kWh deve dar o valor total.
         Em descricao, diga em uma frase quais rótulos e números você leu.
         Use null no que não estiver visível com clareza. Não invente valores.
+        """;
+
+    private const string InstrucaoHodometro = """
+        Leia a foto do painel de instrumentos de um carro ou moto.
+        Extraia só o hodômetro total (odômetro), em km: a quilometragem acumulada do veículo, um número inteiro, geralmente com 4 a 6 dígitos.
+        Pode ser um visor digital (às vezes com "ODO" ou "km" ao lado) ou um contador mecânico de rodinhas.
+        Ignore o hodômetro parcial ("TRIP", "A", "B", normalmente com uma casa decimal), a autonomia ("range", "km restantes"), o relógio,
+        a temperatura, o consumo médio, a velocidade e o conta-giros.
+        Ignore dígitos depois da vírgula ou do ponto e o último dígito de cor diferente nos contadores mecânicos.
+        Deixe litros, precos, kwh, valorTotal e combustivel como null.
+        Em descricao, diga em uma frase onde está o hodômetro e qual número você leu.
+        Use null se o hodômetro total não estiver visível com clareza. Não invente valores.
         """;
 
     private static JsonObject Numero() => new() { ["type"] = "NUMBER", ["nullable"] = true };

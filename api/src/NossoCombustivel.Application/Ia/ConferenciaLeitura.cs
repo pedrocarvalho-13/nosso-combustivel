@@ -7,8 +7,16 @@ public static class ConferenciaLeitura
     private static readonly Faixas Combustivel = new(2m, 15m, 300m);
     private static readonly Faixas Energia = new(0.2m, 6m, 200m);
 
+    private const int HodometroMaximo = 2_000_000;
+
     public static LeituraFoto Conferir(LeituraFoto leitura, TipoLeitura tipo)
     {
+        if (tipo == TipoLeitura.Hodometro)
+        {
+            var hodometro = leitura.Odometro is > 0 and < HodometroMaximo ? leitura.Odometro : null;
+            return new LeituraFoto(null, null, null, null, null, hodometro, null);
+        }
+
         var abastecimento = tipo == TipoLeitura.Abastecimento;
         var faixas = abastecimento ? Combustivel : Energia;
         var (quantidade, preco, total) = Ajustar(
@@ -18,8 +26,11 @@ public static class ConferenciaLeitura
             faixas);
 
         return abastecimento
-            ? leitura with { Litros = quantidade, PrecoLitro = preco, ValorTotal = total, Kwh = null, PrecoKwh = null }
-            : leitura with { Kwh = quantidade, PrecoKwh = preco, ValorTotal = total, Litros = null, PrecoLitro = null, Combustivel = null };
+            ? leitura with { Litros = quantidade, PrecoLitro = preco, ValorTotal = total, Kwh = null, PrecoKwh = null, Odometro = null }
+            : leitura with
+            {
+                Kwh = quantidade, PrecoKwh = preco, ValorTotal = total, Litros = null, PrecoLitro = null, Combustivel = null, Odometro = null
+            };
     }
 
     private static (decimal? Quantidade, decimal? Preco, decimal? Total) Ajustar(

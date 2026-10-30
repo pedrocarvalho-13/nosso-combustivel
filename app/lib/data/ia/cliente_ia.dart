@@ -9,7 +9,7 @@ import '../../domain/tipo_energia.dart';
 import '../../domain/tipo_veiculo.dart';
 import '../sync/cliente_sync.dart';
 
-enum TipoLeitura { abastecimento, recarga }
+enum TipoLeitura { abastecimento, recarga, hodometro }
 
 class CapacidadeSugerida {
   const CapacidadeSugerida({this.tanqueL, this.bateriaKwh});

@@ -145,7 +145,13 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            BotaoLerFoto(tipo: TipoLeitura.recarga, aoLer: _preencherDaFoto),
+            Row(
+              children: [
+                Expanded(child: BotaoLerFoto(tipo: TipoLeitura.recarga, aoLer: _preencherDaFoto)),
+                const SizedBox(width: 8),
+                Expanded(child: BotaoLerFoto(tipo: TipoLeitura.hodometro, aoLer: _preencherDaFoto)),
+              ],
+            ),
             const SizedBox(height: 16),
             SegmentedButton<LocalRecarga>(
               segments: [
