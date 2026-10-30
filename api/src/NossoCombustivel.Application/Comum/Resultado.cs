@@ -4,7 +4,9 @@ public enum TipoErro
 {
     Validacao,
     Conflito,
-    NaoAutorizado
+    NaoAutorizado,
+    NaoEncontrado,
+    Indisponivel
 }
 
 public sealed record ErroAplicacao(TipoErro Tipo, string Mensagem);

@@ -15,6 +15,7 @@ public sealed class NossoCombustivelDbContext(DbContextOptions<NossoCombustivelD
     public DbSet<Veiculo> Veiculos => Set<Veiculo>();
     public DbSet<Abastecimento> Abastecimentos => Set<Abastecimento>();
     public DbSet<Recarga> Recargas => Set<Recarga>();
+    public DbSet<CapacidadeVeiculo> Capacidades => Set<CapacidadeVeiculo>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {

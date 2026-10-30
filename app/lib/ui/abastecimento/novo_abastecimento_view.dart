@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/formato.dart';
+import '../../data/ia/cliente_ia.dart';
 import '../../domain/calculos/calculo_etanol.dart';
 import '../../domain/combustivel.dart';
+import '../comum/botao_ler_foto.dart';
 import '../comum/campo_com_rotulo.dart';
 import '../comum/campo_data.dart';
 import '../comum/campos_valor.dart';
@@ -26,7 +28,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
   final _odometro = TextEditingController();
   final _posto = TextEditingController();
   var _data = DateTime.now();
-  var _tanqueCheio = true;
+  var _tanqueCheio = false;
   ErrosFormulario _erros = const {};
 
   bool get _editando => widget.registroId != null;
@@ -77,10 +79,20 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(resultado.mensagem!)));
     }
     if (!resultado.sucesso) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(_editando ? 'Abastecimento atualizado.' : 'Abastecimento salvo.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(_editando ? 'Abastecimento atualizado.' : 'Abastecimento salvo.')));
     context.pop();
+  }
+
+  void _preencherDaFoto(LeituraFoto leitura) {
+    final combustiveis =
+        ref.read(novoAbastecimentoViewModelProvider(widget.registroId)).veiculo?.combustiveis ?? const [];
+    if (leitura.combustivel != null && combustiveis.contains(leitura.combustivel)) {
+      _vm.selecionarCombustivel(leitura.combustivel!);
+    }
+    if (leitura.odometro != null) _odometro.text = '${leitura.odometro}';
+    _valores.preencher(quantidadeLida: leitura.litros, precoLido: leitura.precoLitro, totalLido: leitura.valorTotal);
   }
 
   Future<void> _excluir() async {
@@ -123,14 +135,15 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
           ],
         ),
         actions: [
-          if (_editando)
-            IconButton(tooltip: 'Excluir', icon: const Icon(Icons.delete_outline), onPressed: _excluir),
+          if (_editando) IconButton(tooltip: 'Excluir', icon: const Icon(Icons.delete_outline), onPressed: _excluir),
         ],
       ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            BotaoLerFoto(tipo: TipoLeitura.abastecimento, aoLer: _preencherDaFoto),
+            const SizedBox(height: 16),
             if (veiculo != null && veiculo.combustiveis.length > 1) ...[
               SegmentedButton<Combustivel>(
                 segments: [
@@ -150,7 +163,9 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: CampoData(data: _data, aoMudar: (data) => setState(() => _data = data))),
+                Expanded(
+                  child: CampoData(data: _data, aoMudar: (data) => setState(() => _data = data)),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: CampoComRotulo(
@@ -242,7 +257,9 @@ class _AvisoEtanol extends StatelessWidget {
     final razao = (comparacao.razaoPreco * 100).round();
     final limite = (comparacao.limite * 100).round();
     final titulo = comparacao.etanolCompensa ? 'Etanol compensa hoje' : 'Gasolina compensa hoje';
-    final regra = comparacao.limiteDoCarro ? 'No seu veículo, o etanol compensa até $limite%.' : 'A regra geral é até $limite%.';
+    final regra = comparacao.limiteDoCarro
+        ? 'No seu veículo, o etanol compensa até $limite%.'
+        : 'A regra geral é até $limite%.';
 
     return Container(
       padding: const EdgeInsets.all(14),

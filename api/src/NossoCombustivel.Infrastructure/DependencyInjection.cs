@@ -2,9 +2,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using NossoCombustivel.Application.Comum;
 using NossoCombustivel.Application.Contas;
+using NossoCombustivel.Application.Ia;
 using NossoCombustivel.Application.Sincronizacao;
+using NossoCombustivel.Infrastructure.Ia;
 using NossoCombustivel.Infrastructure.Identidade;
 using NossoCombustivel.Infrastructure.Persistencia;
 
@@ -43,6 +46,14 @@ public static class DependencyInjection
         services.AddScoped<IServicoContas, ServicoContas>();
         services.AddScoped<IRepositorioSessoes, RepositorioSessoes>();
         services.AddScoped<IRepositorioSincronizacao, RepositorioSincronizacao>();
+        services.AddScoped<IRepositorioCapacidades, RepositorioCapacidades>();
+
+        services.Configure<OpcoesGemini>(configuration.GetSection(OpcoesGemini.Secao));
+        services.AddHttpClient<IAssistenteIa, AssistenteGemini>((provedor, http) =>
+        {
+            http.BaseAddress = new Uri(provedor.GetRequiredService<IOptions<OpcoesGemini>>().Value.Endereco);
+            http.Timeout = TimeSpan.FromSeconds(40);
+        });
 
         return services;
     }

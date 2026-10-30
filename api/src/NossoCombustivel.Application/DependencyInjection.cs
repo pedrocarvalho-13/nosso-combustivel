@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NossoCombustivel.Application.Contas;
+using NossoCombustivel.Application.Ia;
 using NossoCombustivel.Application.Sincronizacao;
 
 namespace NossoCombustivel.Application;
@@ -10,6 +11,7 @@ public static class DependencyInjection
     {
         services.AddScoped<ServicoSessoes>();
         services.AddScoped<ServicoSincronizacao>();
+        services.AddScoped<ServicoIa>();
         return services;
     }
 }

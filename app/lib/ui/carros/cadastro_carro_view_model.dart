@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/fipe/fipe_cliente.dart';
+import '../../data/ia/cliente_ia.dart';
 import '../../data/provedores.dart';
 import '../../data/sessao/sessao_controller.dart';
 import '../../domain/calculos/identificacao_energia.dart';
@@ -26,6 +27,7 @@ class CadastroCarroEstado {
     this.energia,
     this.energiaCorrigida = false,
     this.salvando = false,
+    this.consultandoIa = false,
   });
 
   static const _manter = Object();
@@ -43,6 +45,7 @@ class CadastroCarroEstado {
   final EnergiaIdentificada? energia;
   final bool energiaCorrigida;
   final bool salvando;
+  final bool consultandoIa;
 
   bool get podeSalvar => !salvando && energia != null && (manual || detalhe != null);
 
@@ -60,22 +63,23 @@ class CadastroCarroEstado {
     Object? energia = _manter,
     bool? energiaCorrigida,
     bool? salvando,
-  }) =>
-      CadastroCarroEstado(
-        tipoVeiculo: tipoVeiculo ?? this.tipoVeiculo,
-        manual: manual ?? this.manual,
-        marcas: marcas ?? this.marcas,
-        marca: identical(marca, _manter) ? this.marca : marca as OpcaoFipe?,
-        modelos: modelos ?? this.modelos,
-        modelo: identical(modelo, _manter) ? this.modelo : modelo as OpcaoFipe?,
-        anos: anos ?? this.anos,
-        ano: identical(ano, _manter) ? this.ano : ano as OpcaoFipe?,
-        detalhe: identical(detalhe, _manter) ? this.detalhe : detalhe as DetalheFipe?,
-        carregandoDetalhe: carregandoDetalhe ?? this.carregandoDetalhe,
-        energia: identical(energia, _manter) ? this.energia : energia as EnergiaIdentificada?,
-        energiaCorrigida: energiaCorrigida ?? this.energiaCorrigida,
-        salvando: salvando ?? this.salvando,
-      );
+    bool? consultandoIa,
+  }) => CadastroCarroEstado(
+    tipoVeiculo: tipoVeiculo ?? this.tipoVeiculo,
+    manual: manual ?? this.manual,
+    marcas: marcas ?? this.marcas,
+    marca: identical(marca, _manter) ? this.marca : marca as OpcaoFipe?,
+    modelos: modelos ?? this.modelos,
+    modelo: identical(modelo, _manter) ? this.modelo : modelo as OpcaoFipe?,
+    anos: anos ?? this.anos,
+    ano: identical(ano, _manter) ? this.ano : ano as OpcaoFipe?,
+    detalhe: identical(detalhe, _manter) ? this.detalhe : detalhe as DetalheFipe?,
+    carregandoDetalhe: carregandoDetalhe ?? this.carregandoDetalhe,
+    energia: identical(energia, _manter) ? this.energia : energia as EnergiaIdentificada?,
+    energiaCorrigida: energiaCorrigida ?? this.energiaCorrigida,
+    salvando: salvando ?? this.salvando,
+    consultandoIa: consultandoIa ?? this.consultandoIa,
+  );
 }
 
 class CadastroCarroViewModel extends Notifier<CadastroCarroEstado> {
@@ -149,7 +153,11 @@ class CadastroCarroViewModel extends Notifier<CadastroCarroEstado> {
 
   void selecionarTipoVeiculo(TipoVeiculo tipo) {
     if (tipo == state.tipoVeiculo) return;
-    state = CadastroCarroEstado(tipoVeiculo: tipo, manual: state.manual, energia: state.manual ? energiaPadraoManual : null);
+    state = CadastroCarroEstado(
+      tipoVeiculo: tipo,
+      manual: state.manual,
+      energia: state.manual ? energiaPadraoManual : null,
+    );
     carregarMarcas();
   }
 
@@ -163,6 +171,38 @@ class CadastroCarroViewModel extends Notifier<CadastroCarroEstado> {
       manual: manual,
       energia: manual ? (state.energia ?? energiaPadraoManual) : (state.detalhe == null ? null : state.energia),
     );
+  }
+
+  Future<({CapacidadeSugerida? capacidade, String? erro})> sugerirCapacidade({
+    required String marcaManual,
+    required String modeloManual,
+    int? anoManual,
+  }) async {
+    final energia = state.energia;
+    final detalhe = state.detalhe;
+    final marca = state.manual ? marcaManual.trim() : detalhe?.marca ?? '';
+    final modelo = state.manual ? modeloManual.trim() : detalhe?.modelo ?? '';
+    if (energia == null || marca.isEmpty || modelo.isEmpty) {
+      return (capacidade: null, erro: 'Informe marca e modelo para a IA procurar.');
+    }
+    state = state.copiar(consultandoIa: true);
+    try {
+      final capacidade = await ref
+          .read(clienteIaProvider)
+          .estimarCapacidade(
+            tipoVeiculo: state.tipoVeiculo,
+            marca: marca,
+            modelo: modelo,
+            ano: state.manual ? anoManual : detalhe?.anoModelo,
+            codigoFipe: state.manual ? null : detalhe?.codigoFipe,
+            tipoEnergia: energia.tipo,
+          );
+      return (capacidade: capacidade, erro: null);
+    } on ErroIa catch (erro) {
+      return (capacidade: null, erro: erro.mensagem);
+    } finally {
+      if (ref.mounted) state = state.copiar(consultandoIa: false);
+    }
   }
 
   Future<Map<CampoCadastro, String>> salvar({
@@ -210,5 +250,6 @@ class CadastroCarroViewModel extends Notifier<CadastroCarroEstado> {
   }
 }
 
-final cadastroCarroViewModelProvider =
-    NotifierProvider.autoDispose<CadastroCarroViewModel, CadastroCarroEstado>(CadastroCarroViewModel.new);
+final cadastroCarroViewModelProvider = NotifierProvider.autoDispose<CadastroCarroViewModel, CadastroCarroEstado>(
+  CadastroCarroViewModel.new,
+);

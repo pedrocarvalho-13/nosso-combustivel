@@ -62,12 +62,16 @@ class ClienteSync {
   }
 }
 
-final clienteSyncProvider = Provider<ClienteSync>((ref) {
-  final dio = Dio(BaseOptions(
-    baseUrl: urlApi,
-    connectTimeout: const Duration(seconds: 15),
-    receiveTimeout: const Duration(seconds: 60),
-  ));
+final dioApiProvider = Provider<Dio>((ref) {
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: urlApi,
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 60),
+    ),
+  );
   dio.interceptors.add(InterceptorSessao(ref));
-  return ClienteSync(dio);
+  return dio;
 });
+
+final clienteSyncProvider = Provider<ClienteSync>((ref) => ClienteSync(ref.watch(dioApiProvider)));

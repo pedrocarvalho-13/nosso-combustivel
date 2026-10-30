@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/formato.dart';
 import '../../domain/registro_energia.dart';
+import '../../data/ia/cliente_ia.dart';
+import '../comum/botao_ler_foto.dart';
 import '../comum/campo_com_rotulo.dart';
 import '../comum/campo_data.dart';
 import '../comum/campos_valor.dart';
@@ -24,7 +26,7 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
   final _valores = CamposValor();
   final _odometro = TextEditingController();
   var _data = DateTime.now();
-  var _cargaCompleta = true;
+  var _cargaCompleta = false;
   ErrosFormulario _erros = const {};
 
   bool get _editando => widget.registroId != null;
@@ -78,10 +80,15 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(resultado.mensagem!)));
     }
     if (!resultado.sucesso) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(_editando ? 'Recarga atualizada.' : 'Recarga salva.')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(_editando ? 'Recarga atualizada.' : 'Recarga salva.')));
     context.pop();
+  }
+
+  void _preencherDaFoto(LeituraFoto leitura) {
+    if (leitura.odometro != null) _odometro.text = '${leitura.odometro}';
+    _valores.preencher(quantidadeLida: leitura.kwh, precoLido: leitura.precoKwh, totalLido: leitura.valorTotal);
   }
 
   Future<void> _excluir() async {
@@ -131,14 +138,15 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
           ],
         ),
         actions: [
-          if (_editando)
-            IconButton(tooltip: 'Excluir', icon: const Icon(Icons.delete_outline), onPressed: _excluir),
+          if (_editando) IconButton(tooltip: 'Excluir', icon: const Icon(Icons.delete_outline), onPressed: _excluir),
         ],
       ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            BotaoLerFoto(tipo: TipoLeitura.recarga, aoLer: _preencherDaFoto),
+            const SizedBox(height: 16),
             SegmentedButton<LocalRecarga>(
               segments: [
                 for (final local in LocalRecarga.values) ButtonSegment(value: local, label: Text(local.rotulo)),
@@ -151,7 +159,9 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: CampoData(data: _data, aoMudar: (data) => setState(() => _data = data))),
+                Expanded(
+                  child: CampoData(data: _data, aoMudar: (data) => setState(() => _data = data)),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: CampoComRotulo(

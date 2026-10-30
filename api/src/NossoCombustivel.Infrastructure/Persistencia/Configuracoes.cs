@@ -60,3 +60,20 @@ public sealed class RecargaConfiguracao : IEntityTypeConfiguration<Recarga>
         builder.HasIndex(r => new { r.VeiculoId, r.SincronizadoEm });
     }
 }
+
+public sealed class CapacidadeVeiculoConfiguracao : IEntityTypeConfiguration<CapacidadeVeiculo>
+{
+    public void Configure(EntityTypeBuilder<CapacidadeVeiculo> builder)
+    {
+        builder.ToTable("CapacidadesVeiculo");
+        builder.HasKey(c => c.Chave);
+        builder.Property(c => c.Chave).HasMaxLength(300);
+        builder.Property(c => c.TipoVeiculo).HasConversion<string>().HasMaxLength(10);
+        builder.Property(c => c.Marca).HasMaxLength(100);
+        builder.Property(c => c.Modelo).HasMaxLength(200);
+        builder.Property(c => c.CodigoFipe).HasMaxLength(20);
+        builder.Property(c => c.TipoEnergia).HasConversion<string>().HasMaxLength(20);
+        builder.Property(c => c.TanqueL).HasPrecision(6, 1);
+        builder.Property(c => c.BateriaKwh).HasPrecision(6, 1);
+    }
+}

@@ -34,6 +34,16 @@ class CamposValor {
     _escrever(quantidade, Formato.paraCampo(t / p, casas: 3));
   }
 
+  void preencher({double? quantidadeLida, double? precoLido, double? totalLido}) {
+    if (precoLido != null) preco.text = Formato.paraCampo(precoLido, casas: 3);
+    if (quantidadeLida != null) {
+      quantidade.text = Formato.paraCampo(quantidadeLida, casas: 3);
+      if (precoLido == null && totalLido != null) _escrever(total, Formato.paraCampo(totalLido));
+    } else if (totalLido != null) {
+      total.text = Formato.paraCampo(totalLido);
+    }
+  }
+
   void _escrever(TextEditingController controle, String texto) {
     _atualizando = true;
     controle.text = texto;
