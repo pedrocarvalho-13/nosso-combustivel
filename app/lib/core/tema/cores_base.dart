@@ -21,5 +21,4 @@ abstract final class CoresMarca {
   static const laranja = Color(0xFFF97316);
   static const azul = Color(0xFF3B82F6);
   static const verde = Color(0xFF10B981);
-  static const degrade = [laranja, azul, verde];
 }

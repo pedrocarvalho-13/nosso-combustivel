@@ -7,6 +7,6 @@
     </linearGradient>
   </defs>
   <rect width="512" height="512" rx="112" fill="#0F1115"/>
-  <path d="M256 70C256 70 124 222 124 316a132 132 0 0 0 264 0C388 222 256 70 256 70Z" fill="url(#energia)"/>
+  <path d="M256 70C256 70 124 222 124 316a132 132 0 0 0 264 0C388 222 256 70 256 70Z" fill="#3B82F6"/>
   <path d="M278 196 204 322h50l-18 96 80-134h-50l12-88Z" fill="#0F1115"/>
 </svg>

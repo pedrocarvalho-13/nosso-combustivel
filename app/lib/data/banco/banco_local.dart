@@ -79,15 +79,19 @@ class BancoLocal extends _$BancoLocal {
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onUpgrade: (migrador, de, para) async {
-          if (de < 2) await migrador.addColumn(veiculos, veiculos.usuarioId);
-          if (de < 3) {
-            await migrador.addColumn(veiculos, veiculos.pendente);
-            await migrador.addColumn(abastecimentos, abastecimentos.pendente);
-            await migrador.addColumn(recargas, recargas.pendente);
-          }
-          if (de < 4) await migrador.addColumn(veiculos, veiculos.tipoVeiculo);
+          await _adicionarSeFaltar(migrador, veiculos, veiculos.usuarioId);
+          await _adicionarSeFaltar(migrador, veiculos, veiculos.pendente);
+          await _adicionarSeFaltar(migrador, abastecimentos, abastecimentos.pendente);
+          await _adicionarSeFaltar(migrador, recargas, recargas.pendente);
+          await _adicionarSeFaltar(migrador, veiculos, veiculos.tipoVeiculo);
         },
       );
+
+  Future<void> _adicionarSeFaltar(Migrator migrador, TableInfo tabela, GeneratedColumn coluna) async {
+    final existentes = await customSelect('PRAGMA table_info("${tabela.actualTableName}")').get();
+    if (existentes.any((linha) => linha.read<String>('name') == coluna.name)) return;
+    await migrador.addColumn(tabela, coluna);
+  }
 
   static QueryExecutor _abrir() => driftDatabase(
         name: 'nosso_combustivel',

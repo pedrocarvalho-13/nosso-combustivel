@@ -153,27 +153,20 @@ class _ContaViewState extends ConsumerState<ContaView> {
                     ),
                   ],
                   const SizedBox(height: 24),
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: CoresMarca.degrade),
-                      borderRadius: BorderRadius.circular(14),
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: CoresMarca.azul,
+                      disabledBackgroundColor: CoresMarca.azul,
+                      foregroundColor: CoresBase.fundoEscuro,
                     ),
-                    child: FilledButton(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        disabledBackgroundColor: Colors.transparent,
-                        foregroundColor: CoresBase.fundoEscuro,
-                        shadowColor: Colors.transparent,
-                      ),
-                      onPressed: estado.enviando ? null : _enviar,
-                      child: estado.enviando
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: CoresBase.fundoEscuro),
-                            )
-                          : Text(criando ? 'Criar conta' : 'Entrar'),
-                    ),
+                    onPressed: estado.enviando ? null : _enviar,
+                    child: estado.enviando
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: CoresBase.fundoEscuro),
+                          )
+                        : Text(criando ? 'Criar conta' : 'Entrar'),
                   ),
                   const SizedBox(height: 8),
                   TextButton(
