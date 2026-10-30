@@ -77,6 +77,16 @@ class $VeiculosTable extends Veiculos
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  @override
+  late final GeneratedColumnWithTypeConverter<TipoVeiculo, String> tipoVeiculo =
+      GeneratedColumn<String>(
+        'tipo_veiculo',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('carro'),
+      ).withConverter<TipoVeiculo>($VeiculosTable.$convertertipoVeiculo);
   static const VerificationMeta _apelidoMeta = const VerificationMeta(
     'apelido',
   );
@@ -185,6 +195,7 @@ class $VeiculosTable extends Veiculos
     excluidoEm,
     pendente,
     usuarioId,
+    tipoVeiculo,
     apelido,
     marca,
     modelo,
@@ -359,6 +370,12 @@ class $VeiculosTable extends Veiculos
         DriftSqlType.string,
         data['${effectivePrefix}usuario_id'],
       ),
+      tipoVeiculo: $VeiculosTable.$convertertipoVeiculo.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}tipo_veiculo'],
+        )!,
+      ),
       apelido: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}apelido'],
@@ -409,6 +426,8 @@ class $VeiculosTable extends Veiculos
     return $VeiculosTable(attachedDatabase, alias);
   }
 
+  static JsonTypeConverter2<TipoVeiculo, String, String> $convertertipoVeiculo =
+      const EnumNameConverter<TipoVeiculo>(TipoVeiculo.values);
   static JsonTypeConverter2<TipoEnergia, String, String> $convertertipoEnergia =
       const EnumNameConverter<TipoEnergia>(TipoEnergia.values);
 }
@@ -420,6 +439,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
   final DateTime? excluidoEm;
   final bool pendente;
   final String? usuarioId;
+  final TipoVeiculo tipoVeiculo;
   final String apelido;
   final String marca;
   final String modelo;
@@ -437,6 +457,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
     this.excluidoEm,
     required this.pendente,
     this.usuarioId,
+    required this.tipoVeiculo,
     required this.apelido,
     required this.marca,
     required this.modelo,
@@ -460,6 +481,11 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
     map['pendente'] = Variable<bool>(pendente);
     if (!nullToAbsent || usuarioId != null) {
       map['usuario_id'] = Variable<String>(usuarioId);
+    }
+    {
+      map['tipo_veiculo'] = Variable<String>(
+        $VeiculosTable.$convertertipoVeiculo.toSql(tipoVeiculo),
+      );
     }
     map['apelido'] = Variable<String>(apelido);
     map['marca'] = Variable<String>(marca);
@@ -498,6 +524,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
       usuarioId: usuarioId == null && nullToAbsent
           ? const Value.absent()
           : Value(usuarioId),
+      tipoVeiculo: Value(tipoVeiculo),
       apelido: Value(apelido),
       marca: Value(marca),
       modelo: Value(modelo),
@@ -529,6 +556,9 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
       excluidoEm: serializer.fromJson<DateTime?>(json['excluidoEm']),
       pendente: serializer.fromJson<bool>(json['pendente']),
       usuarioId: serializer.fromJson<String?>(json['usuarioId']),
+      tipoVeiculo: $VeiculosTable.$convertertipoVeiculo.fromJson(
+        serializer.fromJson<String>(json['tipoVeiculo']),
+      ),
       apelido: serializer.fromJson<String>(json['apelido']),
       marca: serializer.fromJson<String>(json['marca']),
       modelo: serializer.fromJson<String>(json['modelo']),
@@ -555,6 +585,9 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
       'excluidoEm': serializer.toJson<DateTime?>(excluidoEm),
       'pendente': serializer.toJson<bool>(pendente),
       'usuarioId': serializer.toJson<String?>(usuarioId),
+      'tipoVeiculo': serializer.toJson<String>(
+        $VeiculosTable.$convertertipoVeiculo.toJson(tipoVeiculo),
+      ),
       'apelido': serializer.toJson<String>(apelido),
       'marca': serializer.toJson<String>(marca),
       'modelo': serializer.toJson<String>(modelo),
@@ -577,6 +610,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
     Value<DateTime?> excluidoEm = const Value.absent(),
     bool? pendente,
     Value<String?> usuarioId = const Value.absent(),
+    TipoVeiculo? tipoVeiculo,
     String? apelido,
     String? marca,
     String? modelo,
@@ -594,6 +628,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
     excluidoEm: excluidoEm.present ? excluidoEm.value : this.excluidoEm,
     pendente: pendente ?? this.pendente,
     usuarioId: usuarioId.present ? usuarioId.value : this.usuarioId,
+    tipoVeiculo: tipoVeiculo ?? this.tipoVeiculo,
     apelido: apelido ?? this.apelido,
     marca: marca ?? this.marca,
     modelo: modelo ?? this.modelo,
@@ -621,6 +656,9 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
           : this.excluidoEm,
       pendente: data.pendente.present ? data.pendente.value : this.pendente,
       usuarioId: data.usuarioId.present ? data.usuarioId.value : this.usuarioId,
+      tipoVeiculo: data.tipoVeiculo.present
+          ? data.tipoVeiculo.value
+          : this.tipoVeiculo,
       apelido: data.apelido.present ? data.apelido.value : this.apelido,
       marca: data.marca.present ? data.marca.value : this.marca,
       modelo: data.modelo.present ? data.modelo.value : this.modelo,
@@ -655,6 +693,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
           ..write('excluidoEm: $excluidoEm, ')
           ..write('pendente: $pendente, ')
           ..write('usuarioId: $usuarioId, ')
+          ..write('tipoVeiculo: $tipoVeiculo, ')
           ..write('apelido: $apelido, ')
           ..write('marca: $marca, ')
           ..write('modelo: $modelo, ')
@@ -677,6 +716,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
     excluidoEm,
     pendente,
     usuarioId,
+    tipoVeiculo,
     apelido,
     marca,
     modelo,
@@ -698,6 +738,7 @@ class VeiculoLinha extends DataClass implements Insertable<VeiculoLinha> {
           other.excluidoEm == this.excluidoEm &&
           other.pendente == this.pendente &&
           other.usuarioId == this.usuarioId &&
+          other.tipoVeiculo == this.tipoVeiculo &&
           other.apelido == this.apelido &&
           other.marca == this.marca &&
           other.modelo == this.modelo &&
@@ -717,6 +758,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
   final Value<DateTime?> excluidoEm;
   final Value<bool> pendente;
   final Value<String?> usuarioId;
+  final Value<TipoVeiculo> tipoVeiculo;
   final Value<String> apelido;
   final Value<String> marca;
   final Value<String> modelo;
@@ -735,6 +777,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
     this.excluidoEm = const Value.absent(),
     this.pendente = const Value.absent(),
     this.usuarioId = const Value.absent(),
+    this.tipoVeiculo = const Value.absent(),
     this.apelido = const Value.absent(),
     this.marca = const Value.absent(),
     this.modelo = const Value.absent(),
@@ -754,6 +797,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
     this.excluidoEm = const Value.absent(),
     this.pendente = const Value.absent(),
     this.usuarioId = const Value.absent(),
+    this.tipoVeiculo = const Value.absent(),
     required String apelido,
     required String marca,
     required String modelo,
@@ -781,6 +825,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
     Expression<DateTime>? excluidoEm,
     Expression<bool>? pendente,
     Expression<String>? usuarioId,
+    Expression<String>? tipoVeiculo,
     Expression<String>? apelido,
     Expression<String>? marca,
     Expression<String>? modelo,
@@ -800,6 +845,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
       if (excluidoEm != null) 'excluido_em': excluidoEm,
       if (pendente != null) 'pendente': pendente,
       if (usuarioId != null) 'usuario_id': usuarioId,
+      if (tipoVeiculo != null) 'tipo_veiculo': tipoVeiculo,
       if (apelido != null) 'apelido': apelido,
       if (marca != null) 'marca': marca,
       if (modelo != null) 'modelo': modelo,
@@ -823,6 +869,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
     Value<DateTime?>? excluidoEm,
     Value<bool>? pendente,
     Value<String?>? usuarioId,
+    Value<TipoVeiculo>? tipoVeiculo,
     Value<String>? apelido,
     Value<String>? marca,
     Value<String>? modelo,
@@ -842,6 +889,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
       excluidoEm: excluidoEm ?? this.excluidoEm,
       pendente: pendente ?? this.pendente,
       usuarioId: usuarioId ?? this.usuarioId,
+      tipoVeiculo: tipoVeiculo ?? this.tipoVeiculo,
       apelido: apelido ?? this.apelido,
       marca: marca ?? this.marca,
       modelo: modelo ?? this.modelo,
@@ -876,6 +924,11 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
     }
     if (usuarioId.present) {
       map['usuario_id'] = Variable<String>(usuarioId.value);
+    }
+    if (tipoVeiculo.present) {
+      map['tipo_veiculo'] = Variable<String>(
+        $VeiculosTable.$convertertipoVeiculo.toSql(tipoVeiculo.value),
+      );
     }
     if (apelido.present) {
       map['apelido'] = Variable<String>(apelido.value);
@@ -924,6 +977,7 @@ class VeiculosCompanion extends UpdateCompanion<VeiculoLinha> {
           ..write('excluidoEm: $excluidoEm, ')
           ..write('pendente: $pendente, ')
           ..write('usuarioId: $usuarioId, ')
+          ..write('tipoVeiculo: $tipoVeiculo, ')
           ..write('apelido: $apelido, ')
           ..write('marca: $marca, ')
           ..write('modelo: $modelo, ')
@@ -2798,6 +2852,7 @@ typedef $$VeiculosTableCreateCompanionBuilder =
       Value<DateTime?> excluidoEm,
       Value<bool> pendente,
       Value<String?> usuarioId,
+      Value<TipoVeiculo> tipoVeiculo,
       required String apelido,
       required String marca,
       required String modelo,
@@ -2818,6 +2873,7 @@ typedef $$VeiculosTableUpdateCompanionBuilder =
       Value<DateTime?> excluidoEm,
       Value<bool> pendente,
       Value<String?> usuarioId,
+      Value<TipoVeiculo> tipoVeiculo,
       Value<String> apelido,
       Value<String> marca,
       Value<String> modelo,
@@ -2909,6 +2965,12 @@ class $$VeiculosTableFilterComposer
   ColumnFilters<String> get usuarioId => $composableBuilder(
     column: $table.usuarioId,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<TipoVeiculo, TipoVeiculo, String>
+  get tipoVeiculo => $composableBuilder(
+    column: $table.tipoVeiculo,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get apelido => $composableBuilder(
@@ -3052,6 +3114,11 @@ class $$VeiculosTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get tipoVeiculo => $composableBuilder(
+    column: $table.tipoVeiculo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get apelido => $composableBuilder(
     column: $table.apelido,
     builder: (column) => ColumnOrderings(column),
@@ -3133,6 +3200,12 @@ class $$VeiculosTableAnnotationComposer
 
   GeneratedColumn<String> get usuarioId =>
       $composableBuilder(column: $table.usuarioId, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<TipoVeiculo, String> get tipoVeiculo =>
+      $composableBuilder(
+        column: $table.tipoVeiculo,
+        builder: (column) => column,
+      );
 
   GeneratedColumn<String> get apelido =>
       $composableBuilder(column: $table.apelido, builder: (column) => column);
@@ -3262,6 +3335,7 @@ class $$VeiculosTableTableManager
                 Value<DateTime?> excluidoEm = const Value.absent(),
                 Value<bool> pendente = const Value.absent(),
                 Value<String?> usuarioId = const Value.absent(),
+                Value<TipoVeiculo> tipoVeiculo = const Value.absent(),
                 Value<String> apelido = const Value.absent(),
                 Value<String> marca = const Value.absent(),
                 Value<String> modelo = const Value.absent(),
@@ -3280,6 +3354,7 @@ class $$VeiculosTableTableManager
                 excluidoEm: excluidoEm,
                 pendente: pendente,
                 usuarioId: usuarioId,
+                tipoVeiculo: tipoVeiculo,
                 apelido: apelido,
                 marca: marca,
                 modelo: modelo,
@@ -3300,6 +3375,7 @@ class $$VeiculosTableTableManager
                 Value<DateTime?> excluidoEm = const Value.absent(),
                 Value<bool> pendente = const Value.absent(),
                 Value<String?> usuarioId = const Value.absent(),
+                Value<TipoVeiculo> tipoVeiculo = const Value.absent(),
                 required String apelido,
                 required String marca,
                 required String modelo,
@@ -3318,6 +3394,7 @@ class $$VeiculosTableTableManager
                 excluidoEm: excluidoEm,
                 pendente: pendente,
                 usuarioId: usuarioId,
+                tipoVeiculo: tipoVeiculo,
                 apelido: apelido,
                 marca: marca,
                 modelo: modelo,

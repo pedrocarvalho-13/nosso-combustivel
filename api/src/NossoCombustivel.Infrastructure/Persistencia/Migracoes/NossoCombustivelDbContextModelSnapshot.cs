@@ -331,6 +331,13 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<string>("TipoVeiculo")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("Carro");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DonoId", "SincronizadoEm");

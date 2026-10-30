@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/formato.dart';
 import '../../core/rotas/rotas.dart';
+import '../../domain/registro_energia.dart';
 import '../comum/estado_vazio.dart';
 import '../comum/icone_energia.dart';
 import '../comum/indicador_sincronizacao.dart';
@@ -25,10 +26,10 @@ class InicioView extends ConsumerWidget {
                 children: [
                   EstadoVazio(
                     icone: Icons.local_gas_station_outlined,
-                    titulo: 'Cadastre seu primeiro carro',
+                    titulo: 'Cadastre seu primeiro veículo',
                     mensagem:
-                        'Com o carro cadastrado, você acompanha o gasto da semana, do mês e quanto ele faz por litro ou por kWh.',
-                    rotuloAcao: 'Adicionar carro',
+                        'Com o veículo cadastrado, você acompanha o gasto da semana, do mês e quanto ele faz por litro ou por kWh.',
+                    rotuloAcao: 'Adicionar veículo',
                     aoAcionar: () => context.push(Rotas.novoCarro),
                   ),
                   const Positioned(top: 12, right: 16, child: BotaoPerfil()),
@@ -74,7 +75,7 @@ class _Painel extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          IconeEnergia(icone: iconeDoTipo(veiculo.tipoEnergia), tamanho: 32),
+                          IconeEnergia(icone: iconeDoVeiculo(veiculo), tamanho: 32),
                           const SizedBox(width: 10),
                           Flexible(
                             child: Column(
@@ -197,7 +198,15 @@ class _Painel extends StatelessWidget {
           Text('Nenhum registro ainda. Use o botão acima no próximo abastecimento.', style: secundario)
         else
           for (final registro in estado.ultimos)
-            Padding(padding: const EdgeInsets.only(bottom: 8), child: RegistroTile(registro: registro)),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: RegistroTile(
+                registro: registro,
+                aoTocar: () => context.push(
+                  registro is Abastecimento ? Rotas.editarAbastecimento(registro.id) : Rotas.editarRecarga(registro.id),
+                ),
+              ),
+            ),
       ],
     );
   }

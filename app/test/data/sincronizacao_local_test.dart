@@ -84,6 +84,7 @@ void main() {
     expect(lote.veiculos, hasLength(1));
     expect(lote.abastecimentos, hasLength(1));
     expect((json['veiculos'] as List).single['combustiveis'], ['gasolina', 'etanol']);
+    expect((json['veiculos'] as List).single['tipoVeiculo'], 'carro');
     expect((json['abastecimentos'] as List).single['litros'], 38.2);
     expect((json['abastecimentos'] as List).single['valorTotal'], 160.06);
   });

@@ -38,7 +38,7 @@ class ShellView extends ConsumerWidget {
           NavigationDestination(
             icon: Icon(Icons.directions_car_outlined),
             selectedIcon: Icon(Icons.directions_car),
-            label: 'Carros',
+            label: 'Veículos',
           ),
         ],
       ),

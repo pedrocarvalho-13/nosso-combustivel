@@ -6,6 +6,7 @@ import '../../data/sessao/sessao_controller.dart';
 import '../../ui/abastecimento/novo_abastecimento_view.dart';
 import '../../ui/carros/cadastro_carro_view.dart';
 import '../../ui/carros/carros_view.dart';
+import '../../ui/carros/editar_veiculo_view.dart';
 import '../../ui/conta/conta_view.dart';
 import '../../ui/historico/historico_view.dart';
 import '../../ui/inicio/inicio_view.dart';
@@ -24,6 +25,12 @@ abstract final class Rotas {
   static const novoCarro = '/carro/novo';
   static const novoAbastecimento = '/abastecimento/novo';
   static const novaRecarga = '/recarga/nova';
+
+  static String editarVeiculo(String id) => '/veiculo/$id/editar';
+
+  static String editarAbastecimento(String id) => '/abastecimento/$id';
+
+  static String editarRecarga(String id) => '/recarga/$id';
 }
 
 final rotasProvider = Provider<GoRouter>((ref) {
@@ -71,6 +78,18 @@ final rotasProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Rotas.novoCarro, builder: (_, _) => const CadastroCarroView()),
       GoRoute(path: Rotas.novoAbastecimento, builder: (_, _) => const NovoAbastecimentoView()),
       GoRoute(path: Rotas.novaRecarga, builder: (_, _) => const NovaRecargaView()),
+      GoRoute(
+        path: '/veiculo/:id/editar',
+        builder: (_, state) => EditarVeiculoView(veiculoId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/abastecimento/:id',
+        builder: (_, state) => NovoAbastecimentoView(registroId: state.pathParameters['id']),
+      ),
+      GoRoute(
+        path: '/recarga/:id',
+        builder: (_, state) => NovaRecargaView(registroId: state.pathParameters['id']),
+      ),
     ],
   );
   ref.onDispose(() {

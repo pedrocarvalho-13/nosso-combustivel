@@ -4,6 +4,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 import '../../domain/combustivel.dart';
 import '../../domain/registro_energia.dart';
 import '../../domain/tipo_energia.dart';
+import '../../domain/tipo_veiculo.dart';
 
 part 'banco_local.g.dart';
 
@@ -21,6 +22,7 @@ mixin Sincronizavel on Table {
 @DataClassName('VeiculoLinha')
 class Veiculos extends Table with Sincronizavel {
   TextColumn get usuarioId => text().nullable()();
+  TextColumn get tipoVeiculo => textEnum<TipoVeiculo>().withDefault(const Constant('carro'))();
   TextColumn get apelido => text()();
   TextColumn get marca => text()();
   TextColumn get modelo => text()();
@@ -72,7 +74,7 @@ class BancoLocal extends _$BancoLocal {
   BancoLocal([QueryExecutor? executor]) : super(executor ?? _abrir());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -83,6 +85,7 @@ class BancoLocal extends _$BancoLocal {
             await migrador.addColumn(abastecimentos, abastecimentos.pendente);
             await migrador.addColumn(recargas, recargas.pendente);
           }
+          if (de < 4) await migrador.addColumn(veiculos, veiculos.tipoVeiculo);
         },
       );
 

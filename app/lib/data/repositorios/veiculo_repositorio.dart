@@ -17,6 +17,12 @@ class VeiculoRepositorio {
     return consulta.watch().map((linhas) => linhas.map(_paraDominio).toList());
   }
 
+  Future<Veiculo?> obter(String id) async {
+    final linha = await (_banco.select(_banco.veiculos)..where((v) => v.id.equals(id) & v.excluidoEm.isNull()))
+        .getSingleOrNull();
+    return linha == null ? null : _paraDominio(linha);
+  }
+
   Future<void> adotarSemDono(String usuarioId) =>
       (_banco.update(_banco.veiculos)..where((v) => v.usuarioId.isNull()))
           .write(VeiculosCompanion(
@@ -33,29 +39,52 @@ class VeiculoRepositorio {
             usuarioId: Value(usuarioId),
             criadoEm: agora,
             atualizadoEm: agora,
+            tipoVeiculo: Value(veiculo.tipoVeiculo),
             apelido: veiculo.apelido,
             marca: veiculo.marca,
             modelo: veiculo.modelo,
             ano: Value(veiculo.ano),
             codigoFipe: Value(veiculo.codigoFipe),
             tipoEnergia: veiculo.tipoEnergia,
-            combustiveis: veiculo.combustiveis.map((c) => c.name).join(','),
+            combustiveis: _combustiveis(veiculo),
             capacidadeTanqueMl: Value(_milesimos(veiculo.capacidadeTanqueL)),
             capacidadeBateriaWh: Value(_milesimos(veiculo.capacidadeBateriaKwh)),
             odometroInicial: veiculo.odometroInicial,
           ),
-          onConflict: DoUpdate((_) => VeiculosCompanion(
-                atualizadoEm: Value(agora),
-                pendente: const Value(true),
-                apelido: Value(veiculo.apelido),
-                capacidadeTanqueMl: Value(_milesimos(veiculo.capacidadeTanqueL)),
-                capacidadeBateriaWh: Value(_milesimos(veiculo.capacidadeBateriaKwh)),
-              )),
+          onConflict: DoUpdate((_) => _alteracao(veiculo, agora)),
         );
   }
 
+  Future<void> atualizar(Veiculo veiculo) =>
+      (_banco.update(_banco.veiculos)..where((v) => v.id.equals(veiculo.id))).write(_alteracao(veiculo, _agora()));
+
+  Future<void> excluir(String id) => _banco.transaction(() async {
+        final agora = _agora();
+        await (_banco.update(_banco.veiculos)..where((v) => v.id.equals(id)))
+            .write(VeiculosCompanion(excluidoEm: Value(agora), atualizadoEm: Value(agora), pendente: const Value(true)));
+        await (_banco.update(_banco.abastecimentos)..where((a) => a.veiculoId.equals(id) & a.excluidoEm.isNull()))
+            .write(AbastecimentosCompanion(excluidoEm: Value(agora), atualizadoEm: Value(agora), pendente: const Value(true)));
+        await (_banco.update(_banco.recargas)..where((r) => r.veiculoId.equals(id) & r.excluidoEm.isNull()))
+            .write(RecargasCompanion(excluidoEm: Value(agora), atualizadoEm: Value(agora), pendente: const Value(true)));
+      });
+
+  static VeiculosCompanion _alteracao(Veiculo veiculo, DateTime agora) => VeiculosCompanion(
+        atualizadoEm: Value(agora),
+        pendente: const Value(true),
+        apelido: Value(veiculo.apelido),
+        marca: Value(veiculo.marca),
+        modelo: Value(veiculo.modelo),
+        ano: Value(veiculo.ano),
+        tipoEnergia: Value(veiculo.tipoEnergia),
+        combustiveis: Value(_combustiveis(veiculo)),
+        capacidadeTanqueMl: Value(_milesimos(veiculo.capacidadeTanqueL)),
+        capacidadeBateriaWh: Value(_milesimos(veiculo.capacidadeBateriaKwh)),
+        odometroInicial: Value(veiculo.odometroInicial),
+      );
+
   static Veiculo _paraDominio(VeiculoLinha linha) => Veiculo(
         id: linha.id,
+        tipoVeiculo: linha.tipoVeiculo,
         apelido: linha.apelido,
         marca: linha.marca,
         modelo: linha.modelo,
@@ -69,6 +98,8 @@ class VeiculoRepositorio {
         capacidadeBateriaKwh: linha.capacidadeBateriaWh == null ? null : linha.capacidadeBateriaWh! / 1000,
         odometroInicial: linha.odometroInicial,
       );
+
+  static String _combustiveis(Veiculo veiculo) => veiculo.combustiveis.map((c) => c.name).join(',');
 
   static int? _milesimos(double? valor) => valor == null ? null : (valor * 1000).round();
 }

@@ -15,13 +15,14 @@ import 'package:nosso_combustivel/domain/sessao.dart';
 import 'package:nosso_combustivel/domain/combustivel.dart';
 import 'package:nosso_combustivel/domain/registro_energia.dart';
 import 'package:nosso_combustivel/domain/tipo_energia.dart';
+import 'package:nosso_combustivel/domain/tipo_veiculo.dart';
 import 'package:nosso_combustivel/domain/veiculo.dart';
 
 class FipeFalsa extends FipeCliente {
   FipeFalsa() : super(Dio());
 
   @override
-  Future<List<OpcaoFipe>> marcas() async => const [OpcaoFipe('56', 'Toyota')];
+  Future<List<OpcaoFipe>> marcas(TipoVeiculo tipo) async => const [OpcaoFipe('56', 'Toyota')];
 }
 
 const civic = Veiculo(
@@ -117,18 +118,18 @@ void main() {
     await tester.pumpWidget(app());
     await tester.pumpAndSettle();
 
-    expect(find.text('Cadastre seu primeiro carro'), findsOneWidget);
+    expect(find.text('Cadastre seu primeiro veículo'), findsOneWidget);
   });
 
   testWidgets('botão do início abre o cadastro com as marcas da FIPE', (tester) async {
     await tester.pumpWidget(app());
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Adicionar carro'));
+    await tester.tap(find.text('Adicionar veículo'));
     await tester.pumpAndSettle();
 
     expect(find.text('Marca'), findsWidgets);
-    expect(find.text('Não achou o carro? Cadastrar sem a FIPE'), findsOneWidget);
+    expect(find.text('Não achou o veículo? Cadastrar sem a FIPE'), findsOneWidget);
   });
 
   testWidgets('início mostra o gasto do mês e o consumo do carro ativo', (tester) async {
@@ -156,7 +157,7 @@ void main() {
     await tester.pumpWidget(app(sessao: null));
     await tester.pumpAndSettle();
 
-    expect(find.text('Entre para ver os gastos dos seus carros'), findsOneWidget);
+    expect(find.text('Entre para ver os gastos dos seus veículos'), findsOneWidget);
     expect(find.text('Ainda não tenho conta'), findsOneWidget);
   });
 
@@ -175,6 +176,6 @@ void main() {
     await tester.enterText(find.byType(TextField).at(1), 'senha123');
     await tester.tap(find.widgetWithText(FilledButton, 'Entrar'));
     await tester.pumpAndSettle();
-    expect(find.text('Cadastre seu primeiro carro'), findsOneWidget);
+    expect(find.text('Cadastre seu primeiro veículo'), findsOneWidget);
   });
 }

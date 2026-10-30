@@ -18,6 +18,7 @@ public sealed class VeiculoConfiguracao : IEntityTypeConfiguration<Veiculo>
         builder.Property(v => v.Modelo).HasMaxLength(200).IsRequired();
         builder.Property(v => v.CodigoFipe).HasMaxLength(20);
         builder.Property(v => v.TipoEnergia).HasConversion<string>().HasMaxLength(20);
+        builder.Property(v => v.TipoVeiculo).HasConversion<string>().HasMaxLength(10).HasDefaultValue(TipoVeiculo.Carro);
         builder.Property(v => v.Combustiveis).HasMaxLength(100);
         builder.Property(v => v.CapacidadeTanqueL).HasPrecision(8, 3);
         builder.Property(v => v.CapacidadeBateriaKwh).HasPrecision(8, 3);

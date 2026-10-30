@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/formato.dart';
 import '../../data/fipe/fipe_cliente.dart';
 import '../../domain/calculos/identificacao_energia.dart';
+import '../../core/tema/cores_base.dart';
+import '../../domain/tipo_veiculo.dart';
 import '../../domain/veiculo.dart';
 import '../comum/campo_com_rotulo.dart';
 import '../comum/icone_energia.dart';
@@ -27,6 +29,21 @@ class _CadastroCarroViewState extends ConsumerState<CadastroCarroView> {
   final _tanque = TextEditingController();
   final _bateria = TextEditingController();
   final _odometro = TextEditingController();
+  Map<CampoCadastro, String> _erros = const {};
+
+  @override
+  void initState() {
+    super.initState();
+    for (final (controle, campo) in [
+      (_marca, CampoCadastro.marca),
+      (_modelo, CampoCadastro.modelo),
+      (_odometro, CampoCadastro.odometro),
+    ]) {
+      controle.addListener(() {
+        if (_erros.containsKey(campo)) setState(() => _erros = {..._erros}..remove(campo));
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -42,7 +59,7 @@ class _CadastroCarroViewState extends ConsumerState<CadastroCarroView> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensagem)));
 
   Future<void> _salvar() async {
-    final erro = await _vm.salvar(
+    final erros = await _vm.salvar(
       apelido: _apelido.text,
       marcaManual: _marca.text,
       modeloManual: _modelo.text,
@@ -52,8 +69,10 @@ class _CadastroCarroViewState extends ConsumerState<CadastroCarroView> {
       odometro: Formato.lerInteiro(_odometro.text),
     );
     if (!mounted) return;
-    if (erro != null) return _avisar(erro);
-    _avisar('Carro salvo.');
+    setState(() => _erros = erros);
+    if (erros[CampoCadastro.geral] != null) _avisar(erros[CampoCadastro.geral]!);
+    if (erros.isNotEmpty) return;
+    _avisar('Veículo salvo.');
     context.pop();
   }
 
@@ -66,17 +85,33 @@ class _CadastroCarroViewState extends ConsumerState<CadastroCarroView> {
   Widget build(BuildContext context) {
     final estado = ref.watch(cadastroCarroViewModelProvider);
     ref.listen(cadastroCarroViewModelProvider.select((e) => e.detalhe), (_, detalhe) {
+      if (detalhe != null && _erros.containsKey(CampoCadastro.fipe)) {
+        setState(() => _erros = {..._erros}..remove(CampoCadastro.fipe));
+      }
       if (detalhe != null && _apelido.text.isEmpty) _apelido.text = 'Meu ${detalhe.modelo.split(' ').first}';
     });
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Adicionar carro'),
+        title: const Text('Adicionar veículo'),
       ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            CampoComRotulo(
+              rotulo: 'Tipo de veículo',
+              child: SegmentedButton<TipoVeiculo>(
+                segments: const [
+                  ButtonSegment(value: TipoVeiculo.carro, icon: Icon(Icons.directions_car_outlined), label: Text('Carro')),
+                  ButtonSegment(value: TipoVeiculo.moto, icon: Icon(Icons.two_wheeler), label: Text('Moto')),
+                ],
+                selected: {estado.tipoVeiculo},
+                showSelectedIcon: false,
+                onSelectionChanged: (selecao) => _vm.selecionarTipoVeiculo(selecao.first),
+              ),
+            ),
+            const SizedBox(height: 16),
             if (estado.manual) ..._camposManuais() else ..._camposFipe(estado),
             if (estado.energia != null) ...[
               const SizedBox(height: 16),
@@ -92,7 +127,9 @@ class _CadastroCarroViewState extends ConsumerState<CadastroCarroView> {
               child: TextField(
                 controller: _apelido,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(hintText: 'Ex.: Hilux do trabalho'),
+                decoration: InputDecoration(
+                  hintText: estado.tipoVeiculo == TipoVeiculo.moto ? 'Ex.: CG do dia a dia' : 'Ex.: Hilux do trabalho',
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -125,26 +162,27 @@ class _CadastroCarroViewState extends ConsumerState<CadastroCarroView> {
             ),
             const SizedBox(height: 12),
             CampoComRotulo(
-              rotulo: 'Odômetro atual (km)',
+              rotulo: 'Hodômetro atual (km)',
               child: TextField(
                 controller: _odometro,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: InputDecoration(errorText: _erros[CampoCadastro.odometro]),
               ),
             ),
             const SizedBox(height: 8),
             Center(
               child: TextButton(
                 onPressed: _vm.alternarManual,
-                child: Text(estado.manual ? 'Buscar na tabela FIPE' : 'Não achou o carro? Cadastrar sem a FIPE'),
+                child: Text(estado.manual ? 'Buscar na tabela FIPE' : 'Não achou o veículo? Cadastrar sem a FIPE'),
               ),
             ),
             const SizedBox(height: 8),
             FilledButton(
-              onPressed: estado.podeSalvar ? _salvar : null,
+              onPressed: estado.salvando ? null : _salvar,
               child: estado.salvando
                   ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('Salvar carro'),
+                  : const Text('Salvar veículo'),
             ),
           ],
         ),
@@ -155,12 +193,20 @@ class _CadastroCarroViewState extends ConsumerState<CadastroCarroView> {
   List<Widget> _camposManuais() => [
         CampoComRotulo(
           rotulo: 'Marca',
-          child: TextField(controller: _marca, textCapitalization: TextCapitalization.words),
+          child: TextField(
+            controller: _marca,
+            textCapitalization: TextCapitalization.words,
+            decoration: InputDecoration(errorText: _erros[CampoCadastro.marca]),
+          ),
         ),
         const SizedBox(height: 12),
         CampoComRotulo(
           rotulo: 'Modelo',
-          child: TextField(controller: _modelo, textCapitalization: TextCapitalization.words),
+          child: TextField(
+            controller: _modelo,
+            textCapitalization: TextCapitalization.words,
+            decoration: InputDecoration(errorText: _erros[CampoCadastro.modelo]),
+          ),
         ),
         const SizedBox(height: 12),
         CampoComRotulo(
@@ -233,6 +279,10 @@ class _CadastroCarroViewState extends ConsumerState<CadastroCarroView> {
       if (estado.carregandoDetalhe) ...[
         const SizedBox(height: 12),
         const LinearProgressIndicator(),
+      ],
+      if (_erros[CampoCadastro.fipe] != null) ...[
+        const SizedBox(height: 8),
+        Text(_erros[CampoCadastro.fipe]!, style: const TextStyle(color: CoresBase.alerta, fontSize: 12)),
       ],
     ];
   }

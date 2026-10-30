@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../domain/combustivel.dart';
 import '../../domain/registro_energia.dart';
 import '../../domain/tipo_energia.dart';
+import '../../domain/tipo_veiculo.dart';
 import '../banco/banco_local.dart';
 
 class LoteLocal {
@@ -19,6 +20,7 @@ class LoteLocal {
           for (final v in veiculos)
             {
               'id': v.id,
+              'tipoVeiculo': v.tipoVeiculo.name,
               'apelido': v.apelido,
               'marca': v.marca,
               'modelo': v.modelo,
@@ -129,6 +131,7 @@ class SincronizacaoLocal {
           await _banco.into(_banco.veiculos).insertOnConflictUpdate(VeiculosCompanion.insert(
                 id: json['id'] as String,
                 usuarioId: Value(usuarioId),
+                tipoVeiculo: Value(TipoVeiculo.values.byName((json['tipoVeiculo'] as String?) ?? 'carro')),
                 apelido: json['apelido'] as String,
                 marca: json['marca'] as String,
                 modelo: json['modelo'] as String,

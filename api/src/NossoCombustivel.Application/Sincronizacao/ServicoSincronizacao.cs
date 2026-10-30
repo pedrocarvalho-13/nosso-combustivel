@@ -110,11 +110,13 @@ public sealed class ServicoSincronizacao(IRepositorioSincronizacao repositorio, 
 
     private static DadosVeiculo ParaDados(VeiculoSync dto) => new(
         dto.Apelido, dto.Marca, dto.Modelo, dto.Ano, dto.CodigoFipe, dto.TipoEnergia, dto.Combustiveis,
-        dto.CapacidadeTanqueL, dto.CapacidadeBateriaKwh, dto.OdometroInicial, dto.AtualizadoEm, dto.ExcluidoEm);
+        dto.CapacidadeTanqueL, dto.CapacidadeBateriaKwh, dto.OdometroInicial, dto.AtualizadoEm, dto.ExcluidoEm,
+        dto.TipoVeiculo ?? TipoVeiculo.Carro);
 
     private static VeiculoSync ParaDto(Veiculo v) => new(
         v.Id, v.Apelido, v.Marca, v.Modelo, v.Ano, v.CodigoFipe, v.TipoEnergia, v.ListaCombustiveis,
-        v.CapacidadeTanqueL, v.CapacidadeBateriaKwh, v.OdometroInicial, v.CriadoEm, v.AtualizadoEm, v.ExcluidoEm);
+        v.CapacidadeTanqueL, v.CapacidadeBateriaKwh, v.OdometroInicial, v.CriadoEm, v.AtualizadoEm, v.ExcluidoEm,
+        v.TipoVeiculo);
 
     private static AbastecimentoSync ParaDto(Abastecimento a) => new(
         a.Id, a.VeiculoId, a.Data, a.Odometro, a.Combustivel, a.Litros, a.PrecoLitro, a.ValorTotal,

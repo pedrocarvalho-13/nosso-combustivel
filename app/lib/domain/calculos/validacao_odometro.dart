@@ -16,11 +16,13 @@ abstract final class ValidacaoOdometro {
     final minimo = antes.isEmpty ? odometroInicial : max(odometroInicial, antes.reduce(max));
 
     if (odometro < minimo) {
-      return 'O odômetro não pode ser menor que $minimo km, a leitura anterior.';
+      return 'Precisa ser pelo menos ${_km(minimo)}, a leitura anterior.';
     }
     if (depois.isNotEmpty && odometro > depois.reduce(min)) {
-      return 'O odômetro não pode ser maior que ${depois.reduce(min)} km, de um registro mais novo.';
+      return 'Precisa ser no máximo ${_km(depois.reduce(min))}, de um registro mais novo.';
     }
     return null;
   }
+
+  static String _km(int valor) => '${valor.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]}.')} km';
 }

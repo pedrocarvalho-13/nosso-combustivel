@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 
+import '../../domain/tipo_veiculo.dart';
+
 class OpcaoFipe {
   const OpcaoFipe(this.codigo, this.nome);
 
@@ -26,30 +28,32 @@ class DetalheFipe {
 class FipeCliente {
   FipeCliente(this._dio);
 
-  static const _base = 'https://parallelum.com.br/fipe/api/v1/carros/marcas';
   static const _anoZeroKm = 32000;
 
   final Dio _dio;
 
-  Future<List<OpcaoFipe>> marcas() async {
-    final resposta = await _dio.get<List<dynamic>>(_base);
+  static String _base(TipoVeiculo tipo) =>
+      'https://parallelum.com.br/fipe/api/v1/${tipo == TipoVeiculo.moto ? 'motos' : 'carros'}/marcas';
+
+  Future<List<OpcaoFipe>> marcas(TipoVeiculo tipo) async {
+    final resposta = await _dio.get<List<dynamic>>(_base(tipo));
     return _opcoes(resposta.data!);
   }
 
-  Future<List<OpcaoFipe>> modelos(String marca) async {
-    final resposta = await _dio.get<Map<String, dynamic>>('$_base/$marca/modelos');
+  Future<List<OpcaoFipe>> modelos(TipoVeiculo tipo, String marca) async {
+    final resposta = await _dio.get<Map<String, dynamic>>('${_base(tipo)}/$marca/modelos');
     return _opcoes(resposta.data!['modelos'] as List<dynamic>);
   }
 
-  Future<List<OpcaoFipe>> anos(String marca, String modelo) async {
-    final resposta = await _dio.get<List<dynamic>>('$_base/$marca/modelos/$modelo/anos');
+  Future<List<OpcaoFipe>> anos(TipoVeiculo tipo, String marca, String modelo) async {
+    final resposta = await _dio.get<List<dynamic>>('${_base(tipo)}/$marca/modelos/$modelo/anos');
     return _opcoes(resposta.data!)
         .map((a) => OpcaoFipe(a.codigo, a.nome.replaceFirst('$_anoZeroKm', 'Zero km')))
         .toList();
   }
 
-  Future<DetalheFipe> detalhe(String marca, String modelo, String ano) async {
-    final resposta = await _dio.get<Map<String, dynamic>>('$_base/$marca/modelos/$modelo/anos/$ano');
+  Future<DetalheFipe> detalhe(TipoVeiculo tipo, String marca, String modelo, String ano) async {
+    final resposta = await _dio.get<Map<String, dynamic>>('${_base(tipo)}/$marca/modelos/$modelo/anos/$ano');
     final dados = resposta.data!;
     final anoModelo = dados['AnoModelo'] as int?;
     return DetalheFipe(

@@ -6,10 +6,14 @@ import '../../data/sessao/sessao_controller.dart';
 import '../../domain/calculos/identificacao_energia.dart';
 import '../../domain/combustivel.dart';
 import '../../domain/tipo_energia.dart';
+import '../../domain/tipo_veiculo.dart';
 import '../../domain/veiculo.dart';
+
+enum CampoCadastro { fipe, marca, modelo, odometro, geral }
 
 class CadastroCarroEstado {
   const CadastroCarroEstado({
+    this.tipoVeiculo = TipoVeiculo.carro,
     this.manual = false,
     this.marcas = const AsyncLoading(),
     this.marca,
@@ -26,6 +30,7 @@ class CadastroCarroEstado {
 
   static const _manter = Object();
 
+  final TipoVeiculo tipoVeiculo;
   final bool manual;
   final AsyncValue<List<OpcaoFipe>> marcas;
   final OpcaoFipe? marca;
@@ -42,6 +47,7 @@ class CadastroCarroEstado {
   bool get podeSalvar => !salvando && energia != null && (manual || detalhe != null);
 
   CadastroCarroEstado copiar({
+    TipoVeiculo? tipoVeiculo,
     bool? manual,
     AsyncValue<List<OpcaoFipe>>? marcas,
     Object? marca = _manter,
@@ -56,6 +62,7 @@ class CadastroCarroEstado {
     bool? salvando,
   }) =>
       CadastroCarroEstado(
+        tipoVeiculo: tipoVeiculo ?? this.tipoVeiculo,
         manual: manual ?? this.manual,
         marcas: marcas ?? this.marcas,
         marca: identical(marca, _manter) ? this.marca : marca as OpcaoFipe?,
@@ -84,8 +91,9 @@ class CadastroCarroViewModel extends Notifier<CadastroCarroEstado> {
 
   Future<void> carregarMarcas() async {
     state = state.copiar(marcas: const AsyncLoading());
-    final resultado = await AsyncValue.guard(_fipe.marcas);
-    if (ref.mounted) state = state.copiar(marcas: resultado);
+    final tipo = state.tipoVeiculo;
+    final resultado = await AsyncValue.guard(() => _fipe.marcas(tipo));
+    if (ref.mounted && state.tipoVeiculo == tipo) state = state.copiar(marcas: resultado);
   }
 
   Future<void> selecionarMarca(OpcaoFipe? marca) async {
@@ -100,7 +108,7 @@ class CadastroCarroViewModel extends Notifier<CadastroCarroEstado> {
       energiaCorrigida: false,
     );
     if (marca == null) return;
-    final resultado = await AsyncValue.guard(() => _fipe.modelos(marca.codigo));
+    final resultado = await AsyncValue.guard(() => _fipe.modelos(state.tipoVeiculo, marca.codigo));
     if (ref.mounted && state.marca == marca) state = state.copiar(modelos: resultado);
   }
 
@@ -115,7 +123,7 @@ class CadastroCarroViewModel extends Notifier<CadastroCarroEstado> {
       energiaCorrigida: false,
     );
     if (marca == null || modelo == null) return;
-    final resultado = await AsyncValue.guard(() => _fipe.anos(marca.codigo, modelo.codigo));
+    final resultado = await AsyncValue.guard(() => _fipe.anos(state.tipoVeiculo, marca.codigo, modelo.codigo));
     if (ref.mounted && state.modelo == modelo) state = state.copiar(anos: resultado);
   }
 
@@ -125,7 +133,7 @@ class CadastroCarroViewModel extends Notifier<CadastroCarroEstado> {
     if (marca == null || modelo == null) return null;
     state = state.copiar(ano: ano, detalhe: null, energia: null, energiaCorrigida: false, carregandoDetalhe: true);
     try {
-      final detalhe = await _fipe.detalhe(marca.codigo, modelo.codigo, ano.codigo);
+      final detalhe = await _fipe.detalhe(state.tipoVeiculo, marca.codigo, modelo.codigo, ano.codigo);
       if (!ref.mounted || state.ano != ano) return null;
       state = state.copiar(
         detalhe: detalhe,
@@ -137,6 +145,12 @@ class CadastroCarroViewModel extends Notifier<CadastroCarroEstado> {
       if (ref.mounted) state = state.copiar(carregandoDetalhe: false, ano: null);
       return 'Não foi possível consultar a FIPE agora. Tente de novo ou cadastre sem a FIPE.';
     }
+  }
+
+  void selecionarTipoVeiculo(TipoVeiculo tipo) {
+    if (tipo == state.tipoVeiculo) return;
+    state = CadastroCarroEstado(tipoVeiculo: tipo, manual: state.manual, energia: state.manual ? energiaPadraoManual : null);
+    carregarMarcas();
   }
 
   void corrigirEnergia(EnergiaIdentificada energia) {
@@ -151,7 +165,7 @@ class CadastroCarroViewModel extends Notifier<CadastroCarroEstado> {
     );
   }
 
-  Future<String?> salvar({
+  Future<Map<CampoCadastro, String>> salvar({
     required String apelido,
     required String marcaManual,
     required String modeloManual,
@@ -163,16 +177,21 @@ class CadastroCarroViewModel extends Notifier<CadastroCarroEstado> {
     final energia = state.energia;
     final detalhe = state.detalhe;
     final usuarioId = ref.read(sessaoProvider).value?.usuario.id;
-    if (usuarioId == null) return 'Entre na sua conta para cadastrar um carro.';
-    if (energia == null) return 'Escolha o carro antes de salvar.';
-    if (odometro == null) return 'Informe o odômetro atual.';
-    final marca = state.manual ? marcaManual.trim() : detalhe!.marca;
-    final modelo = state.manual ? modeloManual.trim() : detalhe!.modelo;
-    if (marca.isEmpty || modelo.isEmpty) return 'Informe a marca e o modelo.';
+    if (usuarioId == null) return {CampoCadastro.geral: 'Entre na sua conta para cadastrar um veículo.'};
+    final marca = state.manual ? marcaManual.trim() : detalhe?.marca ?? '';
+    final modelo = state.manual ? modeloManual.trim() : detalhe?.modelo ?? '';
+    final erros = <CampoCadastro, String>{
+      if (state.manual && marca.isEmpty) CampoCadastro.marca: 'Informe a marca.',
+      if (state.manual && modelo.isEmpty) CampoCadastro.modelo: 'Informe o modelo.',
+      if (!state.manual && detalhe == null) CampoCadastro.fipe: 'Escolha marca, modelo e ano.',
+      if (odometro == null) CampoCadastro.odometro: 'Informe o hodômetro atual.',
+    };
+    if (erros.isNotEmpty || energia == null) return erros;
 
     state = state.copiar(salvando: true);
     final veiculo = Veiculo(
       id: ref.read(geradorIdProvider)(),
+      tipoVeiculo: state.tipoVeiculo,
       apelido: apelido.trim().isEmpty ? modelo : apelido.trim(),
       marca: marca,
       modelo: modelo,
@@ -182,12 +201,12 @@ class CadastroCarroViewModel extends Notifier<CadastroCarroEstado> {
       combustiveis: energia.combustiveis,
       capacidadeTanqueL: energia.tipo.abastece ? tanqueL : null,
       capacidadeBateriaKwh: energia.tipo.recarrega ? bateriaKwh : null,
-      odometroInicial: odometro,
+      odometroInicial: odometro!,
     );
     await ref.read(veiculoRepositorioProvider).salvar(veiculo, usuarioId: usuarioId);
     await ref.read(preferenciasRepositorioProvider).definirVeiculoAtivo(veiculo.id);
     if (ref.mounted) state = state.copiar(salvando: false);
-    return null;
+    return const {};
   }
 }
 

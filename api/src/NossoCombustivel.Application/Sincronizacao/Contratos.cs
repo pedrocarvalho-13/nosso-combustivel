@@ -17,7 +17,8 @@ public sealed record VeiculoSync(
     int OdometroInicial,
     DateTimeOffset CriadoEm,
     DateTimeOffset AtualizadoEm,
-    DateTimeOffset? ExcluidoEm);
+    DateTimeOffset? ExcluidoEm,
+    TipoVeiculo? TipoVeiculo = null);
 
 public sealed record AbastecimentoSync(
     Guid Id,

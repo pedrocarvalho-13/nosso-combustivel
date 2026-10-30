@@ -5,6 +5,7 @@ class PreferenciasRepositorio {
 
   static const _veiculoAtivo = 'veiculo_ativo';
   static const _tarifaCasa = 'tarifa_casa_kwh';
+  static const _onboardingHodometro = 'onboarding_hodometro';
 
   final BancoLocal _banco;
 
@@ -15,6 +16,10 @@ class PreferenciasRepositorio {
   Stream<double?> observarTarifaCasa() => _observar(_tarifaCasa).map((v) => v == null ? null : double.tryParse(v));
 
   Future<void> definirTarifaCasa(double tarifa) => _gravar(_tarifaCasa, '$tarifa');
+
+  Future<bool> onboardingHodometroVisto() async => await _observar(_onboardingHodometro).first != null;
+
+  Future<void> marcarOnboardingHodometroVisto() => _gravar(_onboardingHodometro, 'sim');
 
   Stream<String?> _observar(String chave) {
     final consulta = _banco.select(_banco.preferencias)..where((p) => p.chave.equals(chave));

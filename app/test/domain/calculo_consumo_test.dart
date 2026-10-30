@@ -86,4 +86,14 @@ void main() {
     expect(ciclos.single.rendimento, closeTo(6.8, 0.0001));
     expect(ciclos.single.combustivel, isNull);
   });
+
+  test('custo por km usa só o que foi pago nos ciclos fechados', () {
+    final ciclos = CalculoConsumo.ciclosDeAbastecimento([
+      Abastecimento(id: 'a', veiculoId: 'v1', data: DateTime(2026, 10, 1), odometro: 15200, valorCentavos: 30000, combustivel: Combustivel.gasolina, litros: 50, precoLitro: 6, tanqueCheio: true),
+      Abastecimento(id: 'b', veiculoId: 'v1', data: DateTime(2026, 10, 9), odometro: 15700, valorCentavos: 24000, combustivel: Combustivel.gasolina, litros: 40, precoLitro: 6, tanqueCheio: true),
+    ]);
+
+    expect(CalculoConsumo.custoPorKm(ciclos), closeTo(240 / 500, 0.0001));
+    expect(CalculoConsumo.custoPorKm(const []), isNull);
+  });
 }

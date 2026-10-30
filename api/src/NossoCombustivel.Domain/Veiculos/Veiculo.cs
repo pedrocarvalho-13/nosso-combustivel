@@ -14,7 +14,8 @@ public sealed record DadosVeiculo(
     decimal? CapacidadeBateriaKwh,
     int OdometroInicial,
     DateTimeOffset AtualizadoEm,
-    DateTimeOffset? ExcluidoEm);
+    DateTimeOffset? ExcluidoEm,
+    TipoVeiculo TipoVeiculo = TipoVeiculo.Carro);
 
 public sealed class Veiculo
 {
@@ -24,6 +25,7 @@ public sealed class Veiculo
 
     public Guid Id { get; private set; }
     public Guid DonoId { get; private set; }
+    public TipoVeiculo TipoVeiculo { get; private set; } = TipoVeiculo.Carro;
     public string Apelido { get; private set; } = string.Empty;
     public string Marca { get; private set; } = string.Empty;
     public string Modelo { get; private set; } = string.Empty;
@@ -61,6 +63,7 @@ public sealed class Veiculo
 
     private void Copiar(DadosVeiculo dados, DateTimeOffset agora)
     {
+        TipoVeiculo = dados.TipoVeiculo;
         Apelido = dados.Apelido.Trim();
         Marca = dados.Marca.Trim();
         Modelo = dados.Modelo.Trim();

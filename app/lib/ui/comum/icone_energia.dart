@@ -3,12 +3,17 @@ import 'package:flutter/material.dart';
 import '../../core/tema/paleta_energia.dart';
 import '../../domain/registro_energia.dart';
 import '../../domain/tipo_energia.dart';
+import '../../domain/tipo_veiculo.dart';
+import '../../domain/veiculo.dart';
 
 IconData iconeDoTipo(TipoEnergia tipo) => switch (tipo) {
       TipoEnergia.combustao => Icons.local_gas_station_outlined,
       TipoEnergia.hibridoComum || TipoEnergia.hibridoPlugin => Icons.electric_car_outlined,
       TipoEnergia.eletrico => Icons.bolt,
     };
+
+IconData iconeDoVeiculo(Veiculo veiculo) =>
+    veiculo.tipoVeiculo == TipoVeiculo.moto ? Icons.two_wheeler : iconeDoTipo(veiculo.tipoEnergia);
 
 IconData iconeDoRegistro(RegistroEnergia registro) => switch (registro) {
       Abastecimento() => Icons.local_gas_station_outlined,

@@ -7,8 +7,6 @@ class ResumoPeriodo {
 
   final int gastoCentavos;
   final int kmRodados;
-
-  double? get custoPorKm => kmRodados > 0 ? gastoCentavos / 100 / kmRodados : null;
 }
 
 abstract final class CalculoResumo {

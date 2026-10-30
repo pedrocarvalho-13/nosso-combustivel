@@ -92,6 +92,15 @@ abstract final class TemaApp {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: paleta.principal, width: 1.5),
         ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: CoresBase.alerta, width: 1.5),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: CoresBase.alerta, width: 2),
+        ),
+        errorStyle: const TextStyle(color: CoresBase.alerta),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: superficie,

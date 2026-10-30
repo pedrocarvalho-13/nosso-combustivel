@@ -73,6 +73,19 @@ public class SincronizacaoTests(FabricaApi fabrica) : IClassFixture<FabricaApi>
     }
 
     [Fact]
+    public async Task Moto_sobe_e_desce_como_moto()
+    {
+        var cliente = await ClienteLogadoAsync();
+        var motoId = Guid.CreateVersion7();
+        var moto = Carro(motoId, "CG do dia a dia") with { TipoVeiculo = TipoVeiculo.Moto, Combustiveis = [Combustivel.Gasolina] };
+
+        await EnviarAsync(cliente, new LoteSync([moto], [], []));
+        var busca = await BuscarAsync(cliente);
+
+        Assert.Equal(TipoVeiculo.Moto, busca.Alteracoes.Veiculos.Single().TipoVeiculo);
+    }
+
+    [Fact]
     public async Task Busca_com_cursor_traz_so_o_que_mudou_depois()
     {
         var cliente = await ClienteLogadoAsync();

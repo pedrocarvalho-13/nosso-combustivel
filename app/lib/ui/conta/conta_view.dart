@@ -76,7 +76,7 @@ class _ContaViewState extends ConsumerState<ContaView> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  criando ? 'Crie sua conta para começar' : 'Entre para ver os gastos dos seus carros',
+                  criando ? 'Crie sua conta para começar' : 'Entre para ver os gastos dos seus veículos',
                   textAlign: TextAlign.center,
                   style: textos.bodyMedium?.copyWith(color: esquema.onSurfaceVariant),
                 ),

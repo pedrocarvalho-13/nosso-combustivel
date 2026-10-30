@@ -32,7 +32,6 @@ void main() {
 
     expect(resumo.gastoCentavos, 32006);
     expect(resumo.kmRodados, 1284);
-    expect(resumo.custoPorKm, closeTo(320.06 / 1284, 0.0001));
   });
 
   test('sem registro anterior, a base é o odômetro do cadastro', () {

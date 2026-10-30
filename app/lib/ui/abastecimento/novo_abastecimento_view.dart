@@ -9,10 +9,13 @@ import '../../domain/combustivel.dart';
 import '../comum/campo_com_rotulo.dart';
 import '../comum/campo_data.dart';
 import '../comum/campos_valor.dart';
+import '../comum/formulario_registro.dart';
 import 'novo_abastecimento_view_model.dart';
 
 class NovoAbastecimentoView extends ConsumerStatefulWidget {
-  const NovoAbastecimentoView({super.key});
+  const NovoAbastecimentoView({super.key, this.registroId});
+
+  final String? registroId;
 
   @override
   ConsumerState<NovoAbastecimentoView> createState() => _NovoAbastecimentoViewState();
@@ -24,13 +27,26 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
   final _posto = TextEditingController();
   var _data = DateTime.now();
   var _tanqueCheio = true;
+  ErrosFormulario _erros = const {};
 
-  NovoAbastecimentoViewModel get _vm => ref.read(novoAbastecimentoViewModelProvider.notifier);
+  bool get _editando => widget.registroId != null;
+
+  NovoAbastecimentoViewModel get _vm => ref.read(novoAbastecimentoViewModelProvider(widget.registroId).notifier);
 
   @override
   void initState() {
     super.initState();
     _valores.preco.addListener(() => _vm.atualizarPreco(_valores.valorPreco));
+    for (final (controle, campo) in [
+      (_odometro, CampoRegistro.odometro),
+      (_valores.quantidade, CampoRegistro.quantidade),
+      (_valores.preco, CampoRegistro.preco),
+    ]) {
+      controle.addListener(() => _limparErro(campo));
+    }
+    if (!_editando) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => mostrarOnboardingHodometro(context, ref, recarga: false));
+    }
   }
 
   @override
@@ -41,8 +57,12 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
     super.dispose();
   }
 
+  void _limparErro(CampoRegistro campo) {
+    if (_erros.containsKey(campo)) setState(() => _erros = {..._erros}..remove(campo));
+  }
+
   Future<void> _salvar() async {
-    final erro = await _vm.salvar(
+    final resultado = await _vm.salvar(
       data: _data,
       odometro: Formato.lerInteiro(_odometro.text),
       litros: _valores.valorQuantidade,
@@ -52,25 +72,60 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
       posto: _posto.text,
     );
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(erro ?? 'Abastecimento salvo.')));
-    if (erro == null) context.pop();
+    setState(() => _erros = resultado.erros);
+    if (resultado.mensagem != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(resultado.mensagem!)));
+    }
+    if (!resultado.sucesso) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(_editando ? 'Abastecimento atualizado.' : 'Abastecimento salvo.')),
+    );
+    context.pop();
+  }
+
+  Future<void> _excluir() async {
+    final confirmou = await confirmarExclusao(
+      context,
+      titulo: 'Excluir este abastecimento?',
+      mensagem: 'O consumo e os gastos serão recalculados sem ele.',
+    );
+    if (!confirmou) return;
+    await _vm.excluir();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Abastecimento excluído.')));
+    context.pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    final estado = ref.watch(novoAbastecimentoViewModelProvider);
+    final estado = ref.watch(novoAbastecimentoViewModelProvider(widget.registroId));
     final veiculo = estado.veiculo;
+    ref.listen(novoAbastecimentoViewModelProvider(widget.registroId).select((e) => e.editando), (anterior, editando) {
+      if (anterior != null || editando == null) return;
+      setState(() {
+        _data = editando.data;
+        _tanqueCheio = editando.tanqueCheio;
+      });
+      _odometro.text = '${editando.odometro}';
+      _valores.preco.text = Formato.paraCampo(editando.precoLitro, casas: 3);
+      _valores.quantidade.text = Formato.paraCampo(editando.litros, casas: 3);
+      _valores.total.text = Formato.paraCampo(editando.valorCentavos / 100);
+      _posto.text = editando.posto ?? '';
+    });
 
     return Scaffold(
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Novo abastecimento'),
-            if (veiculo != null)
-              Text(veiculo.apelido, style: Theme.of(context).textTheme.bodySmall),
+            Text(_editando ? 'Editar abastecimento' : 'Novo abastecimento'),
+            if (veiculo != null) Text(veiculo.apelido, style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
+        actions: [
+          if (_editando)
+            IconButton(tooltip: 'Excluir', icon: const Icon(Icons.delete_outline), onPressed: _excluir),
+        ],
       ),
       body: SafeArea(
         child: ListView(
@@ -99,12 +154,15 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: CampoComRotulo(
-                    rotulo: 'Odômetro (km)',
+                    rotulo: 'Hodômetro (km)',
                     child: TextField(
                       controller: _odometro,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: InputDecoration(helperText: 'Última: ${Formato.km(estado.ultimoOdometro)}'),
+                      decoration: InputDecoration(
+                        helperText: 'Último: ${Formato.km(estado.ultimoOdometro)}',
+                        errorText: _erros[CampoRegistro.odometro],
+                      ),
                     ),
                   ),
                 ),
@@ -120,6 +178,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
                     child: TextField(
                       controller: _valores.quantidade,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: InputDecoration(errorText: _erros[CampoRegistro.quantidade]),
                     ),
                   ),
                 ),
@@ -130,6 +189,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
                     child: TextField(
                       controller: _valores.preco,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      decoration: InputDecoration(errorText: _erros[CampoRegistro.preco]),
                     ),
                   ),
                 ),
@@ -148,22 +208,19 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Encheu o tanque?'),
-              subtitle: const Text('Tanque cheio fecha o cálculo do consumo'),
+              subtitle: const Text('O consumo deste tanque aparece no próximo tanque cheio'),
               value: _tanqueCheio,
               onChanged: (valor) => setState(() => _tanqueCheio = valor),
             ),
             const SizedBox(height: 8),
             CampoComRotulo(
               rotulo: 'Posto (opcional)',
-              child: TextField(
-                controller: _posto,
-                textCapitalization: TextCapitalization.words,
-              ),
+              child: TextField(controller: _posto, textCapitalization: TextCapitalization.words),
             ),
             const SizedBox(height: 24),
             FilledButton(
               onPressed: estado.salvando || veiculo == null ? null : _salvar,
-              child: const Text('Salvar abastecimento'),
+              child: Text(_editando ? 'Salvar alterações' : 'Salvar abastecimento'),
             ),
           ],
         ),
@@ -185,7 +242,7 @@ class _AvisoEtanol extends StatelessWidget {
     final razao = (comparacao.razaoPreco * 100).round();
     final limite = (comparacao.limite * 100).round();
     final titulo = comparacao.etanolCompensa ? 'Etanol compensa hoje' : 'Gasolina compensa hoje';
-    final regra = comparacao.limiteDoCarro ? 'No seu carro, o etanol compensa até $limite%.' : 'A regra geral é até $limite%.';
+    final regra = comparacao.limiteDoCarro ? 'No seu veículo, o etanol compensa até $limite%.' : 'A regra geral é até $limite%.';
 
     return Container(
       padding: const EdgeInsets.all(14),

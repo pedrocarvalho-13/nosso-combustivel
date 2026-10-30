@@ -7,6 +7,7 @@ import 'package:nosso_combustivel/data/repositorios/veiculo_repositorio.dart';
 import 'package:nosso_combustivel/domain/combustivel.dart';
 import 'package:nosso_combustivel/domain/registro_energia.dart';
 import 'package:nosso_combustivel/domain/tipo_energia.dart';
+import 'package:nosso_combustivel/domain/tipo_veiculo.dart';
 import 'package:nosso_combustivel/domain/veiculo.dart';
 
 void main() {
@@ -95,5 +96,40 @@ void main() {
     await veiculos.adotarSemDono('u2');
 
     expect((await veiculos.observarDoUsuario('u2').first).single.id, 'v1');
+  });
+
+  test('editar o veículo muda o hodômetro inicial e excluir leva os registros junto', () async {
+    const moto = Veiculo(
+      id: 'm1',
+      tipoVeiculo: TipoVeiculo.moto,
+      apelido: 'CG',
+      marca: 'Honda',
+      modelo: 'CG 160',
+      tipoEnergia: TipoEnergia.combustao,
+      combustiveis: [Combustivel.gasolina],
+      odometroInicial: 15000,
+    );
+    await veiculos.salvar(moto, usuarioId: 'u1');
+    await registros.salvarAbastecimento(Abastecimento(
+      id: 'a1',
+      veiculoId: 'm1',
+      data: DateTime(2026, 10, 28),
+      odometro: 15200,
+      valorCentavos: 6000,
+      combustivel: Combustivel.gasolina,
+      litros: 10,
+      precoLitro: 6,
+      tanqueCheio: true,
+    ));
+
+    await veiculos.atualizar(moto.copiar(odometroInicial: 14900, apelido: 'CG nova'));
+    final editada = (await veiculos.observarDoUsuario('u1').first).single;
+    expect(editada.odometroInicial, 14900);
+    expect(editada.apelido, 'CG nova');
+    expect(editada.tipoVeiculo, TipoVeiculo.moto);
+
+    await veiculos.excluir('m1');
+    expect(await veiculos.observarDoUsuario('u1').first, isEmpty);
+    expect(await registros.listarDoVeiculo('m1'), isEmpty);
   });
 }

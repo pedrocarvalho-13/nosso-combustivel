@@ -18,10 +18,10 @@ class CarrosView extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Meus carros'),
+        title: const Text('Meus veículos'),
         actions: [
           IconButton(
-            tooltip: 'Adicionar carro',
+            tooltip: 'Adicionar veículo',
             icon: const Icon(Icons.add),
             onPressed: () => context.push(Rotas.novoCarro),
           ),
@@ -29,14 +29,14 @@ class CarrosView extends ConsumerWidget {
       ),
       body: estado.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (erro, _) => Center(child: Text('Não foi possível carregar os carros: $erro')),
+        error: (erro, _) => Center(child: Text('Não foi possível carregar os veículos: $erro')),
         data: (estado) {
           if (estado.veiculos.isEmpty) {
             return EstadoVazio(
               icone: Icons.directions_car_outlined,
-              titulo: 'Nenhum carro ainda',
-              mensagem: 'Cadastre pela tabela FIPE ou digitando marca e modelo.',
-              rotuloAcao: 'Adicionar carro',
+              titulo: 'Nenhum veículo ainda',
+              mensagem: 'Cadastre carro ou moto pela tabela FIPE ou digitando marca e modelo.',
+              rotuloAcao: 'Adicionar veículo',
               aoAcionar: () => context.push(Rotas.novoCarro),
             );
           }
@@ -53,6 +53,7 @@ class CarrosView extends ConsumerWidget {
                   await ref.read(carrosViewModelProvider.notifier).ativar(veiculo);
                   if (context.mounted) context.go(Rotas.inicio);
                 },
+                aoEditar: () => context.push(Rotas.editarVeiculo(veiculo.id)),
               );
             },
           );
@@ -63,11 +64,12 @@ class CarrosView extends ConsumerWidget {
 }
 
 class _CartaoVeiculo extends StatelessWidget {
-  const _CartaoVeiculo({required this.veiculo, required this.ativo, required this.aoTocar});
+  const _CartaoVeiculo({required this.veiculo, required this.ativo, required this.aoTocar, required this.aoEditar});
 
   final Veiculo veiculo;
   final bool ativo;
   final VoidCallback aoTocar;
+  final VoidCallback aoEditar;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +89,7 @@ class _CartaoVeiculo extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           child: Row(
             children: [
-              IconeEnergia(icone: iconeDoTipo(veiculo.tipoEnergia), tipo: veiculo.tipoEnergia, tamanho: 44),
+              IconeEnergia(icone: iconeDoVeiculo(veiculo), tipo: veiculo.tipoEnergia, tamanho: 44),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -108,6 +110,7 @@ class _CartaoVeiculo extends StatelessWidget {
                     style: textos.labelSmall?.copyWith(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.w600),
                   ),
                 ),
+              IconButton(tooltip: 'Editar ${veiculo.apelido}', icon: const Icon(Icons.edit_outlined), onPressed: aoEditar),
             ],
           ),
         ),

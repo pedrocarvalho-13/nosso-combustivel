@@ -7,6 +7,7 @@ class CicloConsumo {
     required this.fim,
     required this.distanciaKm,
     required this.quantidade,
+    this.valorCentavos = 0,
     this.combustivel,
     this.misto = false,
   });
@@ -15,6 +16,7 @@ class CicloConsumo {
   final DateTime fim;
   final int distanciaKm;
   final double quantidade;
+  final int valorCentavos;
   final Combustivel? combustivel;
   final bool misto;
 
@@ -47,6 +49,15 @@ abstract final class CalculoConsumo {
     return distancia / quantidade;
   }
 
+  static double? custoPorKm(List<CicloConsumo> ciclos, {int ultimos = 5}) {
+    if (ciclos.isEmpty) return null;
+    final ordenados = [...ciclos]..sort((a, b) => a.fim.compareTo(b.fim));
+    final janela = ordenados.skip(ordenados.length > ultimos ? ordenados.length - ultimos : 0);
+    final distancia = janela.fold<int>(0, (soma, c) => soma + c.distanciaKm);
+    final valor = janela.fold<int>(0, (soma, c) => soma + c.valorCentavos);
+    return distancia == 0 ? null : valor / 100 / distancia;
+  }
+
   static bool abaixoDaMedia(CicloConsumo ciclo, List<CicloConsumo> todos) {
     if (ciclo.misto) return false;
     final anteriores = todos.where((c) => c.fim.isBefore(ciclo.fim)).toList();
@@ -66,6 +77,7 @@ abstract final class CalculoConsumo {
     final ciclos = <CicloConsumo>[];
     T? ultimoCompleto;
     var quantidade = 0.0;
+    var valor = 0;
     final combustiveis = <Combustivel?>{};
 
     for (final registro in ordenados) {
@@ -74,6 +86,7 @@ abstract final class CalculoConsumo {
         continue;
       }
       quantidade += registro.quantidade;
+      valor += registro.valorCentavos;
       combustiveis.add(combustivelDe(registro));
       if (!registro.completo) continue;
 
@@ -84,12 +97,14 @@ abstract final class CalculoConsumo {
           fim: registro.data,
           distanciaKm: distancia,
           quantidade: quantidade,
+          valorCentavos: valor,
           combustivel: combustiveis.length == 1 ? combustiveis.first : null,
           misto: combustiveis.length > 1,
         ));
       }
       ultimoCompleto = registro;
       quantidade = 0;
+      valor = 0;
       combustiveis.clear();
     }
     return ciclos;

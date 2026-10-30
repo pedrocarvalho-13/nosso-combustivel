@@ -57,7 +57,7 @@ final inicioViewModelProvider = Provider<AsyncValue<InicioEstado?>>((ref) {
 
     final indicadores = [
       Indicador('Esta semana', Formato.moeda(semana.gastoCentavos)),
-      Indicador('Custo por km', mes.custoPorKm == null ? '—' : Formato.moedaPorKm(mes.custoPorKm!)),
+      Indicador('Custo por km', _custoPorKm(registros)),
       ..._consumos(veiculo, registros),
     ];
     if (indicadores.length.isOdd) {
@@ -97,4 +97,11 @@ List<Indicador> _consumos(Veiculo veiculo, List<RegistroEnergia> registros) {
     indicadores.add(Indicador('Consumo elétrico', valor(CalculoConsumo.media(ciclos), 'km/kWh')));
   }
   return indicadores;
+}
+
+String _custoPorKm(List<RegistroEnergia> registros) {
+  final combustivel = CalculoConsumo.custoPorKm(CalculoConsumo.ciclosDeAbastecimento(registros.whereType<Abastecimento>()));
+  final eletrico = CalculoConsumo.custoPorKm(CalculoConsumo.ciclosDeRecarga(registros.whereType<Recarga>()));
+  if (combustivel == null && eletrico == null) return 'após 2 tanques';
+  return Formato.moedaPorKm((combustivel ?? 0) + (eletrico ?? 0));
 }

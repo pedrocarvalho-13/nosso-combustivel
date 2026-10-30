@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../core/rotas/rotas.dart';
 
 import '../../core/tema/cores_base.dart';
 import '../../domain/registro_energia.dart';
@@ -75,13 +78,18 @@ class HistoricoView extends ConsumerWidget {
                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registro excluído.')));
                         }
                       },
-                      child: RegistroTile(registro: item.registro, consumo: item.consumo, alerta: item.alerta),
+                      child: RegistroTile(
+                        registro: item.registro,
+                        consumo: item.consumo,
+                        alerta: item.alerta,
+                        aoTocar: () => context.push(_rotaDeEdicao(item.registro)),
+                      ),
                     ),
                   ),
               ],
               const SizedBox(height: 8),
               Text(
-                'Arraste um registro para a esquerda para excluir.',
+                'Toque num registro para editar ou arraste para a esquerda para excluir.',
                 textAlign: TextAlign.center,
                 style: textos.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
@@ -91,6 +99,10 @@ class HistoricoView extends ConsumerWidget {
       ),
     );
   }
+
+  static String _rotaDeEdicao(RegistroEnergia registro) => registro is Abastecimento
+      ? Rotas.editarAbastecimento(registro.id)
+      : Rotas.editarRecarga(registro.id);
 
   Future<bool> _confirmarExclusao(BuildContext context, RegistroEnergia registro) async {
     final tipo = registro is Abastecimento ? 'este abastecimento' : 'esta recarga';
