@@ -159,7 +159,7 @@ public class SincronizacaoTests(FabricaApi fabrica) : IClassFixture<FabricaApi>
         var cartaoId = Guid.CreateVersion7();
         var cartao = new CartaoSync(cartaoId, "Roxinho", 31, Base, Base, null, "Nubank");
         var credito = Abastecimento(Guid.CreateVersion7(), carroId) with { FormaPagamento = FormaPagamento.Credito, CartaoId = cartaoId };
-        var pix = Abastecimento(Guid.CreateVersion7(), carroId) with { FormaPagamento = FormaPagamento.Pix, CartaoId = cartaoId };
+        var pix = Abastecimento(Guid.CreateVersion7(), carroId) with { FormaPagamento = FormaPagamento.Pix, CartaoId = cartaoId, ContaNaMedia = false };
 
         var envio = await EnviarAsync(cliente, new LoteSync([Carro(carroId)], [credito, pix], [], [cartao]));
         var busca = await BuscarAsync(cliente);
@@ -172,6 +172,8 @@ public class SincronizacaoTests(FabricaApi fabrica) : IClassFixture<FabricaApi>
         Assert.Equal(FormaPagamento.Credito, recebidoCredito.FormaPagamento);
         Assert.Equal(cartaoId, recebidoCredito.CartaoId);
         Assert.Null(busca.Alteracoes.Abastecimentos.Single(a => a.Id == pix.Id).CartaoId);
+        Assert.False(busca.Alteracoes.Abastecimentos.Single(a => a.Id == pix.Id).ContaNaMedia);
+        Assert.True(recebidoCredito.ContaNaMedia);
     }
 
     [Fact]

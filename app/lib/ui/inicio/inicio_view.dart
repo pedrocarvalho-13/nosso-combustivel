@@ -812,7 +812,9 @@ class _LinhaDoTempo extends StatelessWidget {
                               style: secundario,
                               children: [
                                 TextSpan(text: _detalhes(item.registro)),
-                                if (item.consumo == null && indice == 0) const TextSpan(text: ' · aguardando o próximo'),
+                                if (!item.registro.contaNaMedia) const TextSpan(text: ' · fora da média'),
+                                if (item.consumo == null && indice == 0 && item.registro.contaNaMedia)
+                                  const TextSpan(text: ' · aguardando o próximo'),
                                 if (item.consumo != null)
                                   TextSpan(
                                     text: ' · ${Formato.decimal(item.consumo!)} ${item.unidade}',

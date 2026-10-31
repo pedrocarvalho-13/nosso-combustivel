@@ -74,7 +74,9 @@ class HistoricoViewModel extends Notifier<AsyncValue<HistoricoEstado>> {
         final unidade = registro is Recarga ? 'km/kWh' : 'km/l';
         grupos.last.itens.add(ItemHistorico(
           registro: registro,
-          consumo: ciclo == null ? null : '${Formato.decimal(ciclo.rendimento)} $unidade',
+          consumo: ciclo == null
+              ? (registro.contaNaMedia ? null : 'Fora da média de consumo')
+              : '${Formato.decimal(ciclo.rendimento)} $unidade',
           alerta: ciclo != null &&
               CalculoConsumo.abaixoDaMedia(ciclo, registro is Recarga ? ciclosEletricos : ciclosCombustivel),
         ));

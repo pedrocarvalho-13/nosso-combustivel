@@ -32,6 +32,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
   final _posto = TextEditingController();
   var _data = DateTime.now();
   var _tanqueCheio = false;
+  var _contaNaMedia = true;
   FormaPagamento? _forma;
   String? _cartaoId;
   ErrosFormulario _erros = const {};
@@ -91,6 +92,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
       tanqueCheio: _tanqueCheio,
       posto: _posto.text,
       formaPagamento: _forma,
+      contaNaMedia: _contaNaMedia,
       cartaoId: _cartaoId,
     );
     if (!mounted) return;
@@ -137,6 +139,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
       setState(() {
         _data = editando.data;
         _tanqueCheio = editando.tanqueCheio;
+        _contaNaMedia = editando.contaNaMedia;
         _forma = editando.formaPagamento;
         _cartaoId = editando.cartaoId;
       });
@@ -256,6 +259,13 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
               subtitle: const Text('Opcional. Deixa a média mais precisa'),
               value: _tanqueCheio,
               onChanged: (valor) => setState(() => _tanqueCheio = valor),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Contar na média de consumo'),
+              subtitle: const Text('Desligue quando abastecer pouco antes da hora, só para durar uns dias'),
+              value: _contaNaMedia,
+              onChanged: (valor) => setState(() => _contaNaMedia = valor),
             ),
             const SizedBox(height: 8),
             CampoPagamento(

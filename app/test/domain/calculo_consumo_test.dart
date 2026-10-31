@@ -112,4 +112,26 @@ void main() {
     expect(CalculoConsumo.custoPorKm(ciclos), closeTo(300 / 500, 0.0001));
     expect(CalculoConsumo.custoPorKm(const []), isNull);
   });
+
+  test('abastecimento fora da média tira o trecho dele do cálculo', () {
+    final ciclos = CalculoConsumo.ciclosDeAbastecimento([
+      abastecimento('a', 97128, 14.3, dia: 24),
+      Abastecimento(
+        id: 'b',
+        veiculoId: 'v1',
+        data: DateTime(2026, 10, 29),
+        odometro: 97282,
+        valorCentavos: 5000,
+        combustivel: Combustivel.gasolina,
+        litros: 7.2,
+        precoLitro: 6.99,
+        tanqueCheio: false,
+        contaNaMedia: false,
+      ),
+      abastecimento('c', 97335, 20, dia: 31),
+    ]);
+
+    expect(ciclos.map((c) => c.registroId), ['a']);
+    expect(CalculoConsumo.media(ciclos, qualquerCombustivel: true), closeTo(154 / 14.3, 0.0001));
+  });
 }

@@ -1178,6 +1178,21 @@ class $AbastecimentosTable extends Abastecimentos
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _contaNaMediaMeta = const VerificationMeta(
+    'contaNaMedia',
+  );
+  @override
+  late final GeneratedColumn<bool> contaNaMedia = GeneratedColumn<bool>(
+    'conta_na_media',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("conta_na_media" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1196,6 +1211,7 @@ class $AbastecimentosTable extends Abastecimentos
     posto,
     formaPagamento,
     cartaoId,
+    contaNaMedia,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1322,6 +1338,15 @@ class $AbastecimentosTable extends Abastecimentos
         cartaoId.isAcceptableOrUnknown(data['cartao_id']!, _cartaoIdMeta),
       );
     }
+    if (data.containsKey('conta_na_media')) {
+      context.handle(
+        _contaNaMediaMeta,
+        contaNaMedia.isAcceptableOrUnknown(
+          data['conta_na_media']!,
+          _contaNaMediaMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1399,6 +1424,10 @@ class $AbastecimentosTable extends Abastecimentos
         DriftSqlType.string,
         data['${effectivePrefix}cartao_id'],
       ),
+      contaNaMedia: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}conta_na_media'],
+      )!,
     );
   }
 
@@ -1437,6 +1466,7 @@ class AbastecimentoLinha extends DataClass
   final String? posto;
   final FormaPagamento? formaPagamento;
   final String? cartaoId;
+  final bool contaNaMedia;
   const AbastecimentoLinha({
     required this.id,
     required this.criadoEm,
@@ -1454,6 +1484,7 @@ class AbastecimentoLinha extends DataClass
     this.posto,
     this.formaPagamento,
     this.cartaoId,
+    required this.contaNaMedia,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1488,6 +1519,7 @@ class AbastecimentoLinha extends DataClass
     if (!nullToAbsent || cartaoId != null) {
       map['cartao_id'] = Variable<String>(cartaoId);
     }
+    map['conta_na_media'] = Variable<bool>(contaNaMedia);
     return map;
   }
 
@@ -1517,6 +1549,7 @@ class AbastecimentoLinha extends DataClass
       cartaoId: cartaoId == null && nullToAbsent
           ? const Value.absent()
           : Value(cartaoId),
+      contaNaMedia: Value(contaNaMedia),
     );
   }
 
@@ -1548,6 +1581,7 @@ class AbastecimentoLinha extends DataClass
         serializer.fromJson<String?>(json['formaPagamento']),
       ),
       cartaoId: serializer.fromJson<String?>(json['cartaoId']),
+      contaNaMedia: serializer.fromJson<bool>(json['contaNaMedia']),
     );
   }
   @override
@@ -1574,6 +1608,7 @@ class AbastecimentoLinha extends DataClass
         $AbastecimentosTable.$converterformaPagamenton.toJson(formaPagamento),
       ),
       'cartaoId': serializer.toJson<String?>(cartaoId),
+      'contaNaMedia': serializer.toJson<bool>(contaNaMedia),
     };
   }
 
@@ -1594,6 +1629,7 @@ class AbastecimentoLinha extends DataClass
     Value<String?> posto = const Value.absent(),
     Value<FormaPagamento?> formaPagamento = const Value.absent(),
     Value<String?> cartaoId = const Value.absent(),
+    bool? contaNaMedia,
   }) => AbastecimentoLinha(
     id: id ?? this.id,
     criadoEm: criadoEm ?? this.criadoEm,
@@ -1613,6 +1649,7 @@ class AbastecimentoLinha extends DataClass
         ? formaPagamento.value
         : this.formaPagamento,
     cartaoId: cartaoId.present ? cartaoId.value : this.cartaoId,
+    contaNaMedia: contaNaMedia ?? this.contaNaMedia,
   );
   AbastecimentoLinha copyWithCompanion(AbastecimentosCompanion data) {
     return AbastecimentoLinha(
@@ -1646,6 +1683,9 @@ class AbastecimentoLinha extends DataClass
           ? data.formaPagamento.value
           : this.formaPagamento,
       cartaoId: data.cartaoId.present ? data.cartaoId.value : this.cartaoId,
+      contaNaMedia: data.contaNaMedia.present
+          ? data.contaNaMedia.value
+          : this.contaNaMedia,
     );
   }
 
@@ -1667,7 +1707,8 @@ class AbastecimentoLinha extends DataClass
           ..write('tanqueCheio: $tanqueCheio, ')
           ..write('posto: $posto, ')
           ..write('formaPagamento: $formaPagamento, ')
-          ..write('cartaoId: $cartaoId')
+          ..write('cartaoId: $cartaoId, ')
+          ..write('contaNaMedia: $contaNaMedia')
           ..write(')'))
         .toString();
   }
@@ -1690,6 +1731,7 @@ class AbastecimentoLinha extends DataClass
     posto,
     formaPagamento,
     cartaoId,
+    contaNaMedia,
   );
   @override
   bool operator ==(Object other) =>
@@ -1710,7 +1752,8 @@ class AbastecimentoLinha extends DataClass
           other.tanqueCheio == this.tanqueCheio &&
           other.posto == this.posto &&
           other.formaPagamento == this.formaPagamento &&
-          other.cartaoId == this.cartaoId);
+          other.cartaoId == this.cartaoId &&
+          other.contaNaMedia == this.contaNaMedia);
 }
 
 class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
@@ -1730,6 +1773,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
   final Value<String?> posto;
   final Value<FormaPagamento?> formaPagamento;
   final Value<String?> cartaoId;
+  final Value<bool> contaNaMedia;
   final Value<int> rowid;
   const AbastecimentosCompanion({
     this.id = const Value.absent(),
@@ -1748,6 +1792,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     this.posto = const Value.absent(),
     this.formaPagamento = const Value.absent(),
     this.cartaoId = const Value.absent(),
+    this.contaNaMedia = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AbastecimentosCompanion.insert({
@@ -1767,6 +1812,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     this.posto = const Value.absent(),
     this.formaPagamento = const Value.absent(),
     this.cartaoId = const Value.absent(),
+    this.contaNaMedia = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        criadoEm = Value(criadoEm),
@@ -1796,6 +1842,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     Expression<String>? posto,
     Expression<String>? formaPagamento,
     Expression<String>? cartaoId,
+    Expression<bool>? contaNaMedia,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1816,6 +1863,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
       if (posto != null) 'posto': posto,
       if (formaPagamento != null) 'forma_pagamento': formaPagamento,
       if (cartaoId != null) 'cartao_id': cartaoId,
+      if (contaNaMedia != null) 'conta_na_media': contaNaMedia,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1837,6 +1885,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     Value<String?>? posto,
     Value<FormaPagamento?>? formaPagamento,
     Value<String?>? cartaoId,
+    Value<bool>? contaNaMedia,
     Value<int>? rowid,
   }) {
     return AbastecimentosCompanion(
@@ -1856,6 +1905,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
       posto: posto ?? this.posto,
       formaPagamento: formaPagamento ?? this.formaPagamento,
       cartaoId: cartaoId ?? this.cartaoId,
+      contaNaMedia: contaNaMedia ?? this.contaNaMedia,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1917,6 +1967,9 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     if (cartaoId.present) {
       map['cartao_id'] = Variable<String>(cartaoId.value);
     }
+    if (contaNaMedia.present) {
+      map['conta_na_media'] = Variable<bool>(contaNaMedia.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1942,6 +1995,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
           ..write('posto: $posto, ')
           ..write('formaPagamento: $formaPagamento, ')
           ..write('cartaoId: $cartaoId, ')
+          ..write('contaNaMedia: $contaNaMedia, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2121,6 +2175,21 @@ class $RecargasTable extends Recargas
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _contaNaMediaMeta = const VerificationMeta(
+    'contaNaMedia',
+  );
+  @override
+  late final GeneratedColumn<bool> contaNaMedia = GeneratedColumn<bool>(
+    'conta_na_media',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("conta_na_media" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2138,6 +2207,7 @@ class $RecargasTable extends Recargas
     cargaCompleta,
     formaPagamento,
     cartaoId,
+    contaNaMedia,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2258,6 +2328,15 @@ class $RecargasTable extends Recargas
         cartaoId.isAcceptableOrUnknown(data['cartao_id']!, _cartaoIdMeta),
       );
     }
+    if (data.containsKey('conta_na_media')) {
+      context.handle(
+        _contaNaMediaMeta,
+        contaNaMedia.isAcceptableOrUnknown(
+          data['conta_na_media']!,
+          _contaNaMediaMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -2331,6 +2410,10 @@ class $RecargasTable extends Recargas
         DriftSqlType.string,
         data['${effectivePrefix}cartao_id'],
       ),
+      contaNaMedia: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}conta_na_media'],
+      )!,
     );
   }
 
@@ -2367,6 +2450,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
   final bool cargaCompleta;
   final FormaPagamento? formaPagamento;
   final String? cartaoId;
+  final bool contaNaMedia;
   const RecargaLinha({
     required this.id,
     required this.criadoEm,
@@ -2383,6 +2467,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
     required this.cargaCompleta,
     this.formaPagamento,
     this.cartaoId,
+    required this.contaNaMedia,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2414,6 +2499,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
     if (!nullToAbsent || cartaoId != null) {
       map['cartao_id'] = Variable<String>(cartaoId);
     }
+    map['conta_na_media'] = Variable<bool>(contaNaMedia);
     return map;
   }
 
@@ -2440,6 +2526,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
       cartaoId: cartaoId == null && nullToAbsent
           ? const Value.absent()
           : Value(cartaoId),
+      contaNaMedia: Value(contaNaMedia),
     );
   }
 
@@ -2468,6 +2555,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
         serializer.fromJson<String?>(json['formaPagamento']),
       ),
       cartaoId: serializer.fromJson<String?>(json['cartaoId']),
+      contaNaMedia: serializer.fromJson<bool>(json['contaNaMedia']),
     );
   }
   @override
@@ -2493,6 +2581,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
         $RecargasTable.$converterformaPagamenton.toJson(formaPagamento),
       ),
       'cartaoId': serializer.toJson<String?>(cartaoId),
+      'contaNaMedia': serializer.toJson<bool>(contaNaMedia),
     };
   }
 
@@ -2512,6 +2601,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
     bool? cargaCompleta,
     Value<FormaPagamento?> formaPagamento = const Value.absent(),
     Value<String?> cartaoId = const Value.absent(),
+    bool? contaNaMedia,
   }) => RecargaLinha(
     id: id ?? this.id,
     criadoEm: criadoEm ?? this.criadoEm,
@@ -2530,6 +2620,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
         ? formaPagamento.value
         : this.formaPagamento,
     cartaoId: cartaoId.present ? cartaoId.value : this.cartaoId,
+    contaNaMedia: contaNaMedia ?? this.contaNaMedia,
   );
   RecargaLinha copyWithCompanion(RecargasCompanion data) {
     return RecargaLinha(
@@ -2560,6 +2651,9 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
           ? data.formaPagamento.value
           : this.formaPagamento,
       cartaoId: data.cartaoId.present ? data.cartaoId.value : this.cartaoId,
+      contaNaMedia: data.contaNaMedia.present
+          ? data.contaNaMedia.value
+          : this.contaNaMedia,
     );
   }
 
@@ -2580,7 +2674,8 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
           ..write('valorCentavos: $valorCentavos, ')
           ..write('cargaCompleta: $cargaCompleta, ')
           ..write('formaPagamento: $formaPagamento, ')
-          ..write('cartaoId: $cartaoId')
+          ..write('cartaoId: $cartaoId, ')
+          ..write('contaNaMedia: $contaNaMedia')
           ..write(')'))
         .toString();
   }
@@ -2602,6 +2697,7 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
     cargaCompleta,
     formaPagamento,
     cartaoId,
+    contaNaMedia,
   );
   @override
   bool operator ==(Object other) =>
@@ -2621,7 +2717,8 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
           other.valorCentavos == this.valorCentavos &&
           other.cargaCompleta == this.cargaCompleta &&
           other.formaPagamento == this.formaPagamento &&
-          other.cartaoId == this.cartaoId);
+          other.cartaoId == this.cartaoId &&
+          other.contaNaMedia == this.contaNaMedia);
 }
 
 class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
@@ -2640,6 +2737,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
   final Value<bool> cargaCompleta;
   final Value<FormaPagamento?> formaPagamento;
   final Value<String?> cartaoId;
+  final Value<bool> contaNaMedia;
   final Value<int> rowid;
   const RecargasCompanion({
     this.id = const Value.absent(),
@@ -2657,6 +2755,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
     this.cargaCompleta = const Value.absent(),
     this.formaPagamento = const Value.absent(),
     this.cartaoId = const Value.absent(),
+    this.contaNaMedia = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   RecargasCompanion.insert({
@@ -2675,6 +2774,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
     required bool cargaCompleta,
     this.formaPagamento = const Value.absent(),
     this.cartaoId = const Value.absent(),
+    this.contaNaMedia = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        criadoEm = Value(criadoEm),
@@ -2703,6 +2803,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
     Expression<bool>? cargaCompleta,
     Expression<String>? formaPagamento,
     Expression<String>? cartaoId,
+    Expression<bool>? contaNaMedia,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2721,6 +2822,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
       if (cargaCompleta != null) 'carga_completa': cargaCompleta,
       if (formaPagamento != null) 'forma_pagamento': formaPagamento,
       if (cartaoId != null) 'cartao_id': cartaoId,
+      if (contaNaMedia != null) 'conta_na_media': contaNaMedia,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2741,6 +2843,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
     Value<bool>? cargaCompleta,
     Value<FormaPagamento?>? formaPagamento,
     Value<String?>? cartaoId,
+    Value<bool>? contaNaMedia,
     Value<int>? rowid,
   }) {
     return RecargasCompanion(
@@ -2759,6 +2862,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
       cargaCompleta: cargaCompleta ?? this.cargaCompleta,
       formaPagamento: formaPagamento ?? this.formaPagamento,
       cartaoId: cartaoId ?? this.cartaoId,
+      contaNaMedia: contaNaMedia ?? this.contaNaMedia,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2815,6 +2919,9 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
     if (cartaoId.present) {
       map['cartao_id'] = Variable<String>(cartaoId.value);
     }
+    if (contaNaMedia.present) {
+      map['conta_na_media'] = Variable<bool>(contaNaMedia.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2839,6 +2946,7 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
           ..write('cargaCompleta: $cargaCompleta, ')
           ..write('formaPagamento: $formaPagamento, ')
           ..write('cartaoId: $cartaoId, ')
+          ..write('contaNaMedia: $contaNaMedia, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4309,6 +4417,7 @@ typedef $$AbastecimentosTableCreateCompanionBuilder =
       Value<String?> posto,
       Value<FormaPagamento?> formaPagamento,
       Value<String?> cartaoId,
+      Value<bool> contaNaMedia,
       Value<int> rowid,
     });
 typedef $$AbastecimentosTableUpdateCompanionBuilder =
@@ -4329,6 +4438,7 @@ typedef $$AbastecimentosTableUpdateCompanionBuilder =
       Value<String?> posto,
       Value<FormaPagamento?> formaPagamento,
       Value<String?> cartaoId,
+      Value<bool> contaNaMedia,
       Value<int> rowid,
     });
 
@@ -4445,6 +4555,11 @@ class $$AbastecimentosTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<bool> get contaNaMedia => $composableBuilder(
+    column: $table.contaNaMedia,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$VeiculosTableFilterComposer get veiculoId {
     final $$VeiculosTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -4553,6 +4668,11 @@ class $$AbastecimentosTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get contaNaMedia => $composableBuilder(
+    column: $table.contaNaMedia,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$VeiculosTableOrderingComposer get veiculoId {
     final $$VeiculosTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -4647,6 +4767,11 @@ class $$AbastecimentosTableAnnotationComposer
   GeneratedColumn<String> get cartaoId =>
       $composableBuilder(column: $table.cartaoId, builder: (column) => column);
 
+  GeneratedColumn<bool> get contaNaMedia => $composableBuilder(
+    column: $table.contaNaMedia,
+    builder: (column) => column,
+  );
+
   $$VeiculosTableAnnotationComposer get veiculoId {
     final $$VeiculosTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -4715,6 +4840,7 @@ class $$AbastecimentosTableTableManager
                 Value<String?> posto = const Value.absent(),
                 Value<FormaPagamento?> formaPagamento = const Value.absent(),
                 Value<String?> cartaoId = const Value.absent(),
+                Value<bool> contaNaMedia = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AbastecimentosCompanion(
                 id: id,
@@ -4733,6 +4859,7 @@ class $$AbastecimentosTableTableManager
                 posto: posto,
                 formaPagamento: formaPagamento,
                 cartaoId: cartaoId,
+                contaNaMedia: contaNaMedia,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -4753,6 +4880,7 @@ class $$AbastecimentosTableTableManager
                 Value<String?> posto = const Value.absent(),
                 Value<FormaPagamento?> formaPagamento = const Value.absent(),
                 Value<String?> cartaoId = const Value.absent(),
+                Value<bool> contaNaMedia = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AbastecimentosCompanion.insert(
                 id: id,
@@ -4771,6 +4899,7 @@ class $$AbastecimentosTableTableManager
                 posto: posto,
                 formaPagamento: formaPagamento,
                 cartaoId: cartaoId,
+                contaNaMedia: contaNaMedia,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -4858,6 +4987,7 @@ typedef $$RecargasTableCreateCompanionBuilder =
       required bool cargaCompleta,
       Value<FormaPagamento?> formaPagamento,
       Value<String?> cartaoId,
+      Value<bool> contaNaMedia,
       Value<int> rowid,
     });
 typedef $$RecargasTableUpdateCompanionBuilder =
@@ -4877,6 +5007,7 @@ typedef $$RecargasTableUpdateCompanionBuilder =
       Value<bool> cargaCompleta,
       Value<FormaPagamento?> formaPagamento,
       Value<String?> cartaoId,
+      Value<bool> contaNaMedia,
       Value<int> rowid,
     });
 
@@ -4983,6 +5114,11 @@ class $$RecargasTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<bool> get contaNaMedia => $composableBuilder(
+    column: $table.contaNaMedia,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$VeiculosTableFilterComposer get veiculoId {
     final $$VeiculosTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -5086,6 +5222,11 @@ class $$RecargasTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get contaNaMedia => $composableBuilder(
+    column: $table.contaNaMedia,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$VeiculosTableOrderingComposer get veiculoId {
     final $$VeiculosTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -5174,6 +5315,11 @@ class $$RecargasTableAnnotationComposer
   GeneratedColumn<String> get cartaoId =>
       $composableBuilder(column: $table.cartaoId, builder: (column) => column);
 
+  GeneratedColumn<bool> get contaNaMedia => $composableBuilder(
+    column: $table.contaNaMedia,
+    builder: (column) => column,
+  );
+
   $$VeiculosTableAnnotationComposer get veiculoId {
     final $$VeiculosTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -5241,6 +5387,7 @@ class $$RecargasTableTableManager
                 Value<bool> cargaCompleta = const Value.absent(),
                 Value<FormaPagamento?> formaPagamento = const Value.absent(),
                 Value<String?> cartaoId = const Value.absent(),
+                Value<bool> contaNaMedia = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RecargasCompanion(
                 id: id,
@@ -5258,6 +5405,7 @@ class $$RecargasTableTableManager
                 cargaCompleta: cargaCompleta,
                 formaPagamento: formaPagamento,
                 cartaoId: cartaoId,
+                contaNaMedia: contaNaMedia,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -5277,6 +5425,7 @@ class $$RecargasTableTableManager
                 required bool cargaCompleta,
                 Value<FormaPagamento?> formaPagamento = const Value.absent(),
                 Value<String?> cartaoId = const Value.absent(),
+                Value<bool> contaNaMedia = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RecargasCompanion.insert(
                 id: id,
@@ -5294,6 +5443,7 @@ class $$RecargasTableTableManager
                 cargaCompleta: cargaCompleta,
                 formaPagamento: formaPagamento,
                 cartaoId: cartaoId,
+                contaNaMedia: contaNaMedia,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

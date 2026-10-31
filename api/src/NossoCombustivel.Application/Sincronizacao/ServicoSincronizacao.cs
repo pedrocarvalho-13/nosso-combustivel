@@ -62,7 +62,7 @@ public sealed class ServicoSincronizacao(IRepositorioSincronizacao repositorio, 
                 var existente = abastecimentos.GetValueOrDefault(dto.Id);
                 ExigirCarroPermitido(existente?.VeiculoId ?? dto.VeiculoId, permitidos);
                 var dados = new DadosAbastecimento(dto.Data, dto.Odometro, dto.Combustivel, dto.Litros, dto.PrecoLitro,
-                    dto.ValorTotal, dto.TanqueCheio, dto.Posto, dto.AtualizadoEm, dto.ExcluidoEm, dto.FormaPagamento, dto.CartaoId);
+                    dto.ValorTotal, dto.TanqueCheio, dto.Posto, dto.AtualizadoEm, dto.ExcluidoEm, dto.FormaPagamento, dto.CartaoId, dto.ContaNaMedia ?? true);
                 if (existente is null)
                     repositorio.Adicionar(Abastecimento.Criar(dto.Id, dto.VeiculoId, usuarioId, dados, dto.CriadoEm, agora));
                 else
@@ -79,7 +79,7 @@ public sealed class ServicoSincronizacao(IRepositorioSincronizacao repositorio, 
                 var existente = recargas.GetValueOrDefault(dto.Id);
                 ExigirCarroPermitido(existente?.VeiculoId ?? dto.VeiculoId, permitidos);
                 var dados = new DadosRecarga(dto.Data, dto.Odometro, dto.Local, dto.Kwh, dto.PrecoKwh,
-                    dto.ValorTotal, dto.CargaCompleta, dto.AtualizadoEm, dto.ExcluidoEm, dto.FormaPagamento, dto.CartaoId);
+                    dto.ValorTotal, dto.CargaCompleta, dto.AtualizadoEm, dto.ExcluidoEm, dto.FormaPagamento, dto.CartaoId, dto.ContaNaMedia ?? true);
                 if (existente is null)
                     repositorio.Adicionar(Recarga.Criar(dto.Id, dto.VeiculoId, usuarioId, dados, dto.CriadoEm, agora));
                 else
@@ -141,11 +141,11 @@ public sealed class ServicoSincronizacao(IRepositorioSincronizacao repositorio, 
 
     private static AbastecimentoSync ParaDto(Abastecimento a) => new(
         a.Id, a.VeiculoId, a.Data, a.Odometro, a.Combustivel, a.Litros, a.PrecoLitro, a.ValorTotal,
-        a.TanqueCheio, a.Posto, a.CriadoEm, a.AtualizadoEm, a.ExcluidoEm, a.FormaPagamento, a.CartaoId);
+        a.TanqueCheio, a.Posto, a.CriadoEm, a.AtualizadoEm, a.ExcluidoEm, a.FormaPagamento, a.CartaoId, a.ContaNaMedia);
 
     private static RecargaSync ParaDto(Recarga r) => new(
         r.Id, r.VeiculoId, r.Data, r.Odometro, r.Local, r.Kwh, r.PrecoKwh, r.ValorTotal,
-        r.CargaCompleta, r.CriadoEm, r.AtualizadoEm, r.ExcluidoEm, r.FormaPagamento, r.CartaoId);
+        r.CargaCompleta, r.CriadoEm, r.AtualizadoEm, r.ExcluidoEm, r.FormaPagamento, r.CartaoId, r.ContaNaMedia);
 
     private static CartaoSync ParaDto(Cartao c) => new(c.Id, c.Nome, c.DiaFechamento, c.CriadoEm, c.AtualizadoEm, c.ExcluidoEm, c.Banco);
 }

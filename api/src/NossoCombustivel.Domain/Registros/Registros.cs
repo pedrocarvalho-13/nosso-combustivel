@@ -30,7 +30,8 @@ public sealed record DadosAbastecimento(
     DateTimeOffset AtualizadoEm,
     DateTimeOffset? ExcluidoEm,
     FormaPagamento? FormaPagamento = null,
-    Guid? CartaoId = null);
+    Guid? CartaoId = null,
+    bool ContaNaMedia = true);
 
 public sealed record DadosRecarga(
     DateTimeOffset Data,
@@ -43,7 +44,8 @@ public sealed record DadosRecarga(
     DateTimeOffset AtualizadoEm,
     DateTimeOffset? ExcluidoEm,
     FormaPagamento? FormaPagamento = null,
-    Guid? CartaoId = null);
+    Guid? CartaoId = null,
+    bool ContaNaMedia = true);
 
 public abstract class RegistroEnergia
 {
@@ -59,6 +61,7 @@ public abstract class RegistroEnergia
     public DateTimeOffset SincronizadoEm { get; protected set; }
     public FormaPagamento? FormaPagamento { get; protected set; }
     public Guid? CartaoId { get; protected set; }
+    public bool ContaNaMedia { get; protected set; } = true;
 
     protected void CopiarPagamento(FormaPagamento? formaPagamento, Guid? cartaoId)
     {
@@ -121,6 +124,7 @@ public sealed class Abastecimento : RegistroEnergia
         TanqueCheio = dados.TanqueCheio;
         Posto = string.IsNullOrWhiteSpace(dados.Posto) ? null : dados.Posto.Trim();
         CopiarPagamento(dados.FormaPagamento, dados.CartaoId);
+        ContaNaMedia = dados.ContaNaMedia;
     }
 
     private static void Validar(DadosAbastecimento dados)
@@ -171,6 +175,7 @@ public sealed class Recarga : RegistroEnergia
         PrecoKwh = dados.PrecoKwh;
         CargaCompleta = dados.CargaCompleta;
         CopiarPagamento(dados.FormaPagamento, dados.CartaoId);
+        ContaNaMedia = dados.ContaNaMedia;
     }
 
     private static void Validar(DadosRecarga dados)

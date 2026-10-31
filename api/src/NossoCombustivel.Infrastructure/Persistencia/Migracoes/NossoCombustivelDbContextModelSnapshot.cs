@@ -207,6 +207,9 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
+                    b.Property<bool>("ContaNaMedia")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTimeOffset>("CriadoEm")
                         .HasColumnType("timestamp with time zone");
 
@@ -271,6 +274,9 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
 
                     b.Property<Guid?>("CartaoId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("ContaNaMedia")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset>("CriadoEm")
                         .HasColumnType("timestamp with time zone");

@@ -104,6 +104,7 @@ abstract final class CalculoConsumo {
     for (var i = 0; i + 1 < ordenados.length; i++) {
       final atual = ordenados[i];
       final proximo = ordenados[i + 1];
+      if (!atual.contaNaMedia) continue;
       final distancia = proximo.odometro - atual.odometro;
       if (distancia <= 0 || atual.quantidade <= 0) continue;
       ciclos.add(CicloConsumo(

@@ -36,7 +36,8 @@ public sealed record AbastecimentoSync(
     DateTimeOffset AtualizadoEm,
     DateTimeOffset? ExcluidoEm,
     FormaPagamento? FormaPagamento = null,
-    Guid? CartaoId = null);
+    Guid? CartaoId = null,
+    bool? ContaNaMedia = null);
 
 public sealed record RecargaSync(
     Guid Id,
@@ -52,7 +53,8 @@ public sealed record RecargaSync(
     DateTimeOffset AtualizadoEm,
     DateTimeOffset? ExcluidoEm,
     FormaPagamento? FormaPagamento = null,
-    Guid? CartaoId = null);
+    Guid? CartaoId = null,
+    bool? ContaNaMedia = null);
 
 public sealed record CartaoSync(
     Guid Id,

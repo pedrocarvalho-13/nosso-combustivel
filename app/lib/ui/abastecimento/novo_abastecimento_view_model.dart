@@ -125,6 +125,7 @@ class NovoAbastecimentoViewModel extends Notifier<NovoAbastecimentoEstado> {
     required String posto,
     FormaPagamento? formaPagamento,
     String? cartaoId,
+    bool contaNaMedia = true,
   }) async {
     final veiculo = state.veiculo;
     final combustivel = state.combustivel;
@@ -164,6 +165,7 @@ class NovoAbastecimentoViewModel extends Notifier<NovoAbastecimentoEstado> {
       posto: posto.trim().isEmpty ? null : posto.trim(),
       formaPagamento: formaPagamento,
       cartaoId: formaPagamento == FormaPagamento.credito ? cartaoId : null,
+      contaNaMedia: contaNaMedia,
     ));
     await ref.read(preferenciasRepositorioProvider).definirUltimoPagamento('${formaPagamento?.name ?? ''}|${cartaoId ?? ''}');
     if (ref.mounted) state = state.copiar(salvando: false);

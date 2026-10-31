@@ -83,6 +83,7 @@ class NovaRecargaViewModel extends Notifier<NovaRecargaEstado> {
     required bool cargaCompleta,
     FormaPagamento? formaPagamento,
     String? cartaoId,
+    bool contaNaMedia = true,
   }) async {
     final veiculo = state.veiculo;
     if (veiculo == null) return const ResultadoSalvar.mensagem('Cadastre um veículo antes de recarregar.');
@@ -120,6 +121,7 @@ class NovaRecargaViewModel extends Notifier<NovaRecargaEstado> {
       cargaCompleta: cargaCompleta,
       formaPagamento: formaPagamento,
       cartaoId: formaPagamento == FormaPagamento.credito ? cartaoId : null,
+      contaNaMedia: contaNaMedia,
     ));
     await ref.read(preferenciasRepositorioProvider).definirUltimoPagamento('${formaPagamento?.name ?? ''}|${cartaoId ?? ''}');
     if (state.local == LocalRecarga.casa) {

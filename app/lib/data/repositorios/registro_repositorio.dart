@@ -39,6 +39,7 @@ class RegistroRepositorio {
           posto: Value(abastecimento.posto),
           formaPagamento: Value(abastecimento.formaPagamento),
           cartaoId: Value(abastecimento.cartaoId),
+          contaNaMedia: Value(abastecimento.contaNaMedia),
           pendente: const Value(true),
         ));
   }
@@ -59,6 +60,7 @@ class RegistroRepositorio {
           cargaCompleta: recarga.cargaCompleta,
           formaPagamento: Value(recarga.formaPagamento),
           cartaoId: Value(recarga.cartaoId),
+          contaNaMedia: Value(recarga.contaNaMedia),
           pendente: const Value(true),
         ));
   }
@@ -98,6 +100,7 @@ class RegistroRepositorio {
           posto: a.posto,
           formaPagamento: a.formaPagamento,
           cartaoId: a.cartaoId,
+          contaNaMedia: a.contaNaMedia,
         ),
       for (final r in recargas)
         Recarga(
@@ -112,6 +115,7 @@ class RegistroRepositorio {
           cargaCompleta: r.cargaCompleta,
           formaPagamento: r.formaPagamento,
           cartaoId: r.cartaoId,
+          contaNaMedia: r.contaNaMedia,
         ),
     ];
     registros.sort((a, b) {

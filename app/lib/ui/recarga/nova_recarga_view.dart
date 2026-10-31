@@ -30,6 +30,7 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
   final _odometro = TextEditingController();
   var _data = DateTime.now();
   var _cargaCompleta = false;
+  var _contaNaMedia = true;
   FormaPagamento? _forma;
   String? _cartaoId;
   ErrosFormulario _erros = const {};
@@ -92,6 +93,7 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
       total: _valores.valorTotal,
       cargaCompleta: _cargaCompleta,
       formaPagamento: _forma,
+      contaNaMedia: _contaNaMedia,
       cartaoId: _cartaoId,
     );
     if (!mounted) return;
@@ -135,6 +137,7 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
         setState(() {
           _data = editando.data;
           _cargaCompleta = editando.cargaCompleta;
+          _contaNaMedia = editando.contaNaMedia;
           _forma = editando.formaPagamento;
           _cartaoId = editando.cartaoId;
         });
@@ -254,6 +257,13 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
               subtitle: const Text('Opcional. Deixa a média mais precisa'),
               value: _cargaCompleta,
               onChanged: (valor) => setState(() => _cargaCompleta = valor),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Contar na média de consumo'),
+              subtitle: const Text('Desligue quando abastecer pouco antes da hora, só para durar uns dias'),
+              value: _contaNaMedia,
+              onChanged: (valor) => setState(() => _contaNaMedia = valor),
             ),
             const SizedBox(height: 8),
             CampoPagamento(

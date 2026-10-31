@@ -21,6 +21,7 @@ sealed class RegistroEnergia {
     required this.completo,
     this.formaPagamento,
     this.cartaoId,
+    this.contaNaMedia = true,
   });
 
   final String id;
@@ -31,6 +32,7 @@ sealed class RegistroEnergia {
   final bool completo;
   final FormaPagamento? formaPagamento;
   final String? cartaoId;
+  final bool contaNaMedia;
 
   double get quantidade;
 }
@@ -49,6 +51,7 @@ class Abastecimento extends RegistroEnergia {
     this.posto,
     super.formaPagamento,
     super.cartaoId,
+    super.contaNaMedia,
   }) : super(completo: tanqueCheio);
 
   final Combustivel combustivel;
@@ -75,6 +78,7 @@ class Recarga extends RegistroEnergia {
     required bool cargaCompleta,
     super.formaPagamento,
     super.cartaoId,
+    super.contaNaMedia,
   }) : super(completo: cargaCompleta);
 
   final LocalRecarga local;
