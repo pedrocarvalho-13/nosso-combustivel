@@ -78,14 +78,19 @@ class BancoLocal extends _$BancoLocal {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onUpgrade: (migrador, de, para) async {
-          await _adicionarSeFaltar(migrador, veiculos, veiculos.usuarioId);
-          await _adicionarSeFaltar(migrador, veiculos, veiculos.pendente);
-          await _adicionarSeFaltar(migrador, abastecimentos, abastecimentos.pendente);
-          await _adicionarSeFaltar(migrador, recargas, recargas.pendente);
-          await _adicionarSeFaltar(migrador, veiculos, veiculos.tipoVeiculo);
+        onUpgrade: (migrador, de, para) => _garantirColunas(migrador),
+        beforeOpen: (detalhes) async {
+          if (!detalhes.wasCreated) await _garantirColunas(createMigrator());
         },
       );
+
+  Future<void> _garantirColunas(Migrator migrador) async {
+    await _adicionarSeFaltar(migrador, veiculos, veiculos.usuarioId);
+    await _adicionarSeFaltar(migrador, veiculos, veiculos.pendente);
+    await _adicionarSeFaltar(migrador, abastecimentos, abastecimentos.pendente);
+    await _adicionarSeFaltar(migrador, recargas, recargas.pendente);
+    await _adicionarSeFaltar(migrador, veiculos, veiculos.tipoVeiculo);
+  }
 
   Future<void> _adicionarSeFaltar(Migrator migrador, TableInfo tabela, GeneratedColumn coluna) async {
     final existentes = await customSelect('PRAGMA table_info("${tabela.actualTableName}")').get();
