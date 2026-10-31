@@ -27,7 +27,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Gasto por mês'), findsOneWidget);
-    expect(find.text('Consumo por tanque'), findsOneWidget);
+    expect(find.text('Consumo por abastecimento'), findsOneWidget);
     if (const bool.fromEnvironment('CAPTURAR')) {
       await expectLater(find.byType(MaterialApp), matchesGoldenFile('capturas/relatorios_celular.png'));
     }

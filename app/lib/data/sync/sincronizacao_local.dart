@@ -1,19 +1,26 @@
 import 'package:drift/drift.dart';
 
 import '../../domain/combustivel.dart';
+import '../../domain/forma_pagamento.dart';
 import '../../domain/registro_energia.dart';
 import '../../domain/tipo_energia.dart';
 import '../../domain/tipo_veiculo.dart';
 import '../banco/banco_local.dart';
 
 class LoteLocal {
-  const LoteLocal({required this.veiculos, required this.abastecimentos, required this.recargas});
+  const LoteLocal({
+    required this.veiculos,
+    required this.abastecimentos,
+    required this.recargas,
+    this.cartoes = const [],
+  });
 
   final List<VeiculoLinha> veiculos;
   final List<AbastecimentoLinha> abastecimentos;
   final List<RecargaLinha> recargas;
+  final List<CartaoLinha> cartoes;
 
-  bool get vazio => veiculos.isEmpty && abastecimentos.isEmpty && recargas.isEmpty;
+  bool get vazio => veiculos.isEmpty && abastecimentos.isEmpty && recargas.isEmpty && cartoes.isEmpty;
 
   Map<String, dynamic> paraJson() => {
         'veiculos': [
@@ -47,6 +54,8 @@ class LoteLocal {
               'valorTotal': a.valorCentavos / 100,
               'tanqueCheio': a.tanqueCheio,
               'posto': a.posto,
+              'formaPagamento': a.formaPagamento?.name,
+              'cartaoId': a.cartaoId,
               ..._datas(a.criadoEm, a.atualizadoEm, a.excluidoEm),
             },
         ],
@@ -62,7 +71,19 @@ class LoteLocal {
               'precoKwh': r.precoKwhMilesimos / 1000,
               'valorTotal': r.valorCentavos / 100,
               'cargaCompleta': r.cargaCompleta,
+              'formaPagamento': r.formaPagamento?.name,
+              'cartaoId': r.cartaoId,
               ..._datas(r.criadoEm, r.atualizadoEm, r.excluidoEm),
+            },
+        ],
+        'cartoes': [
+          for (final c in cartoes)
+            {
+              'id': c.id,
+              'nome': c.nome,
+              'banco': c.banco,
+              'diaFechamento': c.diaFechamento,
+              ..._datas(c.criadoEm, c.atualizadoEm, c.excluidoEm),
             },
         ],
       };
@@ -95,13 +116,16 @@ class SincronizacaoLocal {
       recargas: await (_banco.select(_banco.recargas)
             ..where((r) => r.veiculoId.isIn(ids) & r.pendente.equals(true)))
           .get(),
+      cartoes: await (_banco.select(_banco.cartoes)
+            ..where((c) => c.usuarioId.equals(usuarioId) & c.pendente.equals(true)))
+          .get(),
     );
   }
 
   Stream<int> observarQuantidadePendente(String usuarioId) async* {
     yield await _contarPendentes(usuarioId);
     final mudancas = _banco.tableUpdates(
-      TableUpdateQuery.onAllTables([_banco.veiculos, _banco.abastecimentos, _banco.recargas]),
+      TableUpdateQuery.onAllTables([_banco.veiculos, _banco.abastecimentos, _banco.recargas, _banco.cartoes]),
     );
     await for (final _ in mudancas) {
       yield await _contarPendentes(usuarioId);
@@ -122,9 +146,28 @@ class SincronizacaoLocal {
           await (_banco.update(_banco.recargas)..where((t) => t.id.equals(r.id) & t.atualizadoEm.equals(r.atualizadoEm)))
               .write(const RecargasCompanion(pendente: Value(false)));
         }
+        for (final c in lote.cartoes) {
+          await (_banco.update(_banco.cartoes)..where((t) => t.id.equals(c.id) & t.atualizadoEm.equals(c.atualizadoEm)))
+              .write(const CartoesCompanion(pendente: Value(false)));
+        }
       });
 
   Future<void> aplicarDoServidor(Map<String, dynamic> alteracoes, String usuarioId) => _banco.transaction(() async {
+        for (final json in ((alteracoes['cartoes'] as List?) ?? const []).cast<Map<String, dynamic>>()) {
+          final local = await (_banco.select(_banco.cartoes)..where((t) => t.id.equals(json['id'] as String))).getSingleOrNull();
+          if (_localMaisNovo(local?.pendente, local?.atualizadoEm, json)) continue;
+          await _banco.into(_banco.cartoes).insertOnConflictUpdate(CartoesCompanion.insert(
+                id: json['id'] as String,
+                usuarioId: usuarioId,
+                nome: json['nome'] as String,
+                banco: Value(json['banco'] as String?),
+                diaFechamento: json['diaFechamento'] as int,
+                criadoEm: _lerData(json['criadoEm'])!,
+                atualizadoEm: _lerData(json['atualizadoEm'])!,
+                excluidoEm: Value(_lerData(json['excluidoEm'])),
+                pendente: const Value(false),
+              ));
+        }
         for (final json in (alteracoes['veiculos'] as List).cast<Map<String, dynamic>>()) {
           final local = await (_banco.select(_banco.veiculos)..where((t) => t.id.equals(json['id'] as String))).getSingleOrNull();
           if (_localMaisNovo(local?.pendente, local?.atualizadoEm, json)) continue;
@@ -163,6 +206,8 @@ class SincronizacaoLocal {
                 valorCentavos: ((json['valorTotal'] as num) * 100).round(),
                 tanqueCheio: json['tanqueCheio'] as bool,
                 posto: Value(json['posto'] as String?),
+                formaPagamento: Value(_formaPagamento(json['formaPagamento'])),
+                cartaoId: Value(json['cartaoId'] as String?),
                 criadoEm: _lerData(json['criadoEm'])!,
                 atualizadoEm: _lerData(json['atualizadoEm'])!,
                 excluidoEm: Value(_lerData(json['excluidoEm'])),
@@ -182,6 +227,8 @@ class SincronizacaoLocal {
                 precoKwhMilesimos: _milesimos(json['precoKwh'])!,
                 valorCentavos: ((json['valorTotal'] as num) * 100).round(),
                 cargaCompleta: json['cargaCompleta'] as bool,
+                formaPagamento: Value(_formaPagamento(json['formaPagamento'])),
+                cartaoId: Value(json['cartaoId'] as String?),
                 criadoEm: _lerData(json['criadoEm'])!,
                 atualizadoEm: _lerData(json['atualizadoEm'])!,
                 excluidoEm: Value(_lerData(json['excluidoEm'])),
@@ -209,11 +256,14 @@ class SincronizacaoLocal {
 
   Future<int> _contarPendentes(String usuarioId) async {
     final lote = await pendentes(usuarioId);
-    return lote.veiculos.length + lote.abastecimentos.length + lote.recargas.length;
+    return lote.veiculos.length + lote.abastecimentos.length + lote.recargas.length + lote.cartoes.length;
   }
 
   static bool _localMaisNovo(bool? pendente, DateTime? atualizadoEm, Map<String, dynamic> json) =>
       pendente == true && atualizadoEm != null && atualizadoEm.isAfter(_lerData(json['atualizadoEm'])!);
+
+  static FormaPagamento? _formaPagamento(Object? valor) =>
+      FormaPagamento.values.where((f) => f.name == valor).firstOrNull;
 
   static String _chaveCursor(String usuarioId) => 'sync_cursor_$usuarioId';
 

@@ -35,11 +35,15 @@ void main() {
       overrides: [
         bancoLocalProvider.overrideWithValue(banco),
         veiculoAtivoProvider.overrideWithValue(const AsyncData(hilux)),
+        cartoesProvider.overrideWith((ref) => Stream.value(const [])),
+        fotosIaProvider.overrideWith((ref) => Stream.value(true)),
       ],
       child: const MaterialApp(home: NovoAbastecimentoView()),
     ));
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.text('Salvar abastecimento'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Salvar abastecimento'));
     await tester.pumpAndSettle();
 

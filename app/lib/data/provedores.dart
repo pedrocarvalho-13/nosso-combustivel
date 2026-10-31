@@ -2,10 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../domain/cartao.dart';
 import '../domain/registro_energia.dart';
 import '../domain/veiculo.dart';
 import 'banco/banco_local.dart';
 import 'fipe/fipe_cliente.dart';
+import 'repositorios/cartao_repositorio.dart';
 import 'repositorios/preferencias_repositorio.dart';
 import 'repositorios/registro_repositorio.dart';
 import 'repositorios/veiculo_repositorio.dart';
@@ -28,6 +30,16 @@ final veiculoRepositorioProvider = Provider<VeiculoRepositorio>(
 final registroRepositorioProvider = Provider<RegistroRepositorio>(
   (ref) => RegistroRepositorio(ref.watch(bancoLocalProvider), ref.watch(relogioProvider)),
 );
+
+final cartaoRepositorioProvider = Provider<CartaoRepositorio>(
+  (ref) => CartaoRepositorio(ref.watch(bancoLocalProvider), ref.watch(relogioProvider)),
+);
+
+final cartoesProvider = StreamProvider<List<Cartao>>((ref) {
+  final usuarioId = ref.watch(sessaoProvider.select((s) => s.value?.usuario.id));
+  if (usuarioId == null) return Stream.value(const []);
+  return ref.watch(cartaoRepositorioProvider).observarDoUsuario(usuarioId);
+});
 
 final preferenciasRepositorioProvider = Provider<PreferenciasRepositorio>(
   (ref) => PreferenciasRepositorio(ref.watch(bancoLocalProvider)),
@@ -59,6 +71,26 @@ final registrosDoAtivoProvider = StreamProvider<List<RegistroEnergia>>((ref) {
   if (veiculo == null) return Stream.value(const []);
   return ref.watch(registroRepositorioProvider).observarDoVeiculo(veiculo.id);
 });
+
+final metaMensalProvider = StreamProvider<int?>(
+  (ref) => ref.watch(preferenciasRepositorioProvider).observarMetaMensal(),
+);
+
+final periodoMediaProvider = StreamProvider<int>(
+  (ref) => ref.watch(preferenciasRepositorioProvider).observarPeriodoMedia(),
+);
+
+final temaProvider = StreamProvider<String>(
+  (ref) => ref.watch(preferenciasRepositorioProvider).observarTema(),
+);
+
+final fotosIaProvider = StreamProvider<bool>(
+  (ref) => ref.watch(preferenciasRepositorioProvider).observarFotosIa(),
+);
+
+final pagamentoPadraoProvider = StreamProvider<String?>(
+  (ref) => ref.watch(preferenciasRepositorioProvider).observarPagamentoPadrao(),
+);
 
 final tarifaCasaProvider = StreamProvider<double?>(
   (ref) => ref.watch(preferenciasRepositorioProvider).observarTarifaCasa(),

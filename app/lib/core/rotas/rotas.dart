@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../data/sessao/sessao_controller.dart';
 import '../../ui/abastecimento/novo_abastecimento_view.dart';
+import '../../ui/ajustes/ajustes_view.dart';
 import '../../ui/carros/cadastro_carro_view.dart';
+import '../../ui/cartoes/cartoes_view.dart';
 import '../../ui/carros/carros_view.dart';
 import '../../ui/carros/editar_veiculo_view.dart';
 import '../../ui/conta/conta_view.dart';
@@ -25,6 +27,8 @@ abstract final class Rotas {
   static const novoCarro = '/carro/novo';
   static const novoAbastecimento = '/abastecimento/novo';
   static const novaRecarga = '/recarga/nova';
+  static const cartoes = '/cartoes';
+  static const ajustes = '/ajustes';
 
   static String editarVeiculo(String id) => '/veiculo/$id/editar';
 
@@ -73,11 +77,15 @@ final rotasProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(routes: [
             GoRoute(path: Rotas.carros, builder: (_, _) => const CarrosView()),
           ]),
+          StatefulShellBranch(routes: [
+            GoRoute(path: Rotas.ajustes, builder: (_, _) => const AjustesView()),
+          ]),
         ],
       ),
       GoRoute(path: Rotas.novoCarro, builder: (_, _) => const CadastroCarroView()),
       GoRoute(path: Rotas.novoAbastecimento, builder: (_, _) => const NovoAbastecimentoView()),
       GoRoute(path: Rotas.novaRecarga, builder: (_, _) => const NovaRecargaView()),
+      GoRoute(path: Rotas.cartoes, builder: (_, _) => const CartoesView()),
       GoRoute(
         path: '/veiculo/:id/editar',
         builder: (_, state) => EditarVeiculoView(veiculoId: state.pathParameters['id']!),

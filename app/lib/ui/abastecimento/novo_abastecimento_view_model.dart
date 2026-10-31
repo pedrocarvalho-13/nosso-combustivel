@@ -7,6 +7,7 @@ import '../../domain/calculos/calculo_consumo.dart';
 import '../../domain/calculos/calculo_etanol.dart';
 import '../../domain/calculos/validacao_odometro.dart';
 import '../../domain/combustivel.dart';
+import '../../domain/forma_pagamento.dart';
 import '../../domain/registro_energia.dart';
 import '../../domain/veiculo.dart';
 import '../comum/formulario_registro.dart';
@@ -122,6 +123,8 @@ class NovoAbastecimentoViewModel extends Notifier<NovoAbastecimentoEstado> {
     required double? total,
     required bool tanqueCheio,
     required String posto,
+    FormaPagamento? formaPagamento,
+    String? cartaoId,
   }) async {
     final veiculo = state.veiculo;
     final combustivel = state.combustivel;
@@ -133,6 +136,9 @@ class NovoAbastecimentoViewModel extends Notifier<NovoAbastecimentoEstado> {
       if (preco == null || preco <= 0) CampoRegistro.preco: 'Informe o preço.',
     };
     if (erros.isNotEmpty) return ResultadoSalvar.erros(erros);
+    if (formaPagamento == FormaPagamento.credito && cartaoId == null) {
+      return const ResultadoSalvar.mensagem('Escolha o cartão de crédito usado.');
+    }
 
     final repositorio = ref.read(registroRepositorioProvider);
     final erroOdometro = ValidacaoOdometro.validar(
@@ -156,7 +162,10 @@ class NovoAbastecimentoViewModel extends Notifier<NovoAbastecimentoEstado> {
       precoLitro: preco!,
       tanqueCheio: tanqueCheio,
       posto: posto.trim().isEmpty ? null : posto.trim(),
+      formaPagamento: formaPagamento,
+      cartaoId: formaPagamento == FormaPagamento.credito ? cartaoId : null,
     ));
+    await ref.read(preferenciasRepositorioProvider).definirUltimoPagamento('${formaPagamento?.name ?? ''}|${cartaoId ?? ''}');
     if (ref.mounted) state = state.copiar(salvando: false);
     return const ResultadoSalvar.ok();
   }

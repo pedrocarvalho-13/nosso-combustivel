@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NossoCombustivel.Application.Sincronizacao;
+using NossoCombustivel.Domain.Cartoes;
 using NossoCombustivel.Domain.Registros;
 using NossoCombustivel.Domain.Veiculos;
 
@@ -33,6 +34,16 @@ public sealed class RepositorioSincronizacao(NossoCombustivelDbContext banco) : 
         banco.Recargas.AsNoTracking()
             .Where(r => veiculoIds.Contains(r.VeiculoId) && (desde == null || r.SincronizadoEm > desde))
             .ToListAsync(cancelamento);
+
+    public Task<List<Cartao>> ObterCartoesAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancelamento) =>
+        banco.Cartoes.Where(c => ids.Contains(c.Id)).ToListAsync(cancelamento);
+
+    public Task<List<Cartao>> CartoesAlteradosAsync(Guid usuarioId, DateTimeOffset? desde, CancellationToken cancelamento) =>
+        banco.Cartoes.AsNoTracking()
+            .Where(c => c.DonoId == usuarioId && (desde == null || c.SincronizadoEm > desde))
+            .ToListAsync(cancelamento);
+
+    public void Adicionar(Cartao cartao) => banco.Cartoes.Add(cartao);
 
     public void Adicionar(Veiculo veiculo) => banco.Veiculos.Add(veiculo);
 

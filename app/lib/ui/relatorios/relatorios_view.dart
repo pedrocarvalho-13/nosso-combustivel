@@ -48,7 +48,7 @@ class _Conteudo extends ConsumerWidget {
       ('Últimos 12 meses', Formato.moeda(estado.totalCentavos)),
       ('Média por mês', estado.mediaMensalCentavos == null ? '—' : Formato.moeda(estado.mediaMensalCentavos!)),
       ('Km rodados', Formato.km(estado.kmRodados)),
-      ('Custo por km', estado.custoPorKm == null ? 'após 2 tanques' : Formato.moedaPorKm(estado.custoPorKm!)),
+      ('Custo por km', estado.custoPorKm == null ? 'após 2 abastecimentos' : Formato.moedaPorKm(estado.custoPorKm!)),
     ];
 
     return Align(
@@ -85,8 +85,8 @@ class _Conteudo extends ConsumerWidget {
             if (estado.ciclos.isNotEmpty) ...[
               const SizedBox(height: 16),
               _Secao(
-                titulo: 'Consumo por tanque',
-                subtitulo: 'De um tanque cheio (ou carga completa) até o próximo',
+                titulo: 'Consumo por abastecimento',
+                subtitulo: 'Km rodados até o abastecimento seguinte',
                 child: Column(children: [for (final ciclo in estado.ciclos) _LinhaCiclo(item: ciclo)]),
               ),
             ],
@@ -300,7 +300,7 @@ class _LinhaCiclo extends StatelessWidget {
     final ciclo = item.ciclo;
     final descricao = [
       Formato.km(ciclo.distanciaKm),
-      if (ciclo.misto) 'combustíveis misturados' else if (ciclo.combustivel != null) ciclo.combustivel!.rotulo,
+      if (ciclo.combustivel != null) ciclo.combustivel!.rotulo,
     ].join(' · ');
 
     return Padding(
@@ -378,7 +378,7 @@ class _Comparativo extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         item.custoPorKm == null
-                            ? 'Custo por km após 2 tanques'
+                            ? 'Custo por km após 2 abastecimentos'
                             : '${Formato.moedaPorKm(item.custoPorKm!)} por km',
                         style: textos.bodySmall?.copyWith(color: esquema.onSurfaceVariant),
                       ),

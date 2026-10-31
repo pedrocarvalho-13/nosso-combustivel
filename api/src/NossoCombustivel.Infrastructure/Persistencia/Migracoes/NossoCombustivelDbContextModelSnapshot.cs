@@ -152,6 +152,45 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("NossoCombustivel.Domain.Cartoes.Cartao", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Banco")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTimeOffset>("CriadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DiaFechamento")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("DonoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ExcluidoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<DateTimeOffset>("SincronizadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DonoId", "SincronizadoEm");
+
+                    b.ToTable("Cartoes", (string)null);
+                });
+
             modelBuilder.Entity("NossoCombustivel.Domain.Registros.Abastecimento", b =>
                 {
                     b.Property<Guid>("Id")
@@ -159,6 +198,9 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
 
                     b.Property<DateTimeOffset>("AtualizadoEm")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CartaoId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Combustivel")
                         .IsRequired()
@@ -173,6 +215,10 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
 
                     b.Property<DateTimeOffset?>("ExcluidoEm")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FormaPagamento")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<decimal>("Litros")
                         .HasPrecision(8, 3)
@@ -223,6 +269,9 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                     b.Property<bool>("CargaCompleta")
                         .HasColumnType("boolean");
 
+                    b.Property<Guid?>("CartaoId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("CriadoEm")
                         .HasColumnType("timestamp with time zone");
 
@@ -231,6 +280,10 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
 
                     b.Property<DateTimeOffset?>("ExcluidoEm")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FormaPagamento")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<decimal>("Kwh")
                         .HasPrecision(8, 3)
@@ -547,6 +600,15 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                     b.HasOne("NossoCombustivel.Infrastructure.Identidade.Usuario", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NossoCombustivel.Domain.Cartoes.Cartao", b =>
+                {
+                    b.HasOne("NossoCombustivel.Infrastructure.Identidade.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("DonoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

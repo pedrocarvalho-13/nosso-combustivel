@@ -37,6 +37,8 @@ class RegistroRepositorio {
           valorCentavos: abastecimento.valorCentavos,
           tanqueCheio: abastecimento.tanqueCheio,
           posto: Value(abastecimento.posto),
+          formaPagamento: Value(abastecimento.formaPagamento),
+          cartaoId: Value(abastecimento.cartaoId),
           pendente: const Value(true),
         ));
   }
@@ -55,6 +57,8 @@ class RegistroRepositorio {
           precoKwhMilesimos: (recarga.precoKwh * 1000).round(),
           valorCentavos: recarga.valorCentavos,
           cargaCompleta: recarga.cargaCompleta,
+          formaPagamento: Value(recarga.formaPagamento),
+          cartaoId: Value(recarga.cartaoId),
           pendente: const Value(true),
         ));
   }
@@ -92,6 +96,8 @@ class RegistroRepositorio {
           precoLitro: a.precoLitroMilesimos / 1000,
           tanqueCheio: a.tanqueCheio,
           posto: a.posto,
+          formaPagamento: a.formaPagamento,
+          cartaoId: a.cartaoId,
         ),
       for (final r in recargas)
         Recarga(
@@ -104,6 +110,8 @@ class RegistroRepositorio {
           kwh: r.energiaWh / 1000,
           precoKwh: r.precoKwhMilesimos / 1000,
           cargaCompleta: r.cargaCompleta,
+          formaPagamento: r.formaPagamento,
+          cartaoId: r.cartaoId,
         ),
     ];
     registros.sort((a, b) {

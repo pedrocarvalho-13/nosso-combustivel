@@ -8,7 +8,10 @@ import '../../data/ia/cliente_ia.dart';
 import '../../domain/calculos/calculo_etanol.dart';
 import '../../domain/combustivel.dart';
 import '../comum/botao_ler_foto.dart';
+import '../../data/provedores.dart';
+import '../../domain/forma_pagamento.dart';
 import '../comum/campo_com_rotulo.dart';
+import '../comum/campo_pagamento.dart';
 import '../comum/campo_data.dart';
 import '../comum/campos_valor.dart';
 import '../comum/formulario_registro.dart';
@@ -29,6 +32,8 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
   final _posto = TextEditingController();
   var _data = DateTime.now();
   var _tanqueCheio = false;
+  FormaPagamento? _forma;
+  String? _cartaoId;
   ErrosFormulario _erros = const {};
 
   bool get _editando => widget.registroId != null;
@@ -48,7 +53,20 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
     }
     if (!_editando) {
       WidgetsBinding.instance.addPostFrameCallback((_) => mostrarOnboardingHodometro(context, ref, recarga: false));
+      _carregarPagamentoPadrao();
     }
+  }
+
+  Future<void> _carregarPagamentoPadrao() async {
+    final preferencias = ref.read(preferenciasRepositorioProvider);
+    final salvo = await preferencias.pagamentoPadrao() ?? await preferencias.ultimoPagamento();
+    if (salvo == null || !mounted || _forma != null) return;
+    final partes = salvo.split('|');
+    final forma = FormaPagamento.values.where((f) => f.name == partes.first).firstOrNull;
+    setState(() {
+      _forma = forma;
+      _cartaoId = forma == FormaPagamento.credito && partes.length > 1 && partes[1].isNotEmpty ? partes[1] : null;
+    });
   }
 
   @override
@@ -72,6 +90,8 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
       total: _valores.valorTotal,
       tanqueCheio: _tanqueCheio,
       posto: _posto.text,
+      formaPagamento: _forma,
+      cartaoId: _cartaoId,
     );
     if (!mounted) return;
     setState(() => _erros = resultado.erros);
@@ -117,6 +137,8 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
       setState(() {
         _data = editando.data;
         _tanqueCheio = editando.tanqueCheio;
+        _forma = editando.formaPagamento;
+        _cartaoId = editando.cartaoId;
       });
       _odometro.text = '${editando.odometro}';
       _valores.preco.text = Formato.paraCampo(editando.precoLitro, casas: 3);
@@ -142,14 +164,16 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Row(
-              children: [
-                Expanded(child: BotaoLerFoto(tipo: TipoLeitura.abastecimento, aoLer: _preencherDaFoto)),
-                const SizedBox(width: 8),
-                Expanded(child: BotaoLerFoto(tipo: TipoLeitura.hodometro, aoLer: _preencherDaFoto)),
-              ],
-            ),
-            const SizedBox(height: 16),
+            if (ref.watch(fotosIaProvider).value ?? true) ...[
+              Row(
+                children: [
+                  Expanded(child: BotaoLerFoto(tipo: TipoLeitura.abastecimento, aoLer: _preencherDaFoto)),
+                  const SizedBox(width: 8),
+                  Expanded(child: BotaoLerFoto(tipo: TipoLeitura.hodometro, aoLer: _preencherDaFoto)),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
             if (veiculo != null && veiculo.combustiveis.length > 1) ...[
               SegmentedButton<Combustivel>(
                 segments: [
@@ -229,9 +253,18 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Encheu o tanque?'),
-              subtitle: const Text('O consumo deste tanque aparece no próximo tanque cheio'),
+              subtitle: const Text('Opcional. Deixa a média mais precisa'),
               value: _tanqueCheio,
               onChanged: (valor) => setState(() => _tanqueCheio = valor),
+            ),
+            const SizedBox(height: 8),
+            CampoPagamento(
+              forma: _forma,
+              cartaoId: _cartaoId,
+              aoMudar: (forma, cartaoId) => setState(() {
+                _forma = forma;
+                _cartaoId = cartaoId;
+              }),
             ),
             const SizedBox(height: 8),
             CampoComRotulo(

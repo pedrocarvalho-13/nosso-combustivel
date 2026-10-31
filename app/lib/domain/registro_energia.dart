@@ -1,4 +1,5 @@
 import 'combustivel.dart';
+import 'forma_pagamento.dart';
 
 enum LocalRecarga {
   casa('Casa'),
@@ -18,6 +19,8 @@ sealed class RegistroEnergia {
     required this.odometro,
     required this.valorCentavos,
     required this.completo,
+    this.formaPagamento,
+    this.cartaoId,
   });
 
   final String id;
@@ -26,6 +29,8 @@ sealed class RegistroEnergia {
   final int odometro;
   final int valorCentavos;
   final bool completo;
+  final FormaPagamento? formaPagamento;
+  final String? cartaoId;
 
   double get quantidade;
 }
@@ -42,6 +47,8 @@ class Abastecimento extends RegistroEnergia {
     required this.precoLitro,
     required bool tanqueCheio,
     this.posto,
+    super.formaPagamento,
+    super.cartaoId,
   }) : super(completo: tanqueCheio);
 
   final Combustivel combustivel;
@@ -66,6 +73,8 @@ class Recarga extends RegistroEnergia {
     required this.kwh,
     required this.precoKwh,
     required bool cargaCompleta,
+    super.formaPagamento,
+    super.cartaoId,
   }) : super(completo: cargaCompleta);
 
   final LocalRecarga local;

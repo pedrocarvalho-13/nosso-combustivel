@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/provedores.dart';
 import '../../domain/calculos/validacao_odometro.dart';
+import '../../domain/forma_pagamento.dart';
 import '../../domain/registro_energia.dart';
 import '../../domain/veiculo.dart';
 import '../comum/formulario_registro.dart';
@@ -80,6 +81,8 @@ class NovaRecargaViewModel extends Notifier<NovaRecargaEstado> {
     required double? preco,
     required double? total,
     required bool cargaCompleta,
+    FormaPagamento? formaPagamento,
+    String? cartaoId,
   }) async {
     final veiculo = state.veiculo;
     if (veiculo == null) return const ResultadoSalvar.mensagem('Cadastre um veículo antes de recarregar.');
@@ -90,6 +93,9 @@ class NovaRecargaViewModel extends Notifier<NovaRecargaEstado> {
       if (preco == null || preco < 0) CampoRegistro.preco: 'Informe o preço.',
     };
     if (erros.isNotEmpty) return ResultadoSalvar.erros(erros);
+    if (formaPagamento == FormaPagamento.credito && cartaoId == null) {
+      return const ResultadoSalvar.mensagem('Escolha o cartão de crédito usado.');
+    }
 
     final repositorio = ref.read(registroRepositorioProvider);
     final erroOdometro = ValidacaoOdometro.validar(
@@ -112,7 +118,10 @@ class NovaRecargaViewModel extends Notifier<NovaRecargaEstado> {
       kwh: kwh!,
       precoKwh: preco!,
       cargaCompleta: cargaCompleta,
+      formaPagamento: formaPagamento,
+      cartaoId: formaPagamento == FormaPagamento.credito ? cartaoId : null,
     ));
+    await ref.read(preferenciasRepositorioProvider).definirUltimoPagamento('${formaPagamento?.name ?? ''}|${cartaoId ?? ''}');
     if (state.local == LocalRecarga.casa) {
       await ref.read(preferenciasRepositorioProvider).definirTarifaCasa(preco);
     }

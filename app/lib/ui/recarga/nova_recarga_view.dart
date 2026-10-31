@@ -7,7 +7,10 @@ import '../../core/formato.dart';
 import '../../domain/registro_energia.dart';
 import '../../data/ia/cliente_ia.dart';
 import '../comum/botao_ler_foto.dart';
+import '../../data/provedores.dart';
+import '../../domain/forma_pagamento.dart';
 import '../comum/campo_com_rotulo.dart';
+import '../comum/campo_pagamento.dart';
 import '../comum/campo_data.dart';
 import '../comum/campos_valor.dart';
 import '../comum/formulario_registro.dart';
@@ -27,6 +30,8 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
   final _odometro = TextEditingController();
   var _data = DateTime.now();
   var _cargaCompleta = false;
+  FormaPagamento? _forma;
+  String? _cartaoId;
   ErrosFormulario _erros = const {};
 
   bool get _editando => widget.registroId != null;
@@ -45,7 +50,20 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
     }
     if (!_editando) {
       WidgetsBinding.instance.addPostFrameCallback((_) => mostrarOnboardingHodometro(context, ref, recarga: true));
+      _carregarPagamentoPadrao();
     }
+  }
+
+  Future<void> _carregarPagamentoPadrao() async {
+    final preferencias = ref.read(preferenciasRepositorioProvider);
+    final salvo = await preferencias.pagamentoPadrao() ?? await preferencias.ultimoPagamento();
+    if (salvo == null || !mounted || _forma != null) return;
+    final partes = salvo.split('|');
+    final forma = FormaPagamento.values.where((f) => f.name == partes.first).firstOrNull;
+    setState(() {
+      _forma = forma;
+      _cartaoId = forma == FormaPagamento.credito && partes.length > 1 && partes[1].isNotEmpty ? partes[1] : null;
+    });
   }
 
   @override
@@ -73,6 +91,8 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
       preco: _valores.valorPreco,
       total: _valores.valorTotal,
       cargaCompleta: _cargaCompleta,
+      formaPagamento: _forma,
+      cartaoId: _cartaoId,
     );
     if (!mounted) return;
     setState(() => _erros = resultado.erros);
@@ -115,6 +135,8 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
         setState(() {
           _data = editando.data;
           _cargaCompleta = editando.cargaCompleta;
+          _forma = editando.formaPagamento;
+          _cartaoId = editando.cartaoId;
         });
         _odometro.text = '${editando.odometro}';
         _valores.preco.text = Formato.paraCampo(editando.precoKwh, casas: 3);
@@ -145,14 +167,16 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            Row(
-              children: [
-                Expanded(child: BotaoLerFoto(tipo: TipoLeitura.recarga, aoLer: _preencherDaFoto)),
-                const SizedBox(width: 8),
-                Expanded(child: BotaoLerFoto(tipo: TipoLeitura.hodometro, aoLer: _preencherDaFoto)),
-              ],
-            ),
-            const SizedBox(height: 16),
+            if (ref.watch(fotosIaProvider).value ?? true) ...[
+              Row(
+                children: [
+                  Expanded(child: BotaoLerFoto(tipo: TipoLeitura.recarga, aoLer: _preencherDaFoto)),
+                  const SizedBox(width: 8),
+                  Expanded(child: BotaoLerFoto(tipo: TipoLeitura.hodometro, aoLer: _preencherDaFoto)),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
             SegmentedButton<LocalRecarga>(
               segments: [
                 for (final local in LocalRecarga.values) ButtonSegment(value: local, label: Text(local.rotulo)),
@@ -227,9 +251,18 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Carregou até 100%?'),
-              subtitle: const Text('O consumo desta carga aparece na próxima carga completa'),
+              subtitle: const Text('Opcional. Deixa a média mais precisa'),
               value: _cargaCompleta,
               onChanged: (valor) => setState(() => _cargaCompleta = valor),
+            ),
+            const SizedBox(height: 8),
+            CampoPagamento(
+              forma: _forma,
+              cartaoId: _cartaoId,
+              aoMudar: (forma, cartaoId) => setState(() {
+                _forma = forma;
+                _cartaoId = cartaoId;
+              }),
             ),
             const SizedBox(height: 24),
             FilledButton(

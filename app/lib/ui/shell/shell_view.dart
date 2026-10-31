@@ -19,6 +19,7 @@ const _destinos = [
   _Destino('Histórico', Icons.history_rounded, Icons.history_rounded),
   _Destino('Relatórios', Icons.bar_chart_outlined, Icons.bar_chart_rounded),
   _Destino('Veículos', Icons.directions_car_outlined, Icons.directions_car_rounded),
+  _Destino('Ajustes', Icons.settings_outlined, Icons.settings_rounded),
 ];
 
 class ShellView extends ConsumerWidget {

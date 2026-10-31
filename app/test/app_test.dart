@@ -105,6 +105,12 @@ ProviderScope app({
         sincronizacaoProvider.overrideWith(SincronizacaoParada.new),
         pendentesProvider.overrideWith((ref) => Stream.value(0)),
         veiculosProvider.overrideWith((ref) => Stream.value(veiculos)),
+        cartoesProvider.overrideWith((ref) => Stream.value(const [])),
+        metaMensalProvider.overrideWith((ref) => Stream.value(null)),
+        periodoMediaProvider.overrideWith((ref) => Stream.value(30)),
+        temaProvider.overrideWith((ref) => Stream.value('escuro')),
+        fotosIaProvider.overrideWith((ref) => Stream.value(true)),
+        pagamentoPadraoProvider.overrideWith((ref) => Stream.value(null)),
         veiculoAtivoIdProvider.overrideWith((ref) => Stream.value(veiculos.firstOrNull?.id)),
         registrosDoAtivoProvider.overrideWith((ref) => Stream.value(registros)),
         relogioProvider.overrideWithValue(() => DateTime(2026, 10, 29, 12)),
@@ -148,7 +154,8 @@ void main() {
 
     expect(find.text('Gasto em outubro'), findsOneWidget);
     expect(find.text('R\$ 328,08'), findsOneWidget);
-    expect(find.text('9,0 km/l'), findsOneWidget);
+    expect(find.text('8,6 km/l', findRichText: true), findsOneWidget);
+    expect(find.text('344 km ÷ 40,1 L de etanol'), findsOneWidget);
     expect(find.text('Abastecer'), findsNothing);
     expect(find.text('Registrar abastecimento'), findsOneWidget);
   });

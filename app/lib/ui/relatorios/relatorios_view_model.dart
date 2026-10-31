@@ -4,6 +4,7 @@ import '../../data/provedores.dart';
 import '../../domain/calculos/calculo_consumo.dart';
 import '../../domain/calculos/calculo_relatorio.dart';
 import '../../domain/calculos/calculo_resumo.dart';
+import '../../domain/cartao.dart';
 import '../../domain/registro_energia.dart';
 import '../../domain/veiculo.dart';
 
@@ -51,10 +52,11 @@ const _ciclosExibidos = 8;
 final relatoriosViewModelProvider = Provider<AsyncValue<RelatoriosEstado?>>((ref) {
   final registros = ref.watch(registrosDoAtivoProvider).value ?? const <RegistroEnergia>[];
   final agora = ref.watch(relogioProvider)();
+  final cartoes = {for (final c in ref.watch(cartoesProvider).value ?? const <Cartao>[]) c.id: c};
 
   return ref.watch(veiculoAtivoProvider).whenData((veiculo) {
     if (veiculo == null) return null;
-    final meses = CalculoRelatorio.gastoPorMes(registros, agora, meses: _mesesDoRelatorio);
+    final meses = CalculoRelatorio.gastoPorMes(registros, agora, meses: _mesesDoRelatorio, cartoes: cartoes);
     final periodo = CalculoResumo.doPeriodo(
       registros: registros,
       odometroInicial: veiculo.odometroInicial,

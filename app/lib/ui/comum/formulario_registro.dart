@@ -29,13 +29,13 @@ Future<void> mostrarOnboardingHodometro(BuildContext context, WidgetRef ref, {re
 
   final textos = Theme.of(context).textTheme;
   final esquema = Theme.of(context).colorScheme;
-  final completo = recarga ? 'carga completa' : 'tanque cheio';
   await showModalBottomSheet<void>(
     context: context,
     useRootNavigator: true,
+    isScrollControlled: true,
     showDragHandle: true,
     builder: (contexto) => SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -55,7 +55,7 @@ Future<void> mostrarOnboardingHodometro(BuildContext context, WidgetRef ref, {re
             _Passo(numero: '2', texto: 'Rode normalmente até a próxima vez.'),
             _Passo(
               numero: '3',
-              texto: 'No próximo $completo, o app divide os km rodados desde aqui pelo que entrou, e mostra o consumo e o custo por km.',
+              texto: 'No próximo registro, o app divide os km rodados desde aqui pelo que entrou agora, e mostra o consumo e o custo por km.',
             ),
             const SizedBox(height: 8),
             Text(

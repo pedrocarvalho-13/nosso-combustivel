@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using NossoCombustivel.Domain.Cartoes;
 using NossoCombustivel.Domain.Registros;
 using NossoCombustivel.Domain.Veiculos;
 using NossoCombustivel.Infrastructure.Identidade;
@@ -40,6 +41,7 @@ public sealed class AbastecimentoConfiguracao : IEntityTypeConfiguration<Abastec
         builder.Property(a => a.PrecoLitro).HasPrecision(6, 3);
         builder.Property(a => a.ValorTotal).HasPrecision(10, 2);
         builder.Property(a => a.Posto).HasMaxLength(100);
+        builder.Property(a => a.FormaPagamento).HasConversion<string>().HasMaxLength(10);
         builder.HasOne<Veiculo>().WithMany().HasForeignKey(a => a.VeiculoId).OnDelete(DeleteBehavior.Cascade);
         builder.HasIndex(a => new { a.VeiculoId, a.SincronizadoEm });
     }
@@ -56,6 +58,7 @@ public sealed class RecargaConfiguracao : IEntityTypeConfiguration<Recarga>
         builder.Property(r => r.Kwh).HasPrecision(8, 3);
         builder.Property(r => r.PrecoKwh).HasPrecision(6, 3);
         builder.Property(r => r.ValorTotal).HasPrecision(10, 2);
+        builder.Property(r => r.FormaPagamento).HasConversion<string>().HasMaxLength(10);
         builder.HasOne<Veiculo>().WithMany().HasForeignKey(r => r.VeiculoId).OnDelete(DeleteBehavior.Cascade);
         builder.HasIndex(r => new { r.VeiculoId, r.SincronizadoEm });
     }
@@ -75,5 +78,19 @@ public sealed class CapacidadeVeiculoConfiguracao : IEntityTypeConfiguration<Cap
         builder.Property(c => c.TipoEnergia).HasConversion<string>().HasMaxLength(20);
         builder.Property(c => c.TanqueL).HasPrecision(6, 1);
         builder.Property(c => c.BateriaKwh).HasPrecision(6, 1);
+    }
+}
+
+public sealed class CartaoConfiguracao : IEntityTypeConfiguration<Cartao>
+{
+    public void Configure(EntityTypeBuilder<Cartao> builder)
+    {
+        builder.ToTable("Cartoes");
+        builder.HasKey(c => c.Id);
+        builder.Property(c => c.Id).ValueGeneratedNever();
+        builder.Property(c => c.Nome).HasMaxLength(60).IsRequired();
+        builder.Property(c => c.Banco).HasMaxLength(40);
+        builder.HasOne<Usuario>().WithMany().HasForeignKey(c => c.DonoId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(c => new { c.DonoId, c.SincronizadoEm });
     }
 }

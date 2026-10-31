@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 import '../../domain/combustivel.dart';
+import '../../domain/forma_pagamento.dart';
 import '../../domain/registro_energia.dart';
 import '../../domain/tipo_energia.dart';
 import '../../domain/tipo_veiculo.dart';
@@ -46,6 +47,8 @@ class Abastecimentos extends Table with Sincronizavel {
   IntColumn get valorCentavos => integer()();
   BoolColumn get tanqueCheio => boolean()();
   TextColumn get posto => text().nullable()();
+  TextColumn get formaPagamento => textEnum<FormaPagamento>().nullable()();
+  TextColumn get cartaoId => text().nullable()();
 }
 
 @DataClassName('RecargaLinha')
@@ -58,6 +61,16 @@ class Recargas extends Table with Sincronizavel {
   IntColumn get precoKwhMilesimos => integer()();
   IntColumn get valorCentavos => integer()();
   BoolColumn get cargaCompleta => boolean()();
+  TextColumn get formaPagamento => textEnum<FormaPagamento>().nullable()();
+  TextColumn get cartaoId => text().nullable()();
+}
+
+@DataClassName('CartaoLinha')
+class Cartoes extends Table with Sincronizavel {
+  TextColumn get usuarioId => text()();
+  TextColumn get nome => text()();
+  TextColumn get banco => text().nullable()();
+  IntColumn get diaFechamento => integer()();
 }
 
 @DataClassName('PreferenciaLinha')
@@ -69,12 +82,12 @@ class Preferencias extends Table {
   Set<Column> get primaryKey => {chave};
 }
 
-@DriftDatabase(tables: [Veiculos, Abastecimentos, Recargas, Preferencias])
+@DriftDatabase(tables: [Veiculos, Abastecimentos, Recargas, Cartoes, Preferencias])
 class BancoLocal extends _$BancoLocal {
   BancoLocal([QueryExecutor? executor]) : super(executor ?? _abrir());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -90,6 +103,15 @@ class BancoLocal extends _$BancoLocal {
     await _adicionarSeFaltar(migrador, abastecimentos, abastecimentos.pendente);
     await _adicionarSeFaltar(migrador, recargas, recargas.pendente);
     await _adicionarSeFaltar(migrador, veiculos, veiculos.tipoVeiculo);
+    await _adicionarSeFaltar(migrador, abastecimentos, abastecimentos.formaPagamento);
+    await _adicionarSeFaltar(migrador, abastecimentos, abastecimentos.cartaoId);
+    await _adicionarSeFaltar(migrador, recargas, recargas.formaPagamento);
+    await _adicionarSeFaltar(migrador, recargas, recargas.cartaoId);
+    final tabelas = await customSelect(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+      variables: [Variable.withString(cartoes.actualTableName)],
+    ).get();
+    if (tabelas.isEmpty) await migrador.createTable(cartoes);
   }
 
   Future<void> _adicionarSeFaltar(Migrator migrador, TableInfo tabela, GeneratedColumn coluna) async {

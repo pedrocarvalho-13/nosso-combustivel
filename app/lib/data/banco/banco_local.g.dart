@@ -1156,6 +1156,29 @@ class $AbastecimentosTable extends Abastecimentos
     requiredDuringInsert: false,
   );
   @override
+  late final GeneratedColumnWithTypeConverter<FormaPagamento?, String>
+  formaPagamento =
+      GeneratedColumn<String>(
+        'forma_pagamento',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      ).withConverter<FormaPagamento?>(
+        $AbastecimentosTable.$converterformaPagamenton,
+      );
+  static const VerificationMeta _cartaoIdMeta = const VerificationMeta(
+    'cartaoId',
+  );
+  @override
+  late final GeneratedColumn<String> cartaoId = GeneratedColumn<String>(
+    'cartao_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     criadoEm,
@@ -1171,6 +1194,8 @@ class $AbastecimentosTable extends Abastecimentos
     valorCentavos,
     tanqueCheio,
     posto,
+    formaPagamento,
+    cartaoId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1291,6 +1316,12 @@ class $AbastecimentosTable extends Abastecimentos
         posto.isAcceptableOrUnknown(data['posto']!, _postoMeta),
       );
     }
+    if (data.containsKey('cartao_id')) {
+      context.handle(
+        _cartaoIdMeta,
+        cartaoId.isAcceptableOrUnknown(data['cartao_id']!, _cartaoIdMeta),
+      );
+    }
     return context;
   }
 
@@ -1358,6 +1389,16 @@ class $AbastecimentosTable extends Abastecimentos
         DriftSqlType.string,
         data['${effectivePrefix}posto'],
       ),
+      formaPagamento: $AbastecimentosTable.$converterformaPagamenton.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}forma_pagamento'],
+        ),
+      ),
+      cartaoId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cartao_id'],
+      ),
     );
   }
 
@@ -1368,6 +1409,14 @@ class $AbastecimentosTable extends Abastecimentos
 
   static JsonTypeConverter2<Combustivel, String, String> $convertercombustivel =
       const EnumNameConverter<Combustivel>(Combustivel.values);
+  static JsonTypeConverter2<FormaPagamento, String, String>
+  $converterformaPagamento = const EnumNameConverter<FormaPagamento>(
+    FormaPagamento.values,
+  );
+  static JsonTypeConverter2<FormaPagamento?, String?, String?>
+  $converterformaPagamenton = JsonTypeConverter2.asNullable(
+    $converterformaPagamento,
+  );
 }
 
 class AbastecimentoLinha extends DataClass
@@ -1386,6 +1435,8 @@ class AbastecimentoLinha extends DataClass
   final int valorCentavos;
   final bool tanqueCheio;
   final String? posto;
+  final FormaPagamento? formaPagamento;
+  final String? cartaoId;
   const AbastecimentoLinha({
     required this.id,
     required this.criadoEm,
@@ -1401,6 +1452,8 @@ class AbastecimentoLinha extends DataClass
     required this.valorCentavos,
     required this.tanqueCheio,
     this.posto,
+    this.formaPagamento,
+    this.cartaoId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1427,6 +1480,14 @@ class AbastecimentoLinha extends DataClass
     if (!nullToAbsent || posto != null) {
       map['posto'] = Variable<String>(posto);
     }
+    if (!nullToAbsent || formaPagamento != null) {
+      map['forma_pagamento'] = Variable<String>(
+        $AbastecimentosTable.$converterformaPagamenton.toSql(formaPagamento),
+      );
+    }
+    if (!nullToAbsent || cartaoId != null) {
+      map['cartao_id'] = Variable<String>(cartaoId);
+    }
     return map;
   }
 
@@ -1450,6 +1511,12 @@ class AbastecimentoLinha extends DataClass
       posto: posto == null && nullToAbsent
           ? const Value.absent()
           : Value(posto),
+      formaPagamento: formaPagamento == null && nullToAbsent
+          ? const Value.absent()
+          : Value(formaPagamento),
+      cartaoId: cartaoId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cartaoId),
     );
   }
 
@@ -1477,6 +1544,10 @@ class AbastecimentoLinha extends DataClass
       valorCentavos: serializer.fromJson<int>(json['valorCentavos']),
       tanqueCheio: serializer.fromJson<bool>(json['tanqueCheio']),
       posto: serializer.fromJson<String?>(json['posto']),
+      formaPagamento: $AbastecimentosTable.$converterformaPagamenton.fromJson(
+        serializer.fromJson<String?>(json['formaPagamento']),
+      ),
+      cartaoId: serializer.fromJson<String?>(json['cartaoId']),
     );
   }
   @override
@@ -1499,6 +1570,10 @@ class AbastecimentoLinha extends DataClass
       'valorCentavos': serializer.toJson<int>(valorCentavos),
       'tanqueCheio': serializer.toJson<bool>(tanqueCheio),
       'posto': serializer.toJson<String?>(posto),
+      'formaPagamento': serializer.toJson<String?>(
+        $AbastecimentosTable.$converterformaPagamenton.toJson(formaPagamento),
+      ),
+      'cartaoId': serializer.toJson<String?>(cartaoId),
     };
   }
 
@@ -1517,6 +1592,8 @@ class AbastecimentoLinha extends DataClass
     int? valorCentavos,
     bool? tanqueCheio,
     Value<String?> posto = const Value.absent(),
+    Value<FormaPagamento?> formaPagamento = const Value.absent(),
+    Value<String?> cartaoId = const Value.absent(),
   }) => AbastecimentoLinha(
     id: id ?? this.id,
     criadoEm: criadoEm ?? this.criadoEm,
@@ -1532,6 +1609,10 @@ class AbastecimentoLinha extends DataClass
     valorCentavos: valorCentavos ?? this.valorCentavos,
     tanqueCheio: tanqueCheio ?? this.tanqueCheio,
     posto: posto.present ? posto.value : this.posto,
+    formaPagamento: formaPagamento.present
+        ? formaPagamento.value
+        : this.formaPagamento,
+    cartaoId: cartaoId.present ? cartaoId.value : this.cartaoId,
   );
   AbastecimentoLinha copyWithCompanion(AbastecimentosCompanion data) {
     return AbastecimentoLinha(
@@ -1561,6 +1642,10 @@ class AbastecimentoLinha extends DataClass
           ? data.tanqueCheio.value
           : this.tanqueCheio,
       posto: data.posto.present ? data.posto.value : this.posto,
+      formaPagamento: data.formaPagamento.present
+          ? data.formaPagamento.value
+          : this.formaPagamento,
+      cartaoId: data.cartaoId.present ? data.cartaoId.value : this.cartaoId,
     );
   }
 
@@ -1580,7 +1665,9 @@ class AbastecimentoLinha extends DataClass
           ..write('precoLitroMilesimos: $precoLitroMilesimos, ')
           ..write('valorCentavos: $valorCentavos, ')
           ..write('tanqueCheio: $tanqueCheio, ')
-          ..write('posto: $posto')
+          ..write('posto: $posto, ')
+          ..write('formaPagamento: $formaPagamento, ')
+          ..write('cartaoId: $cartaoId')
           ..write(')'))
         .toString();
   }
@@ -1601,6 +1688,8 @@ class AbastecimentoLinha extends DataClass
     valorCentavos,
     tanqueCheio,
     posto,
+    formaPagamento,
+    cartaoId,
   );
   @override
   bool operator ==(Object other) =>
@@ -1619,7 +1708,9 @@ class AbastecimentoLinha extends DataClass
           other.precoLitroMilesimos == this.precoLitroMilesimos &&
           other.valorCentavos == this.valorCentavos &&
           other.tanqueCheio == this.tanqueCheio &&
-          other.posto == this.posto);
+          other.posto == this.posto &&
+          other.formaPagamento == this.formaPagamento &&
+          other.cartaoId == this.cartaoId);
 }
 
 class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
@@ -1637,6 +1728,8 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
   final Value<int> valorCentavos;
   final Value<bool> tanqueCheio;
   final Value<String?> posto;
+  final Value<FormaPagamento?> formaPagamento;
+  final Value<String?> cartaoId;
   final Value<int> rowid;
   const AbastecimentosCompanion({
     this.id = const Value.absent(),
@@ -1653,6 +1746,8 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     this.valorCentavos = const Value.absent(),
     this.tanqueCheio = const Value.absent(),
     this.posto = const Value.absent(),
+    this.formaPagamento = const Value.absent(),
+    this.cartaoId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AbastecimentosCompanion.insert({
@@ -1670,6 +1765,8 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     required int valorCentavos,
     required bool tanqueCheio,
     this.posto = const Value.absent(),
+    this.formaPagamento = const Value.absent(),
+    this.cartaoId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        criadoEm = Value(criadoEm),
@@ -1697,6 +1794,8 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     Expression<int>? valorCentavos,
     Expression<bool>? tanqueCheio,
     Expression<String>? posto,
+    Expression<String>? formaPagamento,
+    Expression<String>? cartaoId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1715,6 +1814,8 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
       if (valorCentavos != null) 'valor_centavos': valorCentavos,
       if (tanqueCheio != null) 'tanque_cheio': tanqueCheio,
       if (posto != null) 'posto': posto,
+      if (formaPagamento != null) 'forma_pagamento': formaPagamento,
+      if (cartaoId != null) 'cartao_id': cartaoId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1734,6 +1835,8 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     Value<int>? valorCentavos,
     Value<bool>? tanqueCheio,
     Value<String?>? posto,
+    Value<FormaPagamento?>? formaPagamento,
+    Value<String?>? cartaoId,
     Value<int>? rowid,
   }) {
     return AbastecimentosCompanion(
@@ -1751,6 +1854,8 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
       valorCentavos: valorCentavos ?? this.valorCentavos,
       tanqueCheio: tanqueCheio ?? this.tanqueCheio,
       posto: posto ?? this.posto,
+      formaPagamento: formaPagamento ?? this.formaPagamento,
+      cartaoId: cartaoId ?? this.cartaoId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1802,6 +1907,16 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     if (posto.present) {
       map['posto'] = Variable<String>(posto.value);
     }
+    if (formaPagamento.present) {
+      map['forma_pagamento'] = Variable<String>(
+        $AbastecimentosTable.$converterformaPagamenton.toSql(
+          formaPagamento.value,
+        ),
+      );
+    }
+    if (cartaoId.present) {
+      map['cartao_id'] = Variable<String>(cartaoId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1825,6 +1940,8 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
           ..write('valorCentavos: $valorCentavos, ')
           ..write('tanqueCheio: $tanqueCheio, ')
           ..write('posto: $posto, ')
+          ..write('formaPagamento: $formaPagamento, ')
+          ..write('cartaoId: $cartaoId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1985,6 +2102,26 @@ class $RecargasTable extends Recargas
     ),
   );
   @override
+  late final GeneratedColumnWithTypeConverter<FormaPagamento?, String>
+  formaPagamento = GeneratedColumn<String>(
+    'forma_pagamento',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<FormaPagamento?>($RecargasTable.$converterformaPagamenton);
+  static const VerificationMeta _cartaoIdMeta = const VerificationMeta(
+    'cartaoId',
+  );
+  @override
+  late final GeneratedColumn<String> cartaoId = GeneratedColumn<String>(
+    'cartao_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
   List<GeneratedColumn> get $columns => [
     id,
     criadoEm,
@@ -1999,6 +2136,8 @@ class $RecargasTable extends Recargas
     precoKwhMilesimos,
     valorCentavos,
     cargaCompleta,
+    formaPagamento,
+    cartaoId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2113,6 +2252,12 @@ class $RecargasTable extends Recargas
     } else if (isInserting) {
       context.missing(_cargaCompletaMeta);
     }
+    if (data.containsKey('cartao_id')) {
+      context.handle(
+        _cartaoIdMeta,
+        cartaoId.isAcceptableOrUnknown(data['cartao_id']!, _cartaoIdMeta),
+      );
+    }
     return context;
   }
 
@@ -2176,6 +2321,16 @@ class $RecargasTable extends Recargas
         DriftSqlType.bool,
         data['${effectivePrefix}carga_completa'],
       )!,
+      formaPagamento: $RecargasTable.$converterformaPagamenton.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}forma_pagamento'],
+        ),
+      ),
+      cartaoId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cartao_id'],
+      ),
     );
   }
 
@@ -2186,6 +2341,14 @@ class $RecargasTable extends Recargas
 
   static JsonTypeConverter2<LocalRecarga, String, String> $converterlocal =
       const EnumNameConverter<LocalRecarga>(LocalRecarga.values);
+  static JsonTypeConverter2<FormaPagamento, String, String>
+  $converterformaPagamento = const EnumNameConverter<FormaPagamento>(
+    FormaPagamento.values,
+  );
+  static JsonTypeConverter2<FormaPagamento?, String?, String?>
+  $converterformaPagamenton = JsonTypeConverter2.asNullable(
+    $converterformaPagamento,
+  );
 }
 
 class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
@@ -2202,6 +2365,8 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
   final int precoKwhMilesimos;
   final int valorCentavos;
   final bool cargaCompleta;
+  final FormaPagamento? formaPagamento;
+  final String? cartaoId;
   const RecargaLinha({
     required this.id,
     required this.criadoEm,
@@ -2216,6 +2381,8 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
     required this.precoKwhMilesimos,
     required this.valorCentavos,
     required this.cargaCompleta,
+    this.formaPagamento,
+    this.cartaoId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2239,6 +2406,14 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
     map['preco_kwh_milesimos'] = Variable<int>(precoKwhMilesimos);
     map['valor_centavos'] = Variable<int>(valorCentavos);
     map['carga_completa'] = Variable<bool>(cargaCompleta);
+    if (!nullToAbsent || formaPagamento != null) {
+      map['forma_pagamento'] = Variable<String>(
+        $RecargasTable.$converterformaPagamenton.toSql(formaPagamento),
+      );
+    }
+    if (!nullToAbsent || cartaoId != null) {
+      map['cartao_id'] = Variable<String>(cartaoId);
+    }
     return map;
   }
 
@@ -2259,6 +2434,12 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
       precoKwhMilesimos: Value(precoKwhMilesimos),
       valorCentavos: Value(valorCentavos),
       cargaCompleta: Value(cargaCompleta),
+      formaPagamento: formaPagamento == null && nullToAbsent
+          ? const Value.absent()
+          : Value(formaPagamento),
+      cartaoId: cartaoId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cartaoId),
     );
   }
 
@@ -2283,6 +2464,10 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
       precoKwhMilesimos: serializer.fromJson<int>(json['precoKwhMilesimos']),
       valorCentavos: serializer.fromJson<int>(json['valorCentavos']),
       cargaCompleta: serializer.fromJson<bool>(json['cargaCompleta']),
+      formaPagamento: $RecargasTable.$converterformaPagamenton.fromJson(
+        serializer.fromJson<String?>(json['formaPagamento']),
+      ),
+      cartaoId: serializer.fromJson<String?>(json['cartaoId']),
     );
   }
   @override
@@ -2304,6 +2489,10 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
       'precoKwhMilesimos': serializer.toJson<int>(precoKwhMilesimos),
       'valorCentavos': serializer.toJson<int>(valorCentavos),
       'cargaCompleta': serializer.toJson<bool>(cargaCompleta),
+      'formaPagamento': serializer.toJson<String?>(
+        $RecargasTable.$converterformaPagamenton.toJson(formaPagamento),
+      ),
+      'cartaoId': serializer.toJson<String?>(cartaoId),
     };
   }
 
@@ -2321,6 +2510,8 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
     int? precoKwhMilesimos,
     int? valorCentavos,
     bool? cargaCompleta,
+    Value<FormaPagamento?> formaPagamento = const Value.absent(),
+    Value<String?> cartaoId = const Value.absent(),
   }) => RecargaLinha(
     id: id ?? this.id,
     criadoEm: criadoEm ?? this.criadoEm,
@@ -2335,6 +2526,10 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
     precoKwhMilesimos: precoKwhMilesimos ?? this.precoKwhMilesimos,
     valorCentavos: valorCentavos ?? this.valorCentavos,
     cargaCompleta: cargaCompleta ?? this.cargaCompleta,
+    formaPagamento: formaPagamento.present
+        ? formaPagamento.value
+        : this.formaPagamento,
+    cartaoId: cartaoId.present ? cartaoId.value : this.cartaoId,
   );
   RecargaLinha copyWithCompanion(RecargasCompanion data) {
     return RecargaLinha(
@@ -2361,6 +2556,10 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
       cargaCompleta: data.cargaCompleta.present
           ? data.cargaCompleta.value
           : this.cargaCompleta,
+      formaPagamento: data.formaPagamento.present
+          ? data.formaPagamento.value
+          : this.formaPagamento,
+      cartaoId: data.cartaoId.present ? data.cartaoId.value : this.cartaoId,
     );
   }
 
@@ -2379,7 +2578,9 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
           ..write('energiaWh: $energiaWh, ')
           ..write('precoKwhMilesimos: $precoKwhMilesimos, ')
           ..write('valorCentavos: $valorCentavos, ')
-          ..write('cargaCompleta: $cargaCompleta')
+          ..write('cargaCompleta: $cargaCompleta, ')
+          ..write('formaPagamento: $formaPagamento, ')
+          ..write('cartaoId: $cartaoId')
           ..write(')'))
         .toString();
   }
@@ -2399,6 +2600,8 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
     precoKwhMilesimos,
     valorCentavos,
     cargaCompleta,
+    formaPagamento,
+    cartaoId,
   );
   @override
   bool operator ==(Object other) =>
@@ -2416,7 +2619,9 @@ class RecargaLinha extends DataClass implements Insertable<RecargaLinha> {
           other.energiaWh == this.energiaWh &&
           other.precoKwhMilesimos == this.precoKwhMilesimos &&
           other.valorCentavos == this.valorCentavos &&
-          other.cargaCompleta == this.cargaCompleta);
+          other.cargaCompleta == this.cargaCompleta &&
+          other.formaPagamento == this.formaPagamento &&
+          other.cartaoId == this.cartaoId);
 }
 
 class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
@@ -2433,6 +2638,8 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
   final Value<int> precoKwhMilesimos;
   final Value<int> valorCentavos;
   final Value<bool> cargaCompleta;
+  final Value<FormaPagamento?> formaPagamento;
+  final Value<String?> cartaoId;
   final Value<int> rowid;
   const RecargasCompanion({
     this.id = const Value.absent(),
@@ -2448,6 +2655,8 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
     this.precoKwhMilesimos = const Value.absent(),
     this.valorCentavos = const Value.absent(),
     this.cargaCompleta = const Value.absent(),
+    this.formaPagamento = const Value.absent(),
+    this.cartaoId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   RecargasCompanion.insert({
@@ -2464,6 +2673,8 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
     required int precoKwhMilesimos,
     required int valorCentavos,
     required bool cargaCompleta,
+    this.formaPagamento = const Value.absent(),
+    this.cartaoId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        criadoEm = Value(criadoEm),
@@ -2490,6 +2701,8 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
     Expression<int>? precoKwhMilesimos,
     Expression<int>? valorCentavos,
     Expression<bool>? cargaCompleta,
+    Expression<String>? formaPagamento,
+    Expression<String>? cartaoId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2506,6 +2719,8 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
       if (precoKwhMilesimos != null) 'preco_kwh_milesimos': precoKwhMilesimos,
       if (valorCentavos != null) 'valor_centavos': valorCentavos,
       if (cargaCompleta != null) 'carga_completa': cargaCompleta,
+      if (formaPagamento != null) 'forma_pagamento': formaPagamento,
+      if (cartaoId != null) 'cartao_id': cartaoId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2524,6 +2739,8 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
     Value<int>? precoKwhMilesimos,
     Value<int>? valorCentavos,
     Value<bool>? cargaCompleta,
+    Value<FormaPagamento?>? formaPagamento,
+    Value<String?>? cartaoId,
     Value<int>? rowid,
   }) {
     return RecargasCompanion(
@@ -2540,6 +2757,8 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
       precoKwhMilesimos: precoKwhMilesimos ?? this.precoKwhMilesimos,
       valorCentavos: valorCentavos ?? this.valorCentavos,
       cargaCompleta: cargaCompleta ?? this.cargaCompleta,
+      formaPagamento: formaPagamento ?? this.formaPagamento,
+      cartaoId: cartaoId ?? this.cartaoId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2588,6 +2807,14 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
     if (cargaCompleta.present) {
       map['carga_completa'] = Variable<bool>(cargaCompleta.value);
     }
+    if (formaPagamento.present) {
+      map['forma_pagamento'] = Variable<String>(
+        $RecargasTable.$converterformaPagamenton.toSql(formaPagamento.value),
+      );
+    }
+    if (cartaoId.present) {
+      map['cartao_id'] = Variable<String>(cartaoId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2610,6 +2837,578 @@ class RecargasCompanion extends UpdateCompanion<RecargaLinha> {
           ..write('precoKwhMilesimos: $precoKwhMilesimos, ')
           ..write('valorCentavos: $valorCentavos, ')
           ..write('cargaCompleta: $cargaCompleta, ')
+          ..write('formaPagamento: $formaPagamento, ')
+          ..write('cartaoId: $cartaoId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CartoesTable extends Cartoes with TableInfo<$CartoesTable, CartaoLinha> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CartoesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _criadoEmMeta = const VerificationMeta(
+    'criadoEm',
+  );
+  @override
+  late final GeneratedColumn<DateTime> criadoEm = GeneratedColumn<DateTime>(
+    'criado_em',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _atualizadoEmMeta = const VerificationMeta(
+    'atualizadoEm',
+  );
+  @override
+  late final GeneratedColumn<DateTime> atualizadoEm = GeneratedColumn<DateTime>(
+    'atualizado_em',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _excluidoEmMeta = const VerificationMeta(
+    'excluidoEm',
+  );
+  @override
+  late final GeneratedColumn<DateTime> excluidoEm = GeneratedColumn<DateTime>(
+    'excluido_em',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _pendenteMeta = const VerificationMeta(
+    'pendente',
+  );
+  @override
+  late final GeneratedColumn<bool> pendente = GeneratedColumn<bool>(
+    'pendente',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("pendente" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _usuarioIdMeta = const VerificationMeta(
+    'usuarioId',
+  );
+  @override
+  late final GeneratedColumn<String> usuarioId = GeneratedColumn<String>(
+    'usuario_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nomeMeta = const VerificationMeta('nome');
+  @override
+  late final GeneratedColumn<String> nome = GeneratedColumn<String>(
+    'nome',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bancoMeta = const VerificationMeta('banco');
+  @override
+  late final GeneratedColumn<String> banco = GeneratedColumn<String>(
+    'banco',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _diaFechamentoMeta = const VerificationMeta(
+    'diaFechamento',
+  );
+  @override
+  late final GeneratedColumn<int> diaFechamento = GeneratedColumn<int>(
+    'dia_fechamento',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    criadoEm,
+    atualizadoEm,
+    excluidoEm,
+    pendente,
+    usuarioId,
+    nome,
+    banco,
+    diaFechamento,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cartoes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CartaoLinha> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('criado_em')) {
+      context.handle(
+        _criadoEmMeta,
+        criadoEm.isAcceptableOrUnknown(data['criado_em']!, _criadoEmMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_criadoEmMeta);
+    }
+    if (data.containsKey('atualizado_em')) {
+      context.handle(
+        _atualizadoEmMeta,
+        atualizadoEm.isAcceptableOrUnknown(
+          data['atualizado_em']!,
+          _atualizadoEmMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_atualizadoEmMeta);
+    }
+    if (data.containsKey('excluido_em')) {
+      context.handle(
+        _excluidoEmMeta,
+        excluidoEm.isAcceptableOrUnknown(data['excluido_em']!, _excluidoEmMeta),
+      );
+    }
+    if (data.containsKey('pendente')) {
+      context.handle(
+        _pendenteMeta,
+        pendente.isAcceptableOrUnknown(data['pendente']!, _pendenteMeta),
+      );
+    }
+    if (data.containsKey('usuario_id')) {
+      context.handle(
+        _usuarioIdMeta,
+        usuarioId.isAcceptableOrUnknown(data['usuario_id']!, _usuarioIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_usuarioIdMeta);
+    }
+    if (data.containsKey('nome')) {
+      context.handle(
+        _nomeMeta,
+        nome.isAcceptableOrUnknown(data['nome']!, _nomeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nomeMeta);
+    }
+    if (data.containsKey('banco')) {
+      context.handle(
+        _bancoMeta,
+        banco.isAcceptableOrUnknown(data['banco']!, _bancoMeta),
+      );
+    }
+    if (data.containsKey('dia_fechamento')) {
+      context.handle(
+        _diaFechamentoMeta,
+        diaFechamento.isAcceptableOrUnknown(
+          data['dia_fechamento']!,
+          _diaFechamentoMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_diaFechamentoMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CartaoLinha map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CartaoLinha(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      criadoEm: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}criado_em'],
+      )!,
+      atualizadoEm: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}atualizado_em'],
+      )!,
+      excluidoEm: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}excluido_em'],
+      ),
+      pendente: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}pendente'],
+      )!,
+      usuarioId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}usuario_id'],
+      )!,
+      nome: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}nome'],
+      )!,
+      banco: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}banco'],
+      ),
+      diaFechamento: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}dia_fechamento'],
+      )!,
+    );
+  }
+
+  @override
+  $CartoesTable createAlias(String alias) {
+    return $CartoesTable(attachedDatabase, alias);
+  }
+}
+
+class CartaoLinha extends DataClass implements Insertable<CartaoLinha> {
+  final String id;
+  final DateTime criadoEm;
+  final DateTime atualizadoEm;
+  final DateTime? excluidoEm;
+  final bool pendente;
+  final String usuarioId;
+  final String nome;
+  final String? banco;
+  final int diaFechamento;
+  const CartaoLinha({
+    required this.id,
+    required this.criadoEm,
+    required this.atualizadoEm,
+    this.excluidoEm,
+    required this.pendente,
+    required this.usuarioId,
+    required this.nome,
+    this.banco,
+    required this.diaFechamento,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['criado_em'] = Variable<DateTime>(criadoEm);
+    map['atualizado_em'] = Variable<DateTime>(atualizadoEm);
+    if (!nullToAbsent || excluidoEm != null) {
+      map['excluido_em'] = Variable<DateTime>(excluidoEm);
+    }
+    map['pendente'] = Variable<bool>(pendente);
+    map['usuario_id'] = Variable<String>(usuarioId);
+    map['nome'] = Variable<String>(nome);
+    if (!nullToAbsent || banco != null) {
+      map['banco'] = Variable<String>(banco);
+    }
+    map['dia_fechamento'] = Variable<int>(diaFechamento);
+    return map;
+  }
+
+  CartoesCompanion toCompanion(bool nullToAbsent) {
+    return CartoesCompanion(
+      id: Value(id),
+      criadoEm: Value(criadoEm),
+      atualizadoEm: Value(atualizadoEm),
+      excluidoEm: excluidoEm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(excluidoEm),
+      pendente: Value(pendente),
+      usuarioId: Value(usuarioId),
+      nome: Value(nome),
+      banco: banco == null && nullToAbsent
+          ? const Value.absent()
+          : Value(banco),
+      diaFechamento: Value(diaFechamento),
+    );
+  }
+
+  factory CartaoLinha.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CartaoLinha(
+      id: serializer.fromJson<String>(json['id']),
+      criadoEm: serializer.fromJson<DateTime>(json['criadoEm']),
+      atualizadoEm: serializer.fromJson<DateTime>(json['atualizadoEm']),
+      excluidoEm: serializer.fromJson<DateTime?>(json['excluidoEm']),
+      pendente: serializer.fromJson<bool>(json['pendente']),
+      usuarioId: serializer.fromJson<String>(json['usuarioId']),
+      nome: serializer.fromJson<String>(json['nome']),
+      banco: serializer.fromJson<String?>(json['banco']),
+      diaFechamento: serializer.fromJson<int>(json['diaFechamento']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'criadoEm': serializer.toJson<DateTime>(criadoEm),
+      'atualizadoEm': serializer.toJson<DateTime>(atualizadoEm),
+      'excluidoEm': serializer.toJson<DateTime?>(excluidoEm),
+      'pendente': serializer.toJson<bool>(pendente),
+      'usuarioId': serializer.toJson<String>(usuarioId),
+      'nome': serializer.toJson<String>(nome),
+      'banco': serializer.toJson<String?>(banco),
+      'diaFechamento': serializer.toJson<int>(diaFechamento),
+    };
+  }
+
+  CartaoLinha copyWith({
+    String? id,
+    DateTime? criadoEm,
+    DateTime? atualizadoEm,
+    Value<DateTime?> excluidoEm = const Value.absent(),
+    bool? pendente,
+    String? usuarioId,
+    String? nome,
+    Value<String?> banco = const Value.absent(),
+    int? diaFechamento,
+  }) => CartaoLinha(
+    id: id ?? this.id,
+    criadoEm: criadoEm ?? this.criadoEm,
+    atualizadoEm: atualizadoEm ?? this.atualizadoEm,
+    excluidoEm: excluidoEm.present ? excluidoEm.value : this.excluidoEm,
+    pendente: pendente ?? this.pendente,
+    usuarioId: usuarioId ?? this.usuarioId,
+    nome: nome ?? this.nome,
+    banco: banco.present ? banco.value : this.banco,
+    diaFechamento: diaFechamento ?? this.diaFechamento,
+  );
+  CartaoLinha copyWithCompanion(CartoesCompanion data) {
+    return CartaoLinha(
+      id: data.id.present ? data.id.value : this.id,
+      criadoEm: data.criadoEm.present ? data.criadoEm.value : this.criadoEm,
+      atualizadoEm: data.atualizadoEm.present
+          ? data.atualizadoEm.value
+          : this.atualizadoEm,
+      excluidoEm: data.excluidoEm.present
+          ? data.excluidoEm.value
+          : this.excluidoEm,
+      pendente: data.pendente.present ? data.pendente.value : this.pendente,
+      usuarioId: data.usuarioId.present ? data.usuarioId.value : this.usuarioId,
+      nome: data.nome.present ? data.nome.value : this.nome,
+      banco: data.banco.present ? data.banco.value : this.banco,
+      diaFechamento: data.diaFechamento.present
+          ? data.diaFechamento.value
+          : this.diaFechamento,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CartaoLinha(')
+          ..write('id: $id, ')
+          ..write('criadoEm: $criadoEm, ')
+          ..write('atualizadoEm: $atualizadoEm, ')
+          ..write('excluidoEm: $excluidoEm, ')
+          ..write('pendente: $pendente, ')
+          ..write('usuarioId: $usuarioId, ')
+          ..write('nome: $nome, ')
+          ..write('banco: $banco, ')
+          ..write('diaFechamento: $diaFechamento')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    criadoEm,
+    atualizadoEm,
+    excluidoEm,
+    pendente,
+    usuarioId,
+    nome,
+    banco,
+    diaFechamento,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CartaoLinha &&
+          other.id == this.id &&
+          other.criadoEm == this.criadoEm &&
+          other.atualizadoEm == this.atualizadoEm &&
+          other.excluidoEm == this.excluidoEm &&
+          other.pendente == this.pendente &&
+          other.usuarioId == this.usuarioId &&
+          other.nome == this.nome &&
+          other.banco == this.banco &&
+          other.diaFechamento == this.diaFechamento);
+}
+
+class CartoesCompanion extends UpdateCompanion<CartaoLinha> {
+  final Value<String> id;
+  final Value<DateTime> criadoEm;
+  final Value<DateTime> atualizadoEm;
+  final Value<DateTime?> excluidoEm;
+  final Value<bool> pendente;
+  final Value<String> usuarioId;
+  final Value<String> nome;
+  final Value<String?> banco;
+  final Value<int> diaFechamento;
+  final Value<int> rowid;
+  const CartoesCompanion({
+    this.id = const Value.absent(),
+    this.criadoEm = const Value.absent(),
+    this.atualizadoEm = const Value.absent(),
+    this.excluidoEm = const Value.absent(),
+    this.pendente = const Value.absent(),
+    this.usuarioId = const Value.absent(),
+    this.nome = const Value.absent(),
+    this.banco = const Value.absent(),
+    this.diaFechamento = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CartoesCompanion.insert({
+    required String id,
+    required DateTime criadoEm,
+    required DateTime atualizadoEm,
+    this.excluidoEm = const Value.absent(),
+    this.pendente = const Value.absent(),
+    required String usuarioId,
+    required String nome,
+    this.banco = const Value.absent(),
+    required int diaFechamento,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       criadoEm = Value(criadoEm),
+       atualizadoEm = Value(atualizadoEm),
+       usuarioId = Value(usuarioId),
+       nome = Value(nome),
+       diaFechamento = Value(diaFechamento);
+  static Insertable<CartaoLinha> custom({
+    Expression<String>? id,
+    Expression<DateTime>? criadoEm,
+    Expression<DateTime>? atualizadoEm,
+    Expression<DateTime>? excluidoEm,
+    Expression<bool>? pendente,
+    Expression<String>? usuarioId,
+    Expression<String>? nome,
+    Expression<String>? banco,
+    Expression<int>? diaFechamento,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (criadoEm != null) 'criado_em': criadoEm,
+      if (atualizadoEm != null) 'atualizado_em': atualizadoEm,
+      if (excluidoEm != null) 'excluido_em': excluidoEm,
+      if (pendente != null) 'pendente': pendente,
+      if (usuarioId != null) 'usuario_id': usuarioId,
+      if (nome != null) 'nome': nome,
+      if (banco != null) 'banco': banco,
+      if (diaFechamento != null) 'dia_fechamento': diaFechamento,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CartoesCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? criadoEm,
+    Value<DateTime>? atualizadoEm,
+    Value<DateTime?>? excluidoEm,
+    Value<bool>? pendente,
+    Value<String>? usuarioId,
+    Value<String>? nome,
+    Value<String?>? banco,
+    Value<int>? diaFechamento,
+    Value<int>? rowid,
+  }) {
+    return CartoesCompanion(
+      id: id ?? this.id,
+      criadoEm: criadoEm ?? this.criadoEm,
+      atualizadoEm: atualizadoEm ?? this.atualizadoEm,
+      excluidoEm: excluidoEm ?? this.excluidoEm,
+      pendente: pendente ?? this.pendente,
+      usuarioId: usuarioId ?? this.usuarioId,
+      nome: nome ?? this.nome,
+      banco: banco ?? this.banco,
+      diaFechamento: diaFechamento ?? this.diaFechamento,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (criadoEm.present) {
+      map['criado_em'] = Variable<DateTime>(criadoEm.value);
+    }
+    if (atualizadoEm.present) {
+      map['atualizado_em'] = Variable<DateTime>(atualizadoEm.value);
+    }
+    if (excluidoEm.present) {
+      map['excluido_em'] = Variable<DateTime>(excluidoEm.value);
+    }
+    if (pendente.present) {
+      map['pendente'] = Variable<bool>(pendente.value);
+    }
+    if (usuarioId.present) {
+      map['usuario_id'] = Variable<String>(usuarioId.value);
+    }
+    if (nome.present) {
+      map['nome'] = Variable<String>(nome.value);
+    }
+    if (banco.present) {
+      map['banco'] = Variable<String>(banco.value);
+    }
+    if (diaFechamento.present) {
+      map['dia_fechamento'] = Variable<int>(diaFechamento.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CartoesCompanion(')
+          ..write('id: $id, ')
+          ..write('criadoEm: $criadoEm, ')
+          ..write('atualizadoEm: $atualizadoEm, ')
+          ..write('excluidoEm: $excluidoEm, ')
+          ..write('pendente: $pendente, ')
+          ..write('usuarioId: $usuarioId, ')
+          ..write('nome: $nome, ')
+          ..write('banco: $banco, ')
+          ..write('diaFechamento: $diaFechamento, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2831,6 +3630,7 @@ abstract class _$BancoLocal extends GeneratedDatabase {
   late final $VeiculosTable veiculos = $VeiculosTable(this);
   late final $AbastecimentosTable abastecimentos = $AbastecimentosTable(this);
   late final $RecargasTable recargas = $RecargasTable(this);
+  late final $CartoesTable cartoes = $CartoesTable(this);
   late final $PreferenciasTable preferencias = $PreferenciasTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -2840,6 +3640,7 @@ abstract class _$BancoLocal extends GeneratedDatabase {
     veiculos,
     abastecimentos,
     recargas,
+    cartoes,
     preferencias,
   ];
 }
@@ -3506,6 +4307,8 @@ typedef $$AbastecimentosTableCreateCompanionBuilder =
       required int valorCentavos,
       required bool tanqueCheio,
       Value<String?> posto,
+      Value<FormaPagamento?> formaPagamento,
+      Value<String?> cartaoId,
       Value<int> rowid,
     });
 typedef $$AbastecimentosTableUpdateCompanionBuilder =
@@ -3524,6 +4327,8 @@ typedef $$AbastecimentosTableUpdateCompanionBuilder =
       Value<int> valorCentavos,
       Value<bool> tanqueCheio,
       Value<String?> posto,
+      Value<FormaPagamento?> formaPagamento,
+      Value<String?> cartaoId,
       Value<int> rowid,
     });
 
@@ -3629,6 +4434,17 @@ class $$AbastecimentosTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnWithTypeConverterFilters<FormaPagamento?, FormaPagamento, String>
+  get formaPagamento => $composableBuilder(
+    column: $table.formaPagamento,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get cartaoId => $composableBuilder(
+    column: $table.cartaoId,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$VeiculosTableFilterComposer get veiculoId {
     final $$VeiculosTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -3727,6 +4543,16 @@ class $$AbastecimentosTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get formaPagamento => $composableBuilder(
+    column: $table.formaPagamento,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cartaoId => $composableBuilder(
+    column: $table.cartaoId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$VeiculosTableOrderingComposer get veiculoId {
     final $$VeiculosTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -3812,6 +4638,15 @@ class $$AbastecimentosTableAnnotationComposer
   GeneratedColumn<String> get posto =>
       $composableBuilder(column: $table.posto, builder: (column) => column);
 
+  GeneratedColumnWithTypeConverter<FormaPagamento?, String>
+  get formaPagamento => $composableBuilder(
+    column: $table.formaPagamento,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get cartaoId =>
+      $composableBuilder(column: $table.cartaoId, builder: (column) => column);
+
   $$VeiculosTableAnnotationComposer get veiculoId {
     final $$VeiculosTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -3878,6 +4713,8 @@ class $$AbastecimentosTableTableManager
                 Value<int> valorCentavos = const Value.absent(),
                 Value<bool> tanqueCheio = const Value.absent(),
                 Value<String?> posto = const Value.absent(),
+                Value<FormaPagamento?> formaPagamento = const Value.absent(),
+                Value<String?> cartaoId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AbastecimentosCompanion(
                 id: id,
@@ -3894,6 +4731,8 @@ class $$AbastecimentosTableTableManager
                 valorCentavos: valorCentavos,
                 tanqueCheio: tanqueCheio,
                 posto: posto,
+                formaPagamento: formaPagamento,
+                cartaoId: cartaoId,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3912,6 +4751,8 @@ class $$AbastecimentosTableTableManager
                 required int valorCentavos,
                 required bool tanqueCheio,
                 Value<String?> posto = const Value.absent(),
+                Value<FormaPagamento?> formaPagamento = const Value.absent(),
+                Value<String?> cartaoId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AbastecimentosCompanion.insert(
                 id: id,
@@ -3928,6 +4769,8 @@ class $$AbastecimentosTableTableManager
                 valorCentavos: valorCentavos,
                 tanqueCheio: tanqueCheio,
                 posto: posto,
+                formaPagamento: formaPagamento,
+                cartaoId: cartaoId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -4013,6 +4856,8 @@ typedef $$RecargasTableCreateCompanionBuilder =
       required int precoKwhMilesimos,
       required int valorCentavos,
       required bool cargaCompleta,
+      Value<FormaPagamento?> formaPagamento,
+      Value<String?> cartaoId,
       Value<int> rowid,
     });
 typedef $$RecargasTableUpdateCompanionBuilder =
@@ -4030,6 +4875,8 @@ typedef $$RecargasTableUpdateCompanionBuilder =
       Value<int> precoKwhMilesimos,
       Value<int> valorCentavos,
       Value<bool> cargaCompleta,
+      Value<FormaPagamento?> formaPagamento,
+      Value<String?> cartaoId,
       Value<int> rowid,
     });
 
@@ -4122,6 +4969,17 @@ class $$RecargasTableFilterComposer
 
   ColumnFilters<bool> get cargaCompleta => $composableBuilder(
     column: $table.cargaCompleta,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<FormaPagamento?, FormaPagamento, String>
+  get formaPagamento => $composableBuilder(
+    column: $table.formaPagamento,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get cartaoId => $composableBuilder(
+    column: $table.cartaoId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4218,6 +5076,16 @@ class $$RecargasTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get formaPagamento => $composableBuilder(
+    column: $table.formaPagamento,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cartaoId => $composableBuilder(
+    column: $table.cartaoId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$VeiculosTableOrderingComposer get veiculoId {
     final $$VeiculosTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -4297,6 +5165,15 @@ class $$RecargasTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumnWithTypeConverter<FormaPagamento?, String>
+  get formaPagamento => $composableBuilder(
+    column: $table.formaPagamento,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get cartaoId =>
+      $composableBuilder(column: $table.cartaoId, builder: (column) => column);
+
   $$VeiculosTableAnnotationComposer get veiculoId {
     final $$VeiculosTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -4362,6 +5239,8 @@ class $$RecargasTableTableManager
                 Value<int> precoKwhMilesimos = const Value.absent(),
                 Value<int> valorCentavos = const Value.absent(),
                 Value<bool> cargaCompleta = const Value.absent(),
+                Value<FormaPagamento?> formaPagamento = const Value.absent(),
+                Value<String?> cartaoId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RecargasCompanion(
                 id: id,
@@ -4377,6 +5256,8 @@ class $$RecargasTableTableManager
                 precoKwhMilesimos: precoKwhMilesimos,
                 valorCentavos: valorCentavos,
                 cargaCompleta: cargaCompleta,
+                formaPagamento: formaPagamento,
+                cartaoId: cartaoId,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -4394,6 +5275,8 @@ class $$RecargasTableTableManager
                 required int precoKwhMilesimos,
                 required int valorCentavos,
                 required bool cargaCompleta,
+                Value<FormaPagamento?> formaPagamento = const Value.absent(),
+                Value<String?> cartaoId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RecargasCompanion.insert(
                 id: id,
@@ -4409,6 +5292,8 @@ class $$RecargasTableTableManager
                 precoKwhMilesimos: precoKwhMilesimos,
                 valorCentavos: valorCentavos,
                 cargaCompleta: cargaCompleta,
+                formaPagamento: formaPagamento,
+                cartaoId: cartaoId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -4477,6 +5362,285 @@ typedef $$RecargasTableProcessedTableManager =
       (RecargaLinha, $$RecargasTableReferences),
       RecargaLinha,
       PrefetchHooks Function({bool veiculoId})
+    >;
+typedef $$CartoesTableCreateCompanionBuilder =
+    CartoesCompanion Function({
+      required String id,
+      required DateTime criadoEm,
+      required DateTime atualizadoEm,
+      Value<DateTime?> excluidoEm,
+      Value<bool> pendente,
+      required String usuarioId,
+      required String nome,
+      Value<String?> banco,
+      required int diaFechamento,
+      Value<int> rowid,
+    });
+typedef $$CartoesTableUpdateCompanionBuilder =
+    CartoesCompanion Function({
+      Value<String> id,
+      Value<DateTime> criadoEm,
+      Value<DateTime> atualizadoEm,
+      Value<DateTime?> excluidoEm,
+      Value<bool> pendente,
+      Value<String> usuarioId,
+      Value<String> nome,
+      Value<String?> banco,
+      Value<int> diaFechamento,
+      Value<int> rowid,
+    });
+
+class $$CartoesTableFilterComposer
+    extends Composer<_$BancoLocal, $CartoesTable> {
+  $$CartoesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get criadoEm => $composableBuilder(
+    column: $table.criadoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get atualizadoEm => $composableBuilder(
+    column: $table.atualizadoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get excluidoEm => $composableBuilder(
+    column: $table.excluidoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get pendente => $composableBuilder(
+    column: $table.pendente,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get usuarioId => $composableBuilder(
+    column: $table.usuarioId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nome => $composableBuilder(
+    column: $table.nome,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get banco => $composableBuilder(
+    column: $table.banco,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get diaFechamento => $composableBuilder(
+    column: $table.diaFechamento,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CartoesTableOrderingComposer
+    extends Composer<_$BancoLocal, $CartoesTable> {
+  $$CartoesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get criadoEm => $composableBuilder(
+    column: $table.criadoEm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get atualizadoEm => $composableBuilder(
+    column: $table.atualizadoEm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get excluidoEm => $composableBuilder(
+    column: $table.excluidoEm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get pendente => $composableBuilder(
+    column: $table.pendente,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get usuarioId => $composableBuilder(
+    column: $table.usuarioId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nome => $composableBuilder(
+    column: $table.nome,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get banco => $composableBuilder(
+    column: $table.banco,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get diaFechamento => $composableBuilder(
+    column: $table.diaFechamento,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CartoesTableAnnotationComposer
+    extends Composer<_$BancoLocal, $CartoesTable> {
+  $$CartoesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get criadoEm =>
+      $composableBuilder(column: $table.criadoEm, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get atualizadoEm => $composableBuilder(
+    column: $table.atualizadoEm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get excluidoEm => $composableBuilder(
+    column: $table.excluidoEm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get pendente =>
+      $composableBuilder(column: $table.pendente, builder: (column) => column);
+
+  GeneratedColumn<String> get usuarioId =>
+      $composableBuilder(column: $table.usuarioId, builder: (column) => column);
+
+  GeneratedColumn<String> get nome =>
+      $composableBuilder(column: $table.nome, builder: (column) => column);
+
+  GeneratedColumn<String> get banco =>
+      $composableBuilder(column: $table.banco, builder: (column) => column);
+
+  GeneratedColumn<int> get diaFechamento => $composableBuilder(
+    column: $table.diaFechamento,
+    builder: (column) => column,
+  );
+}
+
+class $$CartoesTableTableManager
+    extends
+        RootTableManager<
+          _$BancoLocal,
+          $CartoesTable,
+          CartaoLinha,
+          $$CartoesTableFilterComposer,
+          $$CartoesTableOrderingComposer,
+          $$CartoesTableAnnotationComposer,
+          $$CartoesTableCreateCompanionBuilder,
+          $$CartoesTableUpdateCompanionBuilder,
+          (
+            CartaoLinha,
+            BaseReferences<_$BancoLocal, $CartoesTable, CartaoLinha>,
+          ),
+          CartaoLinha,
+          PrefetchHooks Function()
+        > {
+  $$CartoesTableTableManager(_$BancoLocal db, $CartoesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CartoesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CartoesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CartoesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> criadoEm = const Value.absent(),
+                Value<DateTime> atualizadoEm = const Value.absent(),
+                Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<bool> pendente = const Value.absent(),
+                Value<String> usuarioId = const Value.absent(),
+                Value<String> nome = const Value.absent(),
+                Value<String?> banco = const Value.absent(),
+                Value<int> diaFechamento = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CartoesCompanion(
+                id: id,
+                criadoEm: criadoEm,
+                atualizadoEm: atualizadoEm,
+                excluidoEm: excluidoEm,
+                pendente: pendente,
+                usuarioId: usuarioId,
+                nome: nome,
+                banco: banco,
+                diaFechamento: diaFechamento,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime criadoEm,
+                required DateTime atualizadoEm,
+                Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<bool> pendente = const Value.absent(),
+                required String usuarioId,
+                required String nome,
+                Value<String?> banco = const Value.absent(),
+                required int diaFechamento,
+                Value<int> rowid = const Value.absent(),
+              }) => CartoesCompanion.insert(
+                id: id,
+                criadoEm: criadoEm,
+                atualizadoEm: atualizadoEm,
+                excluidoEm: excluidoEm,
+                pendente: pendente,
+                usuarioId: usuarioId,
+                nome: nome,
+                banco: banco,
+                diaFechamento: diaFechamento,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CartoesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$BancoLocal,
+      $CartoesTable,
+      CartaoLinha,
+      $$CartoesTableFilterComposer,
+      $$CartoesTableOrderingComposer,
+      $$CartoesTableAnnotationComposer,
+      $$CartoesTableCreateCompanionBuilder,
+      $$CartoesTableUpdateCompanionBuilder,
+      (CartaoLinha, BaseReferences<_$BancoLocal, $CartoesTable, CartaoLinha>),
+      CartaoLinha,
+      PrefetchHooks Function()
     >;
 typedef $$PreferenciasTableCreateCompanionBuilder =
     PreferenciasCompanion Function({
@@ -4631,6 +5795,8 @@ class $BancoLocalManager {
       $$AbastecimentosTableTableManager(_db, _db.abastecimentos);
   $$RecargasTableTableManager get recargas =>
       $$RecargasTableTableManager(_db, _db.recargas);
+  $$CartoesTableTableManager get cartoes =>
+      $$CartoesTableTableManager(_db, _db.cartoes);
   $$PreferenciasTableTableManager get preferencias =>
       $$PreferenciasTableTableManager(_db, _db.preferencias);
 }

@@ -10,6 +10,14 @@ public enum LocalRecarga
     Eletroposto = 3
 }
 
+public enum FormaPagamento
+{
+    Credito = 1,
+    Debito = 2,
+    Pix = 3,
+    Dinheiro = 4
+}
+
 public sealed record DadosAbastecimento(
     DateTimeOffset Data,
     int Odometro,
@@ -20,7 +28,9 @@ public sealed record DadosAbastecimento(
     bool TanqueCheio,
     string? Posto,
     DateTimeOffset AtualizadoEm,
-    DateTimeOffset? ExcluidoEm);
+    DateTimeOffset? ExcluidoEm,
+    FormaPagamento? FormaPagamento = null,
+    Guid? CartaoId = null);
 
 public sealed record DadosRecarga(
     DateTimeOffset Data,
@@ -31,7 +41,9 @@ public sealed record DadosRecarga(
     decimal ValorTotal,
     bool CargaCompleta,
     DateTimeOffset AtualizadoEm,
-    DateTimeOffset? ExcluidoEm);
+    DateTimeOffset? ExcluidoEm,
+    FormaPagamento? FormaPagamento = null,
+    Guid? CartaoId = null);
 
 public abstract class RegistroEnergia
 {
@@ -45,6 +57,14 @@ public abstract class RegistroEnergia
     public DateTimeOffset AtualizadoEm { get; protected set; }
     public DateTimeOffset? ExcluidoEm { get; protected set; }
     public DateTimeOffset SincronizadoEm { get; protected set; }
+    public FormaPagamento? FormaPagamento { get; protected set; }
+    public Guid? CartaoId { get; protected set; }
+
+    protected void CopiarPagamento(FormaPagamento? formaPagamento, Guid? cartaoId)
+    {
+        FormaPagamento = formaPagamento;
+        CartaoId = formaPagamento == Registros.FormaPagamento.Credito ? cartaoId : null;
+    }
 
     protected void CopiarComum(DateTimeOffset data, int odometro, decimal valorTotal, DateTimeOffset atualizadoEm, DateTimeOffset? excluidoEm, DateTimeOffset agora)
     {
@@ -100,6 +120,7 @@ public sealed class Abastecimento : RegistroEnergia
         PrecoLitro = dados.PrecoLitro;
         TanqueCheio = dados.TanqueCheio;
         Posto = string.IsNullOrWhiteSpace(dados.Posto) ? null : dados.Posto.Trim();
+        CopiarPagamento(dados.FormaPagamento, dados.CartaoId);
     }
 
     private static void Validar(DadosAbastecimento dados)
@@ -149,6 +170,7 @@ public sealed class Recarga : RegistroEnergia
         Kwh = dados.Kwh;
         PrecoKwh = dados.PrecoKwh;
         CargaCompleta = dados.CargaCompleta;
+        CopiarPagamento(dados.FormaPagamento, dados.CartaoId);
     }
 
     private static void Validar(DadosRecarga dados)

@@ -1,3 +1,4 @@
+using NossoCombustivel.Domain.Cartoes;
 using NossoCombustivel.Domain.Registros;
 using NossoCombustivel.Domain.Veiculos;
 
@@ -33,7 +34,9 @@ public sealed record AbastecimentoSync(
     string? Posto,
     DateTimeOffset CriadoEm,
     DateTimeOffset AtualizadoEm,
-    DateTimeOffset? ExcluidoEm);
+    DateTimeOffset? ExcluidoEm,
+    FormaPagamento? FormaPagamento = null,
+    Guid? CartaoId = null);
 
 public sealed record RecargaSync(
     Guid Id,
@@ -47,12 +50,24 @@ public sealed record RecargaSync(
     bool CargaCompleta,
     DateTimeOffset CriadoEm,
     DateTimeOffset AtualizadoEm,
-    DateTimeOffset? ExcluidoEm);
+    DateTimeOffset? ExcluidoEm,
+    FormaPagamento? FormaPagamento = null,
+    Guid? CartaoId = null);
+
+public sealed record CartaoSync(
+    Guid Id,
+    string Nome,
+    int DiaFechamento,
+    DateTimeOffset CriadoEm,
+    DateTimeOffset AtualizadoEm,
+    DateTimeOffset? ExcluidoEm,
+    string? Banco = null);
 
 public sealed record LoteSync(
     IReadOnlyList<VeiculoSync> Veiculos,
     IReadOnlyList<AbastecimentoSync> Abastecimentos,
-    IReadOnlyList<RecargaSync> Recargas);
+    IReadOnlyList<RecargaSync> Recargas,
+    IReadOnlyList<CartaoSync>? Cartoes = null);
 
 public sealed record Rejeitado(Guid Id, string Motivo);
 
@@ -69,6 +84,9 @@ public interface IRepositorioSincronizacao
     Task<List<Veiculo>> VeiculosAlteradosAsync(Guid usuarioId, DateTimeOffset? desde, CancellationToken cancelamento);
     Task<List<Abastecimento>> AbastecimentosAlteradosAsync(IReadOnlyCollection<Guid> veiculoIds, DateTimeOffset? desde, CancellationToken cancelamento);
     Task<List<Recarga>> RecargasAlteradasAsync(IReadOnlyCollection<Guid> veiculoIds, DateTimeOffset? desde, CancellationToken cancelamento);
+    Task<List<Cartao>> ObterCartoesAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancelamento);
+    Task<List<Cartao>> CartoesAlteradosAsync(Guid usuarioId, DateTimeOffset? desde, CancellationToken cancelamento);
+    void Adicionar(Cartao cartao);
     void Adicionar(Veiculo veiculo);
     void Adicionar(RegistroEnergia registro);
     Task SalvarAsync(CancellationToken cancelamento);

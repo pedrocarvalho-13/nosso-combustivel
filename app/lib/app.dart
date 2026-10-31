@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/rotas/rotas.dart';
+import 'data/provedores.dart';
 import 'core/tema/paleta_energia.dart';
 import 'core/tema/tema_app.dart';
 import 'core/tema/tipo_energia_ativo.dart';
@@ -19,7 +20,11 @@ class NossoCombustivelApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: TemaApp.claro(paleta),
       darkTheme: TemaApp.escuro(paleta),
-      themeMode: ThemeMode.dark,
+      themeMode: switch (ref.watch(temaProvider).value) {
+        'claro' => ThemeMode.light,
+        'sistema' => ThemeMode.system,
+        _ => ThemeMode.dark,
+      },
       locale: const Locale('pt', 'BR'),
       supportedLocales: const [Locale('pt', 'BR')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,

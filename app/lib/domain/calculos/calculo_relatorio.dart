@@ -1,4 +1,6 @@
+import '../cartao.dart';
 import '../registro_energia.dart';
+import 'calculo_fatura.dart';
 
 class GastoMensal {
   const GastoMensal({required this.mes, this.combustivelCentavos = 0, this.eletricoCentavos = 0});
@@ -11,13 +13,17 @@ class GastoMensal {
 }
 
 abstract final class CalculoRelatorio {
-  static List<GastoMensal> gastoPorMes(List<RegistroEnergia> registros, DateTime agora, {int meses = 12}) {
+  static List<GastoMensal> gastoPorMes(
+    List<RegistroEnergia> registros,
+    DateTime agora, {
+    int meses = 12,
+    Map<String, Cartao> cartoes = const {},
+  }) {
     final inicios = [for (var i = meses - 1; i >= 0; i--) DateTime(agora.year, agora.month - i)];
     return [
       for (final inicio in inicios)
         () {
-          final fim = DateTime(inicio.year, inicio.month + 1);
-          final doMes = registros.where((r) => !r.data.isBefore(inicio) && r.data.isBefore(fim));
+          final doMes = registros.where((r) => CalculoFatura.mesDoGasto(r, cartoes) == inicio);
           return GastoMensal(
             mes: inicio,
             combustivelCentavos: doMes.whereType<Abastecimento>().fold(0, (soma, r) => soma + r.valorCentavos),

@@ -150,4 +150,38 @@ public class SincronizacaoTests(FabricaApi fabrica) : IClassFixture<FabricaApi>
         Assert.Equal("Meu Hilux", buscaDono.Alteracoes.Veiculos.Single().Apelido);
         Assert.Empty(buscaDono.Alteracoes.Abastecimentos);
     }
+
+    [Fact]
+    public async Task Cartao_e_forma_de_pagamento_sobem_e_descem()
+    {
+        var cliente = await ClienteLogadoAsync();
+        var carroId = Guid.CreateVersion7();
+        var cartaoId = Guid.CreateVersion7();
+        var cartao = new CartaoSync(cartaoId, "Roxinho", 31, Base, Base, null, "Nubank");
+        var credito = Abastecimento(Guid.CreateVersion7(), carroId) with { FormaPagamento = FormaPagamento.Credito, CartaoId = cartaoId };
+        var pix = Abastecimento(Guid.CreateVersion7(), carroId) with { FormaPagamento = FormaPagamento.Pix, CartaoId = cartaoId };
+
+        var envio = await EnviarAsync(cliente, new LoteSync([Carro(carroId)], [credito, pix], [], [cartao]));
+        var busca = await BuscarAsync(cliente);
+
+        Assert.Empty(envio.Rejeitados);
+        Assert.Equal("Roxinho", busca.Alteracoes.Cartoes!.Single().Nome);
+        Assert.Equal("Nubank", busca.Alteracoes.Cartoes!.Single().Banco);
+        Assert.Equal(31, busca.Alteracoes.Cartoes!.Single().DiaFechamento);
+        var recebidoCredito = busca.Alteracoes.Abastecimentos.Single(a => a.Id == credito.Id);
+        Assert.Equal(FormaPagamento.Credito, recebidoCredito.FormaPagamento);
+        Assert.Equal(cartaoId, recebidoCredito.CartaoId);
+        Assert.Null(busca.Alteracoes.Abastecimentos.Single(a => a.Id == pix.Id).CartaoId);
+    }
+
+    [Fact]
+    public async Task Cartao_com_dia_de_fechamento_invalido_e_recusado()
+    {
+        var cliente = await ClienteLogadoAsync();
+        var cartao = new CartaoSync(Guid.CreateVersion7(), "Cartão", 32, Base, Base, null);
+
+        var envio = await EnviarAsync(cliente, new LoteSync([], [], [], [cartao]));
+
+        Assert.Equal(cartao.Id, envio.Rejeitados.Single().Id);
+    }
 }
