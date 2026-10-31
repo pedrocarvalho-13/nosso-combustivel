@@ -201,17 +201,21 @@ class _GraficoMeses extends StatelessWidget {
               for (final mes in meses)
                 Expanded(
                   child: Tooltip(
-                    message: '${Formato.mesAno(mes.mes)}: ${Formato.moeda(mes.totalCentavos)}',
+                    message: '${Formato.mesAno(mes.mes)}: ${Formato.moeda(mes.totalCentavos)}${mes.futuro ? ' já na fatura' : ''}',
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 3),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           if (maior > 0) ...[
-                            _Barra(altura: _alturaBarras * mes.eletricoCentavos / maior, cor: corEletrico, topo: true),
+                            _Barra(
+                              altura: _alturaBarras * mes.eletricoCentavos / maior,
+                              cor: mes.futuro ? corEletrico.withValues(alpha: 0.4) : corEletrico,
+                              topo: true,
+                            ),
                             _Barra(
                               altura: _alturaBarras * mes.combustivelCentavos / maior,
-                              cor: corCombustivel,
+                              cor: mes.futuro ? corCombustivel.withValues(alpha: 0.4) : corCombustivel,
                               topo: mes.eletricoCentavos == 0,
                             ),
                           ],
@@ -230,13 +234,21 @@ class _GraficoMeses extends StatelessWidget {
             ],
           ),
         ),
-        if (temCombustivel && temEletrico) ...[
+        if ((temCombustivel && temEletrico) || meses.any((m) => m.futuro)) ...[
           const SizedBox(height: 12),
           Wrap(
             spacing: 16,
+            runSpacing: 6,
             children: [
-              _Legenda(cor: corCombustivel, texto: 'Combustível'),
-              _Legenda(cor: corEletrico, texto: 'Energia elétrica'),
+              if (temCombustivel && temEletrico) ...[
+                _Legenda(cor: corCombustivel, texto: 'Combustível'),
+                _Legenda(cor: corEletrico, texto: 'Energia elétrica'),
+              ],
+              if (meses.any((m) => m.futuro))
+                _Legenda(
+                  cor: corCombustivel.withValues(alpha: 0.4),
+                  texto: '${Formato.mes(meses.last.mes)}: já na fatura do cartão',
+                ),
             ],
           ),
         ],

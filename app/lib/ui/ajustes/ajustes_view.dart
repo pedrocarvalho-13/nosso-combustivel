@@ -255,37 +255,56 @@ class AjustesView extends ConsumerWidget {
     required double? inicial,
     required int casas,
     bool permitirApagar = true,
+    String rotuloApagar = 'Remover meta',
   }) {
     final controle = TextEditingController(text: inicial == null ? '' : Formato.paraCampo(inicial, casas: casas));
-    return showDialog<(double?,)>(
+    return showModalBottomSheet<(double?,)>(
       context: context,
       useRootNavigator: true,
+      isScrollControlled: true,
+      showDragHandle: true,
       builder: (contexto) {
         String? erro;
         return StatefulBuilder(
-          builder: (contexto, atualizar) => AlertDialog(
-            title: Text(titulo),
-            content: TextField(
-              controller: controle,
-              autofocus: true,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
-              decoration: InputDecoration(labelText: rotulo, errorText: erro),
-            ),
-            actions: [
-              if (permitirApagar && inicial != null)
-                TextButton(onPressed: () => Navigator.of(contexto).pop((null,)), child: const Text('Remover')),
-              TextButton(onPressed: () => Navigator.of(contexto).pop(), child: const Text('Cancelar')),
-              FilledButton(
-                onPressed: () {
-                  final valor = Formato.lerDecimal(controle.text);
-                  if (valor == null || valor <= 0) return atualizar(() => erro = 'Informe um valor maior que zero.');
-                  Navigator.of(contexto).pop((valor,));
-                },
-                child: const Text('Salvar'),
+          builder: (contexto, atualizar) {
+            void salvar() {
+              final valor = Formato.lerDecimal(controle.text);
+              if (valor == null || valor <= 0) return atualizar(() => erro = 'Informe um valor maior que zero.');
+              Navigator.of(contexto).pop((valor,));
+            }
+
+            return SafeArea(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(24, 0, 24, 16 + MediaQuery.viewInsetsOf(contexto).bottom),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(titulo, style: Theme.of(contexto).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: controle,
+                      autofocus: true,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+                      onSubmitted: (_) => salvar(),
+                      decoration: InputDecoration(labelText: rotulo, errorText: erro),
+                    ),
+                    const SizedBox(height: 20),
+                    FilledButton(onPressed: salvar, child: const Text('Salvar')),
+                    if (permitirApagar && inicial != null) ...[
+                      const SizedBox(height: 4),
+                      TextButton(
+                        style: TextButton.styleFrom(foregroundColor: CoresBase.alerta),
+                        onPressed: () => Navigator.of(contexto).pop((null,)),
+                        child: Text(rotuloApagar),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );

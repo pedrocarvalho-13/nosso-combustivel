@@ -43,7 +43,7 @@ class RelatoriosEstado {
   final double? custoPorKm;
   final List<CicloRelatorio> ciclos;
 
-  bool get vazio => totalCentavos == 0;
+  bool get vazio => meses.every((m) => m.totalCentavos == 0);
 }
 
 const _mesesDoRelatorio = 12;
@@ -66,7 +66,7 @@ final relatoriosViewModelProvider = Provider<AsyncValue<RelatoriosEstado?>>((ref
     return RelatoriosEstado(
       veiculo: veiculo,
       meses: meses,
-      totalCentavos: periodo.gastoCentavos,
+      totalCentavos: CalculoRelatorio.totalFechado(meses),
       mediaMensalCentavos: CalculoRelatorio.mediaMensal(meses),
       kmRodados: periodo.kmRodados,
       custoPorKm: _custoPorKm(registros),
