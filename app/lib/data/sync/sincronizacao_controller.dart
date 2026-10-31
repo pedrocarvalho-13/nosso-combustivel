@@ -97,7 +97,8 @@ class SincronizacaoController extends Notifier<EstadoSincronizacao> {
           ultimaEm: state.ultimaEm,
         );
       }
-    } on Object {
+    } on Object catch (erro, pilha) {
+      debugPrint('Falha na sincronização: $erro\n$pilha');
       if (ref.mounted) {
         state = EstadoSincronizacao(situacao: SituacaoSync.erro, ultimaEm: state.ultimaEm);
       }
