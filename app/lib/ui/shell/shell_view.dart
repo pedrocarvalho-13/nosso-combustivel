@@ -202,12 +202,12 @@ class _BarraLateralState extends State<_BarraLateral> {
                   padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
                   child: Row(
                     children: [
-                      Image.asset('assets/logo.png', width: 36, height: 36, semanticLabel: 'Logo do Nosso Combustível'),
+                      Image.asset('assets/logo.png', width: 36, height: 36, semanticLabel: 'Logo do Pit Garage'),
                       if (mostrarTexto) ...[
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Nosso Combustível',
+                            'Pit Garage',
                             maxLines: 1,
                             overflow: TextOverflow.fade,
                             softWrap: false,

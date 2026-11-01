@@ -1,19 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-label="Nosso Combustível">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-label="Pit Garage">
   <defs>
-    <linearGradient id="energia" x1="0.15" y1="0" x2="0.85" y2="1">
+    <linearGradient id="energia" gradientUnits="userSpaceOnUse" x1="80" y1="0" x2="432" y2="0">
       <stop offset="0" stop-color="#F97316"/>
-      <stop offset="0.52" stop-color="#3B82F6"/>
+      <stop offset="0.5" stop-color="#3B82F6"/>
       <stop offset="1" stop-color="#10B981"/>
     </linearGradient>
   </defs>
   <rect width="1200" height="360" fill="#0F1115"/>
-  <g transform="translate(60 52) scale(0.5)">
-    <path d="M256 70C256 70 124 222 124 316a132 132 0 0 0 264 0C388 222 256 70 256 70Z" fill="#3B82F6"/>
-    <path d="M278 196 204 322h50l-18 96 80-134h-50l12-88Z" fill="#0F1115"/>
+  <g transform="translate(52 52) scale(0.5)">
+    <path d="M80 236 L256 108 L432 236" fill="none" stroke="url(#energia)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M120 224 V404 M392 224 V404" fill="none" stroke="url(#energia)" stroke-width="26" stroke-linecap="round"/>
+    <g fill="#E8EAF0">
+      <path d="M190 304 C196 278 206 262 222 260 H290 C306 262 316 278 322 304 Z"/>
+      <ellipse cx="184" cy="318" rx="34" ry="26"/>
+      <ellipse cx="328" cy="318" rx="34" ry="26"/>
+      <path d="M150 336 C150 316 164 304 184 304 H328 C348 304 362 316 362 336 V368 C362 378 356 384 346 384 H166 C156 384 150 378 150 368 Z"/>
+      <rect x="160" y="376" width="32" height="26" rx="7"/>
+      <rect x="320" y="376" width="32" height="26" rx="7"/>
+      <ellipse cx="146" cy="306" rx="12" ry="8"/>
+      <ellipse cx="366" cy="306" rx="12" ry="8"/>
+    </g>
+    <g fill="#0F1115">
+      <path d="M205 300 C210 282 217 273 227 272 H285 C295 273 302 282 307 300 Z"/>
+      <circle cx="184" cy="322" r="15"/>
+      <circle cx="328" cy="322" r="15"/>
+      <rect x="220" y="350" width="72" height="14" rx="7"/>
+    </g>
   </g>
-  <text x="340" y="172" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="92" font-weight="700" fill="#E6E8EC">Nosso</text>
-  <text x="340" y="270" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="92" font-weight="700" fill="#E6E8EC">Combustível</text>
-  <rect x="344" y="296" width="72" height="8" rx="4" fill="#3B82F6"/>
-  <rect x="428" y="296" width="72" height="8" rx="4" fill="#3B82F6"/>
-  <rect x="512" y="296" width="72" height="8" rx="4" fill="#3B82F6"/>
+  <text x="330" y="222" font-family="'Barlow Semi Condensed', 'Arial Narrow', Arial, sans-serif" font-size="150" letter-spacing="-1.5">
+    <tspan font-weight="700" fill="#E8EAF0">Pit</tspan><tspan font-weight="500" fill="#9AA3B2"> Garage</tspan>
+  </text>
 </svg>

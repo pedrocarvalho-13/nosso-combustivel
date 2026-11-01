@@ -16,7 +16,7 @@ class NossoCombustivelApp extends ConsumerWidget {
     final paleta = PaletaEnergia.de(ref.watch(tipoEnergiaAtivoProvider));
 
     return MaterialApp.router(
-      title: 'Nosso Combustível',
+      title: 'Pit Garage',
       debugShowCheckedModeBanner: false,
       theme: TemaApp.claro(paleta),
       darkTheme: TemaApp.escuro(paleta),

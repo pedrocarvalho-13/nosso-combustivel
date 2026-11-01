@@ -1,11 +1,11 @@
 {
-    "name": "Nosso Combustível",
-    "short_name": "Nosso Combustível",
+    "name": "Pit Garage",
+    "short_name": "Pit Garage",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0F1115",
     "theme_color": "#3B82F6",
-    "description": "Controle de gastos com combustível e energia",
+    "description": "Cuidados e gastos do seu carro: abastecimento, manutenção, estética e outros custos",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -1,4 +1,4 @@
-# Nosso Combustível
+# Pit Garage (antigo Nosso Combustível)
 
 App para controlar quanto cada carro gasta com combustível ou eletricidade: gasto da semana e do mês, consumo real (km/l ou km/kWh), custo por km e projeção do mês. Atende carros a combustão, flex, diesel, híbridos e 100% elétricos, e permite compartilhar um carro entre várias pessoas.
 

@@ -21,7 +21,7 @@ void main() {
   testWidgets('no celular a navegação fica numa barra flutuante embaixo', (tester) async {
     await abrir(tester, const Size(390, 844));
 
-    expect(find.text('Nosso Combustível'), findsNothing);
+    expect(find.text('Pit Garage'), findsNothing);
     expect(find.text('Relatórios'), findsOneWidget);
     await tester.tap(find.text('Relatórios'));
     await tester.pumpAndSettle();
@@ -36,14 +36,14 @@ void main() {
   testWidgets('no computador a navegação vira uma barra lateral que recolhe', (tester) async {
     await abrir(tester, const Size(1280, 800));
 
-    expect(find.text('Nosso Combustível'), findsOneWidget);
+    expect(find.text('Pit Garage'), findsOneWidget);
     if (const bool.fromEnvironment('CAPTURAR')) {
       await expectLater(find.byType(MaterialApp), matchesGoldenFile('capturas/inicio_computador.png'));
     }
     await tester.tap(find.byTooltip('Recolher menu'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Nosso Combustível'), findsNothing);
+    expect(find.text('Pit Garage'), findsNothing);
     expect(find.byTooltip('Expandir menu'), findsOneWidget);
     await tester.tap(find.byTooltip('Relatórios'));
     await tester.pumpAndSettle();
