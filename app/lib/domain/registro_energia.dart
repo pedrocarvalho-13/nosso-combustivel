@@ -49,6 +49,7 @@ class Abastecimento extends RegistroEnergia {
     required this.precoLitro,
     required bool tanqueCheio,
     this.posto,
+    this.postoId,
     super.formaPagamento,
     super.cartaoId,
     super.contaNaMedia,
@@ -58,6 +59,7 @@ class Abastecimento extends RegistroEnergia {
   final double litros;
   final double precoLitro;
   final String? posto;
+  final String? postoId;
 
   bool get tanqueCheio => completo;
 

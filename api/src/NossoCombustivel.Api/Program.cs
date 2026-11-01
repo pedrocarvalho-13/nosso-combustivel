@@ -43,6 +43,9 @@ builder.Services.AddRateLimiter(limites =>
     limites.AddPolicy(IaEndpoints.PoliticaLimite, contexto => RateLimitPartition.GetFixedWindowLimiter(
         contexto.User.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? "anonimo",
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 15, Window = TimeSpan.FromMinutes(1) }));
+    limites.AddPolicy(PostosEndpoints.PoliticaLimite, contexto => RateLimitPartition.GetFixedWindowLimiter(
+        contexto.User.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? "anonimo",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 30, Window = TimeSpan.FromMinutes(1) }));
 });
 
 builder.Services.AddCors(cors => cors.AddPolicy("App", politica => politica
@@ -62,6 +65,7 @@ app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapContas();
 app.MapSincronizacao();
 app.MapIa();
+app.MapPostos();
 
 app.Run();
 

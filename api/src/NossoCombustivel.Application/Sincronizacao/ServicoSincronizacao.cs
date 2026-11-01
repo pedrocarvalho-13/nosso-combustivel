@@ -1,4 +1,5 @@
 using NossoCombustivel.Application.Comum;
+using NossoCombustivel.Application.Postos;
 using NossoCombustivel.Domain;
 using NossoCombustivel.Domain.Cartoes;
 using NossoCombustivel.Domain.Registros;
@@ -6,7 +7,7 @@ using NossoCombustivel.Domain.Veiculos;
 
 namespace NossoCombustivel.Application.Sincronizacao;
 
-public sealed class ServicoSincronizacao(IRepositorioSincronizacao repositorio, IRelogio relogio)
+public sealed class ServicoSincronizacao(IRepositorioSincronizacao repositorio, IRepositorioPostos postos, IRelogio relogio)
 {
     private static readonly TimeSpan MargemDoCursor = TimeSpan.FromSeconds(5);
     private const string CarroDeOutraConta = "Este carro não pertence à sua conta.";
@@ -62,7 +63,7 @@ public sealed class ServicoSincronizacao(IRepositorioSincronizacao repositorio, 
                 var existente = abastecimentos.GetValueOrDefault(dto.Id);
                 ExigirCarroPermitido(existente?.VeiculoId ?? dto.VeiculoId, permitidos);
                 var dados = new DadosAbastecimento(dto.Data, dto.Odometro, dto.Combustivel, dto.Litros, dto.PrecoLitro,
-                    dto.ValorTotal, dto.TanqueCheio, dto.Posto, dto.AtualizadoEm, dto.ExcluidoEm, dto.FormaPagamento, dto.CartaoId, dto.ContaNaMedia ?? true);
+                    dto.ValorTotal, dto.TanqueCheio, dto.Posto, dto.AtualizadoEm, dto.ExcluidoEm, dto.FormaPagamento, dto.CartaoId, dto.ContaNaMedia ?? true, dto.PostoId);
                 if (existente is null)
                     repositorio.Adicionar(Abastecimento.Criar(dto.Id, dto.VeiculoId, usuarioId, dados, dto.CriadoEm, agora));
                 else
@@ -101,13 +102,16 @@ public sealed class ServicoSincronizacao(IRepositorioSincronizacao repositorio, 
         var abastecimentos = await repositorio.AbastecimentosAlteradosAsync(idsDosVeiculos, aPartir, cancelamento);
         var recargas = await repositorio.RecargasAlteradasAsync(idsDosVeiculos, aPartir, cancelamento);
         var cartoes = await repositorio.CartoesAlteradosAsync(usuarioId, aPartir, cancelamento);
+        var idsDosPostos = abastecimentos.Where(a => a.PostoId is not null).Select(a => a.PostoId!.Value).Distinct().ToList();
+        var postosUsados = idsDosPostos.Count == 0 ? [] : await postos.ObterAsync(idsDosPostos, cancelamento);
 
         return new RespostaBusca(
             new LoteSync(
                 veiculos.Select(ParaDto).ToList(),
                 abastecimentos.Select(ParaDto).ToList(),
                 recargas.Select(ParaDto).ToList(),
-                cartoes.Select(ParaDto).ToList()),
+                cartoes.Select(ParaDto).ToList(),
+                postosUsados.Select(p => new PostoSync(p.Id, p.Nome, p.Bandeira, p.Endereco, p.Latitude, p.Longitude)).ToList()),
             cursor);
     }
 
@@ -141,7 +145,7 @@ public sealed class ServicoSincronizacao(IRepositorioSincronizacao repositorio, 
 
     private static AbastecimentoSync ParaDto(Abastecimento a) => new(
         a.Id, a.VeiculoId, a.Data, a.Odometro, a.Combustivel, a.Litros, a.PrecoLitro, a.ValorTotal,
-        a.TanqueCheio, a.Posto, a.CriadoEm, a.AtualizadoEm, a.ExcluidoEm, a.FormaPagamento, a.CartaoId, a.ContaNaMedia);
+        a.TanqueCheio, a.Posto, a.CriadoEm, a.AtualizadoEm, a.ExcluidoEm, a.FormaPagamento, a.CartaoId, a.ContaNaMedia, a.PostoId);
 
     private static RecargaSync ParaDto(Recarga r) => new(
         r.Id, r.VeiculoId, r.Data, r.Odometro, r.Local, r.Kwh, r.PrecoKwh, r.ValorTotal,

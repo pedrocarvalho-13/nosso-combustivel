@@ -31,7 +31,8 @@ public sealed record DadosAbastecimento(
     DateTimeOffset? ExcluidoEm,
     FormaPagamento? FormaPagamento = null,
     Guid? CartaoId = null,
-    bool ContaNaMedia = true);
+    bool ContaNaMedia = true,
+    Guid? PostoId = null);
 
 public sealed record DadosRecarga(
     DateTimeOffset Data,
@@ -97,6 +98,7 @@ public sealed class Abastecimento : RegistroEnergia
     public decimal PrecoLitro { get; private set; }
     public bool TanqueCheio { get; private set; }
     public string? Posto { get; private set; }
+    public Guid? PostoId { get; private set; }
 
     public static Abastecimento Criar(Guid id, Guid veiculoId, Guid usuarioId, DadosAbastecimento dados, DateTimeOffset criadoEm, DateTimeOffset agora)
     {
@@ -123,6 +125,7 @@ public sealed class Abastecimento : RegistroEnergia
         PrecoLitro = dados.PrecoLitro;
         TanqueCheio = dados.TanqueCheio;
         Posto = string.IsNullOrWhiteSpace(dados.Posto) ? null : dados.Posto.Trim();
+        PostoId = dados.PostoId;
         CopiarPagamento(dados.FormaPagamento, dados.CartaoId);
         ContaNaMedia = dados.ContaNaMedia;
     }

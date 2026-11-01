@@ -37,7 +37,8 @@ public sealed record AbastecimentoSync(
     DateTimeOffset? ExcluidoEm,
     FormaPagamento? FormaPagamento = null,
     Guid? CartaoId = null,
-    bool? ContaNaMedia = null);
+    bool? ContaNaMedia = null,
+    Guid? PostoId = null);
 
 public sealed record RecargaSync(
     Guid Id,
@@ -65,11 +66,14 @@ public sealed record CartaoSync(
     DateTimeOffset? ExcluidoEm,
     string? Banco = null);
 
+public sealed record PostoSync(Guid Id, string Nome, string? Bandeira, string? Endereco, double Latitude, double Longitude);
+
 public sealed record LoteSync(
     IReadOnlyList<VeiculoSync> Veiculos,
     IReadOnlyList<AbastecimentoSync> Abastecimentos,
     IReadOnlyList<RecargaSync> Recargas,
-    IReadOnlyList<CartaoSync>? Cartoes = null);
+    IReadOnlyList<CartaoSync>? Cartoes = null,
+    IReadOnlyList<PostoSync>? Postos = null);
 
 public sealed record Rejeitado(Guid Id, string Motivo);
 

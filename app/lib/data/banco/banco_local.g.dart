@@ -1155,6 +1155,17 @@ class $AbastecimentosTable extends Abastecimentos
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _postoIdMeta = const VerificationMeta(
+    'postoId',
+  );
+  @override
+  late final GeneratedColumn<String> postoId = GeneratedColumn<String>(
+    'posto_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   late final GeneratedColumnWithTypeConverter<FormaPagamento?, String>
   formaPagamento =
@@ -1209,6 +1220,7 @@ class $AbastecimentosTable extends Abastecimentos
     valorCentavos,
     tanqueCheio,
     posto,
+    postoId,
     formaPagamento,
     cartaoId,
     contaNaMedia,
@@ -1332,6 +1344,12 @@ class $AbastecimentosTable extends Abastecimentos
         posto.isAcceptableOrUnknown(data['posto']!, _postoMeta),
       );
     }
+    if (data.containsKey('posto_id')) {
+      context.handle(
+        _postoIdMeta,
+        postoId.isAcceptableOrUnknown(data['posto_id']!, _postoIdMeta),
+      );
+    }
     if (data.containsKey('cartao_id')) {
       context.handle(
         _cartaoIdMeta,
@@ -1414,6 +1432,10 @@ class $AbastecimentosTable extends Abastecimentos
         DriftSqlType.string,
         data['${effectivePrefix}posto'],
       ),
+      postoId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}posto_id'],
+      ),
       formaPagamento: $AbastecimentosTable.$converterformaPagamenton.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
@@ -1464,6 +1486,7 @@ class AbastecimentoLinha extends DataClass
   final int valorCentavos;
   final bool tanqueCheio;
   final String? posto;
+  final String? postoId;
   final FormaPagamento? formaPagamento;
   final String? cartaoId;
   final bool contaNaMedia;
@@ -1482,6 +1505,7 @@ class AbastecimentoLinha extends DataClass
     required this.valorCentavos,
     required this.tanqueCheio,
     this.posto,
+    this.postoId,
     this.formaPagamento,
     this.cartaoId,
     required this.contaNaMedia,
@@ -1510,6 +1534,9 @@ class AbastecimentoLinha extends DataClass
     map['tanque_cheio'] = Variable<bool>(tanqueCheio);
     if (!nullToAbsent || posto != null) {
       map['posto'] = Variable<String>(posto);
+    }
+    if (!nullToAbsent || postoId != null) {
+      map['posto_id'] = Variable<String>(postoId);
     }
     if (!nullToAbsent || formaPagamento != null) {
       map['forma_pagamento'] = Variable<String>(
@@ -1543,6 +1570,9 @@ class AbastecimentoLinha extends DataClass
       posto: posto == null && nullToAbsent
           ? const Value.absent()
           : Value(posto),
+      postoId: postoId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(postoId),
       formaPagamento: formaPagamento == null && nullToAbsent
           ? const Value.absent()
           : Value(formaPagamento),
@@ -1577,6 +1607,7 @@ class AbastecimentoLinha extends DataClass
       valorCentavos: serializer.fromJson<int>(json['valorCentavos']),
       tanqueCheio: serializer.fromJson<bool>(json['tanqueCheio']),
       posto: serializer.fromJson<String?>(json['posto']),
+      postoId: serializer.fromJson<String?>(json['postoId']),
       formaPagamento: $AbastecimentosTable.$converterformaPagamenton.fromJson(
         serializer.fromJson<String?>(json['formaPagamento']),
       ),
@@ -1604,6 +1635,7 @@ class AbastecimentoLinha extends DataClass
       'valorCentavos': serializer.toJson<int>(valorCentavos),
       'tanqueCheio': serializer.toJson<bool>(tanqueCheio),
       'posto': serializer.toJson<String?>(posto),
+      'postoId': serializer.toJson<String?>(postoId),
       'formaPagamento': serializer.toJson<String?>(
         $AbastecimentosTable.$converterformaPagamenton.toJson(formaPagamento),
       ),
@@ -1627,6 +1659,7 @@ class AbastecimentoLinha extends DataClass
     int? valorCentavos,
     bool? tanqueCheio,
     Value<String?> posto = const Value.absent(),
+    Value<String?> postoId = const Value.absent(),
     Value<FormaPagamento?> formaPagamento = const Value.absent(),
     Value<String?> cartaoId = const Value.absent(),
     bool? contaNaMedia,
@@ -1645,6 +1678,7 @@ class AbastecimentoLinha extends DataClass
     valorCentavos: valorCentavos ?? this.valorCentavos,
     tanqueCheio: tanqueCheio ?? this.tanqueCheio,
     posto: posto.present ? posto.value : this.posto,
+    postoId: postoId.present ? postoId.value : this.postoId,
     formaPagamento: formaPagamento.present
         ? formaPagamento.value
         : this.formaPagamento,
@@ -1679,6 +1713,7 @@ class AbastecimentoLinha extends DataClass
           ? data.tanqueCheio.value
           : this.tanqueCheio,
       posto: data.posto.present ? data.posto.value : this.posto,
+      postoId: data.postoId.present ? data.postoId.value : this.postoId,
       formaPagamento: data.formaPagamento.present
           ? data.formaPagamento.value
           : this.formaPagamento,
@@ -1706,6 +1741,7 @@ class AbastecimentoLinha extends DataClass
           ..write('valorCentavos: $valorCentavos, ')
           ..write('tanqueCheio: $tanqueCheio, ')
           ..write('posto: $posto, ')
+          ..write('postoId: $postoId, ')
           ..write('formaPagamento: $formaPagamento, ')
           ..write('cartaoId: $cartaoId, ')
           ..write('contaNaMedia: $contaNaMedia')
@@ -1729,6 +1765,7 @@ class AbastecimentoLinha extends DataClass
     valorCentavos,
     tanqueCheio,
     posto,
+    postoId,
     formaPagamento,
     cartaoId,
     contaNaMedia,
@@ -1751,6 +1788,7 @@ class AbastecimentoLinha extends DataClass
           other.valorCentavos == this.valorCentavos &&
           other.tanqueCheio == this.tanqueCheio &&
           other.posto == this.posto &&
+          other.postoId == this.postoId &&
           other.formaPagamento == this.formaPagamento &&
           other.cartaoId == this.cartaoId &&
           other.contaNaMedia == this.contaNaMedia);
@@ -1771,6 +1809,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
   final Value<int> valorCentavos;
   final Value<bool> tanqueCheio;
   final Value<String?> posto;
+  final Value<String?> postoId;
   final Value<FormaPagamento?> formaPagamento;
   final Value<String?> cartaoId;
   final Value<bool> contaNaMedia;
@@ -1790,6 +1829,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     this.valorCentavos = const Value.absent(),
     this.tanqueCheio = const Value.absent(),
     this.posto = const Value.absent(),
+    this.postoId = const Value.absent(),
     this.formaPagamento = const Value.absent(),
     this.cartaoId = const Value.absent(),
     this.contaNaMedia = const Value.absent(),
@@ -1810,6 +1850,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     required int valorCentavos,
     required bool tanqueCheio,
     this.posto = const Value.absent(),
+    this.postoId = const Value.absent(),
     this.formaPagamento = const Value.absent(),
     this.cartaoId = const Value.absent(),
     this.contaNaMedia = const Value.absent(),
@@ -1840,6 +1881,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     Expression<int>? valorCentavos,
     Expression<bool>? tanqueCheio,
     Expression<String>? posto,
+    Expression<String>? postoId,
     Expression<String>? formaPagamento,
     Expression<String>? cartaoId,
     Expression<bool>? contaNaMedia,
@@ -1861,6 +1903,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
       if (valorCentavos != null) 'valor_centavos': valorCentavos,
       if (tanqueCheio != null) 'tanque_cheio': tanqueCheio,
       if (posto != null) 'posto': posto,
+      if (postoId != null) 'posto_id': postoId,
       if (formaPagamento != null) 'forma_pagamento': formaPagamento,
       if (cartaoId != null) 'cartao_id': cartaoId,
       if (contaNaMedia != null) 'conta_na_media': contaNaMedia,
@@ -1883,6 +1926,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     Value<int>? valorCentavos,
     Value<bool>? tanqueCheio,
     Value<String?>? posto,
+    Value<String?>? postoId,
     Value<FormaPagamento?>? formaPagamento,
     Value<String?>? cartaoId,
     Value<bool>? contaNaMedia,
@@ -1903,6 +1947,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
       valorCentavos: valorCentavos ?? this.valorCentavos,
       tanqueCheio: tanqueCheio ?? this.tanqueCheio,
       posto: posto ?? this.posto,
+      postoId: postoId ?? this.postoId,
       formaPagamento: formaPagamento ?? this.formaPagamento,
       cartaoId: cartaoId ?? this.cartaoId,
       contaNaMedia: contaNaMedia ?? this.contaNaMedia,
@@ -1957,6 +2002,9 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     if (posto.present) {
       map['posto'] = Variable<String>(posto.value);
     }
+    if (postoId.present) {
+      map['posto_id'] = Variable<String>(postoId.value);
+    }
     if (formaPagamento.present) {
       map['forma_pagamento'] = Variable<String>(
         $AbastecimentosTable.$converterformaPagamenton.toSql(
@@ -1993,6 +2041,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
           ..write('valorCentavos: $valorCentavos, ')
           ..write('tanqueCheio: $tanqueCheio, ')
           ..write('posto: $posto, ')
+          ..write('postoId: $postoId, ')
           ..write('formaPagamento: $formaPagamento, ')
           ..write('cartaoId: $cartaoId, ')
           ..write('contaNaMedia: $contaNaMedia, ')
@@ -4415,6 +4464,7 @@ typedef $$AbastecimentosTableCreateCompanionBuilder =
       required int valorCentavos,
       required bool tanqueCheio,
       Value<String?> posto,
+      Value<String?> postoId,
       Value<FormaPagamento?> formaPagamento,
       Value<String?> cartaoId,
       Value<bool> contaNaMedia,
@@ -4436,6 +4486,7 @@ typedef $$AbastecimentosTableUpdateCompanionBuilder =
       Value<int> valorCentavos,
       Value<bool> tanqueCheio,
       Value<String?> posto,
+      Value<String?> postoId,
       Value<FormaPagamento?> formaPagamento,
       Value<String?> cartaoId,
       Value<bool> contaNaMedia,
@@ -4541,6 +4592,11 @@ class $$AbastecimentosTableFilterComposer
 
   ColumnFilters<String> get posto => $composableBuilder(
     column: $table.posto,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get postoId => $composableBuilder(
+    column: $table.postoId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4658,6 +4714,11 @@ class $$AbastecimentosTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get postoId => $composableBuilder(
+    column: $table.postoId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get formaPagamento => $composableBuilder(
     column: $table.formaPagamento,
     builder: (column) => ColumnOrderings(column),
@@ -4758,6 +4819,9 @@ class $$AbastecimentosTableAnnotationComposer
   GeneratedColumn<String> get posto =>
       $composableBuilder(column: $table.posto, builder: (column) => column);
 
+  GeneratedColumn<String> get postoId =>
+      $composableBuilder(column: $table.postoId, builder: (column) => column);
+
   GeneratedColumnWithTypeConverter<FormaPagamento?, String>
   get formaPagamento => $composableBuilder(
     column: $table.formaPagamento,
@@ -4838,6 +4902,7 @@ class $$AbastecimentosTableTableManager
                 Value<int> valorCentavos = const Value.absent(),
                 Value<bool> tanqueCheio = const Value.absent(),
                 Value<String?> posto = const Value.absent(),
+                Value<String?> postoId = const Value.absent(),
                 Value<FormaPagamento?> formaPagamento = const Value.absent(),
                 Value<String?> cartaoId = const Value.absent(),
                 Value<bool> contaNaMedia = const Value.absent(),
@@ -4857,6 +4922,7 @@ class $$AbastecimentosTableTableManager
                 valorCentavos: valorCentavos,
                 tanqueCheio: tanqueCheio,
                 posto: posto,
+                postoId: postoId,
                 formaPagamento: formaPagamento,
                 cartaoId: cartaoId,
                 contaNaMedia: contaNaMedia,
@@ -4878,6 +4944,7 @@ class $$AbastecimentosTableTableManager
                 required int valorCentavos,
                 required bool tanqueCheio,
                 Value<String?> posto = const Value.absent(),
+                Value<String?> postoId = const Value.absent(),
                 Value<FormaPagamento?> formaPagamento = const Value.absent(),
                 Value<String?> cartaoId = const Value.absent(),
                 Value<bool> contaNaMedia = const Value.absent(),
@@ -4897,6 +4964,7 @@ class $$AbastecimentosTableTableManager
                 valorCentavos: valorCentavos,
                 tanqueCheio: tanqueCheio,
                 posto: posto,
+                postoId: postoId,
                 formaPagamento: formaPagamento,
                 cartaoId: cartaoId,
                 contaNaMedia: contaNaMedia,

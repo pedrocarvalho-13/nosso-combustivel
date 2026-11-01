@@ -47,6 +47,7 @@ class Abastecimentos extends Table with Sincronizavel {
   IntColumn get valorCentavos => integer()();
   BoolColumn get tanqueCheio => boolean()();
   TextColumn get posto => text().nullable()();
+  TextColumn get postoId => text().nullable()();
   TextColumn get formaPagamento => textEnum<FormaPagamento>().nullable()();
   TextColumn get cartaoId => text().nullable()();
   BoolColumn get contaNaMedia => boolean().withDefault(const Constant(true))();
@@ -111,6 +112,7 @@ class BancoLocal extends _$BancoLocal {
     await _adicionarSeFaltar(migrador, recargas, recargas.cartaoId);
     await _adicionarSeFaltar(migrador, abastecimentos, abastecimentos.contaNaMedia);
     await _adicionarSeFaltar(migrador, recargas, recargas.contaNaMedia);
+    await _adicionarSeFaltar(migrador, abastecimentos, abastecimentos.postoId);
     final tabelas = await customSelect(
       "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
       variables: [Variable.withString(cartoes.actualTableName)],

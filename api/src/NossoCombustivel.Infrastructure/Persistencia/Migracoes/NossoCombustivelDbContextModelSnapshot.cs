@@ -191,6 +191,58 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                     b.ToTable("Cartoes", (string)null);
                 });
 
+            modelBuilder.Entity("NossoCombustivel.Domain.Postos.Posto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Bandeira")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<DateTimeOffset>("CriadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CriadoPor")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Endereco")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("IdExterno")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Origem")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Latitude", "Longitude");
+
+                    b.HasIndex("Origem", "IdExterno")
+                        .IsUnique();
+
+                    b.ToTable("Postos", (string)null);
+                });
+
             modelBuilder.Entity("NossoCombustivel.Domain.Registros.Abastecimento", b =>
                 {
                     b.Property<Guid>("Id")
@@ -234,6 +286,9 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<Guid?>("PostoId")
+                        .HasColumnType("uuid");
+
                     b.Property<decimal>("PrecoLitro")
                         .HasPrecision(6, 3)
                         .HasColumnType("numeric(6,3)");
@@ -255,6 +310,8 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PostoId");
 
                     b.HasIndex("VeiculoId", "SincronizadoEm");
 
@@ -508,6 +565,20 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("NossoCombustivel.Infrastructure.Persistencia.AreaBuscada", b =>
+                {
+                    b.Property<string>("Chave")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<DateTimeOffset>("BuscadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Chave");
+
+                    b.ToTable("AreasBuscadas", (string)null);
                 });
 
             modelBuilder.Entity("NossoCombustivel.Infrastructure.Persistencia.CapacidadeVeiculo", b =>

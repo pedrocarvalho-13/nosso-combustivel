@@ -16,6 +16,7 @@ import '../comum/campo_data.dart';
 import '../comum/campos_valor.dart';
 import '../comum/formulario_registro.dart';
 import 'novo_abastecimento_view_model.dart';
+import 'seletor_posto.dart';
 
 class NovoAbastecimentoView extends ConsumerStatefulWidget {
   const NovoAbastecimentoView({super.key, this.registroId});
@@ -30,6 +31,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
   final _valores = CamposValor();
   final _odometro = TextEditingController();
   final _posto = TextEditingController();
+  String? _postoId;
   var _data = DateTime.now();
   var _tanqueCheio = false;
   var _contaNaMedia = true;
@@ -91,6 +93,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
       total: _valores.valorTotal,
       tanqueCheio: _tanqueCheio,
       posto: _posto.text,
+      postoId: _postoId,
       formaPagamento: _forma,
       contaNaMedia: _contaNaMedia,
       cartaoId: _cartaoId,
@@ -105,6 +108,18 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
       context,
     ).showSnackBar(SnackBar(content: Text(_editando ? 'Abastecimento atualizado.' : 'Abastecimento salvo.')));
     context.pop();
+  }
+
+  Future<void> _escolherPosto() async {
+    final posto = await escolherPosto(
+      context,
+      combustivel: ref.read(novoAbastecimentoViewModelProvider(widget.registroId)).combustivel,
+    );
+    if (posto == null || !mounted) return;
+    setState(() {
+      _posto.text = posto.nome;
+      _postoId = posto.id;
+    });
   }
 
   void _preencherDaFoto(LeituraFoto leitura) {
@@ -148,6 +163,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
       _valores.quantidade.text = Formato.paraCampo(editando.litros, casas: 3);
       _valores.total.text = Formato.paraCampo(editando.valorCentavos / 100);
       _posto.text = editando.posto ?? '';
+      _postoId = editando.postoId;
     });
 
     return Scaffold(
@@ -279,7 +295,21 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
             const SizedBox(height: 8),
             CampoComRotulo(
               rotulo: 'Posto (opcional)',
-              child: TextField(controller: _posto, textCapitalization: TextCapitalization.words),
+              child: TextField(
+                controller: _posto,
+                textCapitalization: TextCapitalization.words,
+                onChanged: (_) {
+                  if (_postoId != null) setState(() => _postoId = null);
+                },
+                decoration: InputDecoration(
+                  hintText: 'Toque no alvo para ver os postos perto',
+                  suffixIcon: IconButton(
+                    tooltip: 'Postos perto de mim',
+                    icon: Icon(_postoId == null ? Icons.my_location : Icons.where_to_vote),
+                    onPressed: _escolherPosto,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 24),
             FilledButton(
