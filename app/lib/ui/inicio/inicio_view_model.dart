@@ -9,6 +9,7 @@ import '../../domain/cartao.dart';
 import '../../domain/registro_energia.dart';
 import '../../domain/veiculo.dart';
 import '../../domain/servico.dart';
+import '../../domain/custo.dart';
 
 class ConsumoInicio {
   const ConsumoInicio({
@@ -110,6 +111,7 @@ final inicioViewModelProvider = Provider<AsyncValue<InicioEstado?>>((ref) {
     ...ref.watch(manutencoesDoAtivoProvider).value ?? const <Servico>[],
     ...ref.watch(esteticasDoAtivoProvider).value ?? const <Servico>[],
   ];
+  final custos = ref.watch(custosDoAtivoProvider).value ?? const <Servico>[];
   final agora = ref.watch(relogioProvider)();
   final dias = ref.watch(periodoMediaProvider).value ?? 30;
   final meta = ref.watch(metaMensalProvider).value;
@@ -129,7 +131,7 @@ final inicioViewModelProvider = Provider<AsyncValue<InicioEstado?>>((ref) {
       inicio: CalculoResumo.inicioDaSemana(agora),
       fim: agora.add(const Duration(days: 1)),
     );
-    final gastos = <GastoComPagamento>[...registros, ...manutencoes];
+    final gastos = <GastoComPagamento>[...registros, ...manutencoes, ...CalculoCustos.gastos(custos)];
     final gastoMes = CalculoFatura.gastoDoMes(gastos, cartoes, agora);
     final manutencaoMes = CalculoFatura.gastoDoMes(manutencoes, cartoes, agora);
     final projecaoPorData = CalculoResumo.projecaoDoMes(registros: registros, agora: agora);

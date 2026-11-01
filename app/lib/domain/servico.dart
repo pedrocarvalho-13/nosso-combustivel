@@ -1,7 +1,7 @@
 import 'forma_pagamento.dart';
 import 'registro_energia.dart';
 
-enum TipoServico { manutencao, estetica }
+enum TipoServico { manutencao, estetica, custo }
 
 class Servico implements GastoComPagamento {
   const Servico({
@@ -44,6 +44,7 @@ class Servico implements GastoComPagamento {
 
   @override
   int get parcelas {
+    if (tipo == TipoServico.custo) return 1;
     final valor = (detalhes['parcelas'] as num?)?.toInt() ?? 1;
     return formaPagamento == FormaPagamento.credito && valor > 1 ? valor : 1;
   }

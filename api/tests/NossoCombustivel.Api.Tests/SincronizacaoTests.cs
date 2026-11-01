@@ -209,6 +209,25 @@ public class SincronizacaoTests(FabricaApi fabrica) : IClassFixture<FabricaApi>
     }
 
     [Fact]
+    public async Task Custo_sobe_e_desce_com_as_parcelas()
+    {
+        var cliente = await ClienteLogadoAsync();
+        var carroId = Guid.CreateVersion7();
+        var detalhes = "{\"ano\":2026,\"contas\":[{\"n\":1,\"vence\":\"2026-09-05\",\"valor\":41200,\"paga\":\"2026-09-05\"}]}";
+        var custo = new ServicoSync(Guid.CreateVersion7(), carroId, TipoServico.Custo, Base, null,
+            ["ipva"], detalhes, 1236m, null, null, null, null, FormaPagamento.Pix, null, null, Base, Base, null);
+
+        var envio = await EnviarAsync(cliente, new LoteSync([Carro(carroId)], [], [], Servicos: [custo]));
+        var busca = await BuscarAsync(cliente);
+
+        Assert.Empty(envio.Rejeitados);
+        var recebido = busca.Alteracoes.Servicos!.Single();
+        Assert.Equal(TipoServico.Custo, recebido.Tipo);
+        Assert.Equal(["ipva"], recebido.Categorias);
+        Assert.Contains("2026-09-05", recebido.Detalhes);
+    }
+
+    [Fact]
     public async Task Manutencao_sem_servico_marcado_e_recusada()
     {
         var cliente = await ClienteLogadoAsync();

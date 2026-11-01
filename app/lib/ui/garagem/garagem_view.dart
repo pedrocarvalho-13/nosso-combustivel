@@ -12,6 +12,8 @@ import '../../domain/servico.dart';
 import '../comum/estado_vazio.dart';
 import '../comum/icone_energia.dart';
 import '../manutencao/icones_manutencao.dart';
+import '../../domain/custo.dart';
+import '../custos/custos_view.dart';
 
 class GaragemView extends ConsumerWidget {
   const GaragemView({super.key});
@@ -23,6 +25,7 @@ class GaragemView extends ConsumerWidget {
     final registros = ref.watch(registrosDoAtivoProvider).value ?? const <RegistroEnergia>[];
     final manutencoes = ref.watch(manutencoesDoAtivoProvider).value ?? const <Servico>[];
     final esteticas = ref.watch(esteticasDoAtivoProvider).value ?? const <Servico>[];
+    final custos = ref.watch(custosDoAtivoProvider).value ?? const <Servico>[];
     final agora = ref.watch(relogioProvider)();
     final esquema = Theme.of(context).colorScheme;
     final textos = Theme.of(context).textTheme;
@@ -101,12 +104,27 @@ class GaragemView extends ConsumerWidget {
                   aoTocar: () => context.push(Rotas.estetica),
                 );
               }(),
-              const _Item(
-                icone: Icons.receipt_long_outlined,
-                cor: Color(0xFFA98BE8),
-                titulo: 'Outros custos',
-                descricao: 'IPVA, seguro e multas · em breve',
-              ),
+              () {
+                final resumo = CalculoCustos.resumo(custos, agora);
+                final proxima = resumo.proximas.firstOrNull;
+                final partes = [
+                  if (resumo.atrasadas.isNotEmpty)
+                    resumo.atrasadas.length == 1 ? '1 atrasada' : '${resumo.atrasadas.length} atrasadas',
+                  if (proxima != null) '${TipoCusto.de(proxima.custo).rotulo} ${_quando(proxima, agora)}',
+                ];
+                return _Item(
+                  icone: Icons.receipt_long_outlined,
+                  cor: corCustos,
+                  titulo: 'Outros custos',
+                  descricao: partes.isNotEmpty
+                      ? partes.join(' · ')
+                      : custos.isEmpty
+                          ? 'IPVA, licenciamento, seguro e multas'
+                          : 'Nada vencendo nos próximos dias',
+                  corDescricao: resumo.atrasadas.isNotEmpty ? corAtrasada : null,
+                  aoTocar: () => context.push(Rotas.custos),
+                );
+              }(),
               _Item(
                 icone: Icons.place_outlined,
                 cor: const Color(0xFF7FCF8F),
@@ -167,4 +185,11 @@ class _Item extends StatelessWidget {
       ),
     );
   }
+}
+
+String _quando(ContaCusto conta, DateTime agora) {
+  final dias = CalculoCustos.diasPara(conta.parcela.vencimento, agora);
+  if (dias == 0) return 'vence hoje';
+  if (dias == 1) return 'vence amanhã';
+  return 'em $dias dias';
 }

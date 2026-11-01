@@ -6,7 +6,8 @@ namespace NossoCombustivel.Domain.Servicos;
 public enum TipoServico
 {
     Manutencao = 1,
-    Estetica = 2
+    Estetica = 2,
+    Custo = 3
 }
 
 public sealed record DadosServico(

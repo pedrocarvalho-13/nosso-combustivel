@@ -53,6 +53,7 @@ abstract final class TemaApp {
       surfaceContainerHigh: superficie,
       outline: borda,
       outlineVariant: borda,
+      inversePrimary: paleta.principal,
     );
 
     return ThemeData(
