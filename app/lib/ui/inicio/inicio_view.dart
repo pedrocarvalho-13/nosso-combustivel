@@ -11,6 +11,7 @@ import '../../domain/registro_energia.dart';
 import '../comum/estado_vazio.dart';
 import '../comum/indicador_sincronizacao.dart';
 import 'inicio_view_model.dart';
+import '../notificacoes/painel_notificacoes.dart';
 
 class InicioView extends ConsumerWidget {
   const InicioView({super.key});
@@ -81,9 +82,7 @@ class _Painel extends StatelessWidget {
                 _BotaoRedondo(
                   icone: Icons.notifications_none_rounded,
                   dica: 'Notificações',
-                  aoTocar: () => ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(const SnackBar(content: Text('As notificações chegam em breve.'))),
+                  aoTocar: () => mostrarNotificacoes(context),
                 ),
               ],
             ),

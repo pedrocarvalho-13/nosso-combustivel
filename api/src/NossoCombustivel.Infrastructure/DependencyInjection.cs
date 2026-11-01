@@ -6,10 +6,12 @@ using Microsoft.Extensions.Options;
 using NossoCombustivel.Application.Comum;
 using NossoCombustivel.Application.Contas;
 using NossoCombustivel.Application.Ia;
+using NossoCombustivel.Application.Notificacoes;
 using NossoCombustivel.Application.Postos;
 using NossoCombustivel.Application.Sincronizacao;
 using NossoCombustivel.Infrastructure.Ia;
 using NossoCombustivel.Infrastructure.Identidade;
+using NossoCombustivel.Infrastructure.Notificacoes;
 using NossoCombustivel.Infrastructure.Persistencia;
 using NossoCombustivel.Infrastructure.Postos;
 
@@ -51,6 +53,10 @@ public static class DependencyInjection
         services.AddScoped<IRepositorioCapacidades, RepositorioCapacidades>();
         services.AddScoped<IRepositorioIntervalos, RepositorioIntervalos>();
         services.AddScoped<IRepositorioPostos, RepositorioPostos>();
+        services.AddScoped<IRepositorioInscricoes, RepositorioInscricoes>();
+
+        services.Configure<OpcoesVapid>(configuration.GetSection(OpcoesVapid.Secao));
+        services.AddHttpClient<IEnviadorPush, EnviadorWebPush>(http => http.Timeout = TimeSpan.FromSeconds(15));
 
         services.Configure<OpcoesGemini>(configuration.GetSection(OpcoesGemini.Secao));
         services.AddHttpClient<IAssistenteIa, AssistenteGemini>((provedor, http) =>

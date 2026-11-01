@@ -725,6 +725,52 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                     b.ToTable("CapacidadesVeiculo", (string)null);
                 });
 
+            modelBuilder.Entity("NossoCombustivel.Infrastructure.Persistencia.InscricaoPushLinha", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Aparelho")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Auth")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("CriadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Endpoint")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("P256dh")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset?>("UltimoEnvioEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Endpoint")
+                        .IsUnique();
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("InscricoesPush", (string)null);
+                });
+
             modelBuilder.Entity("NossoCombustivel.Infrastructure.Persistencia.IntervaloManutencao", b =>
                 {
                     b.Property<string>("Chave")
@@ -852,6 +898,15 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                 });
 
             modelBuilder.Entity("NossoCombustivel.Infrastructure.Identidade.SessaoRefresh", b =>
+                {
+                    b.HasOne("NossoCombustivel.Infrastructure.Identidade.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NossoCombustivel.Infrastructure.Persistencia.InscricaoPushLinha", b =>
                 {
                     b.HasOne("NossoCombustivel.Infrastructure.Identidade.Usuario", null)
                         .WithMany()

@@ -12,6 +12,8 @@ import '../../data/sync/sincronizacao_controller.dart';
 import '../../domain/forma_pagamento.dart';
 import '../../domain/tipo_gasolina.dart';
 import '../comum/campo_com_rotulo.dart';
+import '../notificacoes/painel_notificacoes.dart';
+import '../../data/notificacoes/notificacoes_controller.dart';
 
 class AjustesView extends ConsumerWidget {
   const AjustesView({super.key});
@@ -197,6 +199,12 @@ class AjustesView extends ConsumerWidget {
                           : () => ref.read(sincronizacaoProvider.notifier).sincronizar(),
                       child: const Text('Agora'),
                     ),
+                  ),
+                  _Item(
+                    icone: Icons.notifications_none_rounded,
+                    titulo: 'Notificações',
+                    descricao: descreverNotificacoes(ref.watch(notificacoesProvider).value),
+                    aoTocar: () => mostrarNotificacoes(context),
                   ),
                   SwitchListTile(
                     secondary: Icon(Icons.document_scanner_outlined, color: esquema.primary),

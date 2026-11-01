@@ -24,6 +24,7 @@ public sealed class NossoCombustivelDbContext(DbContextOptions<NossoCombustivelD
     public DbSet<Posto> Postos => Set<Posto>();
     public DbSet<Servico> Servicos => Set<Servico>();
     public DbSet<AreaBuscada> AreasBuscadas => Set<AreaBuscada>();
+    public DbSet<InscricaoPushLinha> InscricoesPush => Set<InscricaoPushLinha>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {

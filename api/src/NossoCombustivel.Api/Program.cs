@@ -66,6 +66,7 @@ app.MapContas();
 app.MapSincronizacao();
 app.MapIa();
 app.MapPostos();
+app.MapNotificacoes();
 
 app.Run();
 

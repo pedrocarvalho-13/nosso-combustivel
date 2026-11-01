@@ -160,3 +160,20 @@ public sealed class IntervaloManutencaoConfiguracao : IEntityTypeConfiguration<I
         builder.Property(i => i.Observacao).HasMaxLength(200);
     }
 }
+
+public sealed class InscricaoPushConfiguracao : IEntityTypeConfiguration<InscricaoPushLinha>
+{
+    public void Configure(EntityTypeBuilder<InscricaoPushLinha> builder)
+    {
+        builder.ToTable("InscricoesPush");
+        builder.HasKey(i => i.Id);
+        builder.Property(i => i.Id).ValueGeneratedNever();
+        builder.Property(i => i.Endpoint).HasMaxLength(1000).IsRequired();
+        builder.Property(i => i.P256dh).HasMaxLength(200).IsRequired();
+        builder.Property(i => i.Auth).HasMaxLength(200).IsRequired();
+        builder.Property(i => i.Aparelho).HasMaxLength(100);
+        builder.HasIndex(i => i.Endpoint).IsUnique();
+        builder.HasIndex(i => i.UsuarioId);
+        builder.HasOne<Usuario>().WithMany().HasForeignKey(i => i.UsuarioId).OnDelete(DeleteBehavior.Cascade);
+    }
+}
