@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/provedores.dart';
+import '../../core/tema/cores_base.dart';
 
 enum CampoRegistro { odometro, quantidade, preco, total }
 
@@ -99,16 +100,53 @@ class _Passo extends StatelessWidget {
 }
 
 Future<bool> confirmarExclusao(BuildContext context, {required String titulo, required String mensagem}) async {
-  final confirmou = await showDialog<bool>(
+  final confirmou = await showModalBottomSheet<bool>(
     context: context,
-    builder: (contexto) => AlertDialog(
-      title: Text(titulo),
-      content: Text(mensagem),
-      actions: [
-        TextButton(onPressed: () => Navigator.of(contexto).pop(false), child: const Text('Cancelar')),
-        FilledButton(onPressed: () => Navigator.of(contexto).pop(true), child: const Text('Excluir')),
-      ],
-    ),
+    useRootNavigator: true,
+    showDragHandle: true,
+    builder: (contexto) {
+      final textos = Theme.of(contexto).textTheme;
+      return SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.delete_outline, color: CoresBase.alerta),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(titulo, style: textos.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(mensagem, style: textos.bodyMedium?.copyWith(color: Theme.of(contexto).colorScheme.onSurfaceVariant)),
+              const SizedBox(height: 20),
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: CoresBase.alerta, foregroundColor: Colors.white),
+                onPressed: () => Navigator.of(contexto).pop(true),
+                child: const Text('Sim, excluir'),
+              ),
+              const SizedBox(height: 4),
+              OutlinedButton(onPressed: () => Navigator.of(contexto).pop(false), child: const Text('Cancelar')),
+            ],
+          ),
+        ),
+      );
+    },
   );
   return confirmou ?? false;
+}
+
+void avisarExclusao(BuildContext context, String mensagem, Future<void> Function() desfazer) {
+  final mensageiro = ScaffoldMessenger.of(context);
+  mensageiro.hideCurrentSnackBar();
+  mensageiro.showSnackBar(SnackBar(
+    content: Text(mensagem),
+    duration: const Duration(seconds: 6),
+    action: SnackBarAction(label: 'Desfazer', onPressed: desfazer),
+  ));
 }

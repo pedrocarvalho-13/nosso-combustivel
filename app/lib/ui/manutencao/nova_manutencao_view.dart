@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/formato.dart';
-import '../../core/tema/cores_base.dart';
 import '../../data/ia/cliente_ia.dart';
 import '../../data/postos/cliente_postos.dart';
 import '../../data/provedores.dart';
@@ -18,6 +17,7 @@ import '../postos/lugares_view.dart';
 import '../postos/postos_view.dart';
 import 'icones_manutencao.dart';
 import '../comum/campo_com_rotulo.dart';
+import '../comum/formulario_registro.dart';
 
 class NovaManutencaoView extends ConsumerStatefulWidget {
   const NovaManutencaoView({super.key, this.servicoId});
@@ -359,36 +359,17 @@ class _NovaManutencaoViewState extends ConsumerState<NovaManutencaoView> with Sa
   }
 
   Future<void> _excluir() async {
-    final confirmou = await showModalBottomSheet<bool>(
-      context: context,
-      useRootNavigator: true,
-      showDragHandle: true,
-      builder: (contexto) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('Excluir esta manutenção?', style: Theme.of(contexto).textTheme.titleLarge),
-              const SizedBox(height: 6),
-              const Text('O gasto do mês e os lembretes serão recalculados sem ela.'),
-              const SizedBox(height: 20),
-              FilledButton(
-                style: FilledButton.styleFrom(backgroundColor: CoresBase.alerta),
-                onPressed: () => Navigator.of(contexto).pop(true),
-                child: const Text('Excluir'),
-              ),
-              TextButton(onPressed: () => Navigator.of(contexto).pop(false), child: const Text('Cancelar')),
-            ],
-          ),
-        ),
-      ),
+    final confirmou = await confirmarExclusao(
+      context,
+      titulo: 'Excluir esta manutenção?',
+      mensagem: 'O gasto do mês e os lembretes serão recalculados sem ela.',
     );
-    if (confirmou != true || !mounted) return;
-    await ref.read(servicoRepositorioProvider).excluir(widget.servicoId!);
+    if (!confirmou || !mounted) return;
+    final repositorio = ref.read(servicoRepositorioProvider);
+    final id = widget.servicoId!;
+    await repositorio.excluir(id);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Manutenção excluída.')));
+    avisarExclusao(context, 'Manutenção excluída.', () => repositorio.restaurar(id));
     sairLiberado();
   }
 

@@ -12,10 +12,10 @@ import '../manutencao/icones_manutencao.dart';
 const corEstetica = Color(0xFF5AAEE8);
 
 IconData iconeDaModalidade(ModalidadeEstetica modalidade) => switch (modalidade) {
-      ModalidadeEstetica.estetica => Icons.local_car_wash_outlined,
-      ModalidadeEstetica.casa => Icons.home_outlined,
-      ModalidadeEstetica.produtos => Icons.shopping_bag_outlined,
-    };
+  ModalidadeEstetica.estetica => Icons.local_car_wash_outlined,
+  ModalidadeEstetica.casa => Icons.home_outlined,
+  ModalidadeEstetica.produtos => Icons.shopping_bag_outlined,
+};
 
 class EsteticaView extends ConsumerWidget {
   const EsteticaView({super.key});
@@ -76,10 +76,10 @@ class EsteticaView extends ConsumerWidget {
                         ultima == null
                             ? 'Toque no + para registrar a primeira.'
                             : passou
-                                ? 'Passou ${-dias} ${-dias == 1 ? 'dia' : 'dias'} do intervalo de ${resumo.intervaloDias} dias'
-                                : dias == 0
-                                    ? 'Hora de lavar de novo'
-                                    : 'Lavar de novo em $dias ${dias == 1 ? 'dia' : 'dias'} · a cada ${resumo.intervaloDias} dias',
+                            ? 'Passou ${-dias} ${-dias == 1 ? 'dia' : 'dias'} do intervalo de ${resumo.intervaloDias} dias'
+                            : dias == 0
+                            ? 'Hora de lavar de novo'
+                            : 'Lavar de novo em $dias ${dias == 1 ? 'dia' : 'dias'} · a cada ${resumo.intervaloDias} dias',
                         style: textos.bodySmall?.copyWith(
                           color: passou ? const Color(0xFFE8B04A) : esquema.onSurfaceVariant,
                         ),
@@ -89,30 +89,32 @@ class EsteticaView extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: _Numero(
-                      icone: Icons.local_car_wash_outlined,
-                      rotulo: 'Estética em ${agora.year}',
-                      valor: Formato.moeda(resumo.gastoEsteticaCentavos),
-                      detalhe: resumo.servicosEstetica == 1 ? '1 serviço' : '${resumo.servicosEstetica} serviços',
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: _Numero(
+                        icone: Icons.local_car_wash_outlined,
+                        rotulo: 'Estética em ${agora.year}',
+                        valor: Formato.moeda(resumo.gastoEsteticaCentavos),
+                        detalhe: resumo.servicosEstetica == 1 ? '1 serviço' : '${resumo.servicosEstetica} serviços',
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _Numero(
-                      icone: Icons.home_outlined,
-                      rotulo: 'Em casa em ${agora.year}',
-                      valor: Formato.moeda(resumo.gastoProdutosCentavos),
-                      detalhe: [
-                        resumo.lavagensEmCasa == 1 ? '1 lavagem' : '${resumo.lavagensEmCasa} lavagens',
-                        if (custoCasa != null) '${Formato.moeda(custoCasa)} cada',
-                      ].join(' · '),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _Numero(
+                        icone: Icons.home_outlined,
+                        rotulo: 'Em casa em ${agora.year}',
+                        valor: Formato.moeda(resumo.gastoProdutosCentavos),
+                        detalhe: [
+                          resumo.lavagensEmCasa == 1 ? '1 lavagem' : '${resumo.lavagensEmCasa} lavagens',
+                          if (custoCasa != null) '${Formato.moeda(custoCasa)} cada',
+                        ].join(' · '),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               if (compra != null) ...[
                 const SizedBox(height: 10),
@@ -161,8 +163,8 @@ class EsteticaView extends ConsumerWidget {
                       ModalidadeEstetica.de(servico) == ModalidadeEstetica.casa
                           ? 'produtos'
                           : servico.detalhes['planoMensal'] == true
-                              ? 'plano'
-                              : Formato.moeda(servico.valorCentavos),
+                          ? 'plano'
+                          : Formato.moeda(servico.valorCentavos),
                       style: textos.titleSmall,
                     ),
                     onTap: () => context.push('/estetica/${servico.id}'),
@@ -198,7 +200,9 @@ class _Numero extends StatelessWidget {
               children: [
                 Icon(icone, size: 14, color: esquema.onSurfaceVariant),
                 const SizedBox(width: 4),
-                Expanded(child: Text(rotulo, style: textos.bodySmall?.copyWith(color: esquema.onSurfaceVariant))),
+                Expanded(
+                  child: Text(rotulo, style: textos.bodySmall?.copyWith(color: esquema.onSurfaceVariant)),
+                ),
               ],
             ),
             const SizedBox(height: 2),

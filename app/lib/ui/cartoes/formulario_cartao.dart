@@ -5,6 +5,7 @@ import '../../data/provedores.dart';
 import '../../data/sessao/sessao_controller.dart';
 import '../../domain/cartao.dart';
 import '../comum/campo_com_rotulo.dart';
+import '../comum/formulario_registro.dart';
 
 Future<Cartao?> mostrarFormularioCartao(BuildContext context, WidgetRef ref, {Cartao? cartao}) {
   return showModalBottomSheet<Cartao>(
@@ -60,8 +61,17 @@ class _FormularioCartaoState extends ConsumerState<_FormularioCartao> {
   Future<void> _excluir() async {
     final cartao = widget.cartao;
     if (cartao == null) return;
-    await ref.read(cartaoRepositorioProvider).excluir(cartao.id);
-    if (mounted) Navigator.of(context).pop();
+    final confirmou = await confirmarExclusao(
+      context,
+      titulo: 'Excluir o cartão ${cartao.nome}?',
+      mensagem: 'Os abastecimentos já feitos com ele continuam, mas saem da conta da fatura.',
+    );
+    if (!confirmou || !mounted) return;
+    final repositorio = ref.read(cartaoRepositorioProvider);
+    await repositorio.excluir(cartao.id);
+    if (!mounted) return;
+    avisarExclusao(context, 'Cartão excluído.', () => repositorio.restaurar(cartao.id));
+    Navigator.of(context).pop();
   }
 
   @override

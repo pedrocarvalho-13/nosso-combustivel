@@ -213,7 +213,15 @@ class _LugaresViewState extends ConsumerState<LugaresView> {
                         for (final tipo in widget.tiposPermitidos)
                           ButtonSegment(
                             value: tipo,
-                            label: Text(nomeDoTipo(tipo, plural: true)),
+                            label: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                nomeDoTipo(tipo, plural: true),
+                                maxLines: 1,
+                                softWrap: false,
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
                             icon: widget.tiposPermitidos.length > 2 ? null : Icon(iconeDoLugar(tipo)),
                           ),
                       ],

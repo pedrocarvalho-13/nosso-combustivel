@@ -48,6 +48,12 @@ class ServicoRepositorio {
         ));
   }
 
+  Future<void> restaurar(String id) {
+    final agora = _agora();
+    return (_banco.update(_banco.servicos)..where((s) => s.id.equals(id)))
+        .write(ServicosCompanion(excluidoEm: const Value(null), atualizadoEm: Value(agora), pendente: const Value(true)));
+  }
+
   Future<void> excluir(String id) {
     final agora = _agora();
     return (_banco.update(_banco.servicos)..where((s) => s.id.equals(id)))

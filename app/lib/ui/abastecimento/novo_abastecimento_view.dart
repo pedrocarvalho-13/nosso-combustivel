@@ -210,9 +210,13 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView>
       mensagem: 'O consumo e os gastos serão recalculados sem ele.',
     );
     if (!confirmou) return;
+    final registro = ref.read(novoAbastecimentoViewModelProvider(widget.registroId)).editando;
     await _vm.excluir();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Abastecimento excluído.')));
+    final repositorio = ref.read(registroRepositorioProvider);
+    avisarExclusao(context, 'Abastecimento excluído.', () async {
+      if (registro != null) await repositorio.restaurar(registro);
+    });
     sairLiberado();
   }
 

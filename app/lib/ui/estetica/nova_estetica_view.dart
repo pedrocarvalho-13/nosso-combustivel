@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/formato.dart';
-import '../../core/tema/cores_base.dart';
 import '../../data/postos/cliente_postos.dart';
 import '../../data/provedores.dart';
 import '../../domain/estetica.dart';
@@ -14,6 +13,7 @@ import '../comum/saida_com_rascunho.dart';
 import '../postos/lugares_view.dart';
 import '../postos/postos_view.dart';
 import 'estetica_view.dart';
+import '../comum/formulario_registro.dart';
 
 class NovaEsteticaView extends ConsumerStatefulWidget {
   const NovaEsteticaView({super.key, this.servicoId});
@@ -294,36 +294,17 @@ class _NovaEsteticaViewState extends ConsumerState<NovaEsteticaView> with SaidaC
   }
 
   Future<void> _excluir() async {
-    final confirmou = await showModalBottomSheet<bool>(
-      context: context,
-      useRootNavigator: true,
-      showDragHandle: true,
-      builder: (contexto) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('Excluir este registro?', style: Theme.of(contexto).textTheme.titleLarge),
-              const SizedBox(height: 6),
-              const Text('O gasto do mês e a contagem de lavagens serão recalculados sem ele.'),
-              const SizedBox(height: 20),
-              FilledButton(
-                style: FilledButton.styleFrom(backgroundColor: CoresBase.alerta),
-                onPressed: () => Navigator.of(contexto).pop(true),
-                child: const Text('Excluir'),
-              ),
-              TextButton(onPressed: () => Navigator.of(contexto).pop(false), child: const Text('Cancelar')),
-            ],
-          ),
-        ),
-      ),
+    final confirmou = await confirmarExclusao(
+      context,
+      titulo: 'Excluir este registro?',
+      mensagem: 'O gasto do mês e a contagem de lavagens serão recalculados sem ele.',
     );
-    if (confirmou != true || !mounted) return;
-    await ref.read(servicoRepositorioProvider).excluir(widget.servicoId!);
+    if (!confirmou || !mounted) return;
+    final repositorio = ref.read(servicoRepositorioProvider);
+    final id = widget.servicoId!;
+    await repositorio.excluir(id);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registro excluído.')));
+    avisarExclusao(context, 'Registro excluído.', () => repositorio.restaurar(id));
     sairLiberado();
   }
 

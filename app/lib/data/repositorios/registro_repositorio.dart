@@ -67,6 +67,18 @@ class RegistroRepositorio {
         ));
   }
 
+  Future<void> restaurar(RegistroEnergia registro) async {
+    final agora = _agora();
+    switch (registro) {
+      case Abastecimento():
+        await (_banco.update(_banco.abastecimentos)..where((a) => a.id.equals(registro.id)))
+            .write(AbastecimentosCompanion(excluidoEm: const Value(null), atualizadoEm: Value(agora), pendente: const Value(true)));
+      case Recarga():
+        await (_banco.update(_banco.recargas)..where((r) => r.id.equals(registro.id)))
+            .write(RecargasCompanion(excluidoEm: const Value(null), atualizadoEm: Value(agora), pendente: const Value(true)));
+    }
+  }
+
   Future<void> excluir(RegistroEnergia registro) async {
     final agora = _agora();
     switch (registro) {

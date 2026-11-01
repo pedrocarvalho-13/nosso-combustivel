@@ -172,9 +172,13 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> with SaidaCom
       mensagem: 'O consumo e os gastos serão recalculados sem ela.',
     );
     if (!confirmou) return;
+    final registro = ref.read(novaRecargaViewModelProvider(widget.registroId)).editando;
     await _vm.excluir();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Recarga excluída.')));
+    final repositorio = ref.read(registroRepositorioProvider);
+    avisarExclusao(context, 'Recarga excluída.', () async {
+      if (registro != null) await repositorio.restaurar(registro);
+    });
     sairLiberado();
   }
 

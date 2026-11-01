@@ -9,6 +9,8 @@ import '../../domain/registro_energia.dart';
 import '../comum/estado_vazio.dart';
 import '../comum/registro_tile.dart';
 import 'historico_view_model.dart';
+import '../comum/formulario_registro.dart';
+import '../../data/provedores.dart';
 
 class HistoricoView extends ConsumerWidget {
   const HistoricoView({super.key});
@@ -71,11 +73,16 @@ class HistoricoView extends ConsumerWidget {
                         decoration: BoxDecoration(color: CoresBase.alerta, borderRadius: BorderRadius.circular(16)),
                         child: const Icon(Icons.delete_outline, color: Colors.white),
                       ),
-                      confirmDismiss: (_) => _confirmarExclusao(context, item.registro),
+                      confirmDismiss: (_) => confirmarExclusao(
+                        context,
+                        titulo: item.registro is Abastecimento ? 'Excluir este abastecimento?' : 'Excluir esta recarga?',
+                        mensagem: 'O consumo e os gastos serão recalculados sem ele.',
+                      ),
                       onDismissed: (_) async {
+                        final repositorio = ref.read(registroRepositorioProvider);
                         await vm.excluir(item.registro);
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registro excluído.')));
+                          avisarExclusao(context, 'Registro excluído.', () => repositorio.restaurar(item.registro));
                         }
                       },
                       child: RegistroTile(
@@ -103,20 +110,4 @@ class HistoricoView extends ConsumerWidget {
   static String _rotaDeEdicao(RegistroEnergia registro) => registro is Abastecimento
       ? Rotas.editarAbastecimento(registro.id)
       : Rotas.editarRecarga(registro.id);
-
-  Future<bool> _confirmarExclusao(BuildContext context, RegistroEnergia registro) async {
-    final tipo = registro is Abastecimento ? 'este abastecimento' : 'esta recarga';
-    final confirmou = await showDialog<bool>(
-      context: context,
-      builder: (contexto) => AlertDialog(
-        title: Text('Excluir $tipo?'),
-        content: const Text('O consumo e os gastos serão recalculados sem ele.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(contexto).pop(false), child: const Text('Cancelar')),
-          FilledButton(onPressed: () => Navigator.of(contexto).pop(true), child: const Text('Excluir')),
-        ],
-      ),
-    );
-    return confirmou ?? false;
-  }
 }
