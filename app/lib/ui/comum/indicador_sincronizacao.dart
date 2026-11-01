@@ -5,7 +5,9 @@ import '../../core/tema/cores_base.dart';
 import '../../data/sync/sincronizacao_controller.dart';
 
 class IndicadorSincronizacao extends ConsumerWidget {
-  const IndicadorSincronizacao({super.key});
+  const IndicadorSincronizacao({super.key, this.alinharDireita = false});
+
+  final bool alinharDireita;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -14,7 +16,7 @@ class IndicadorSincronizacao extends ConsumerWidget {
     final esquema = Theme.of(context).colorScheme;
     final (icone, texto, cor) = _aparencia(estado, pendentes, esquema);
 
-    return Semantics(
+    final conteudo = Semantics(
       button: true,
       label: '$texto. Toque para sincronizar agora.',
       child: InkWell(
@@ -24,26 +26,48 @@ class IndicadorSincronizacao extends ConsumerWidget {
             : () => ref.read(sincronizacaoProvider.notifier).sincronizar(),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-          child: Row(
-            children: [
-              if (estado.situacao == SituacaoSync.sincronizando)
-                SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: cor))
-              else
-                Icon(icone, size: 16, color: cor),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  texto,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cor),
-                  overflow: TextOverflow.ellipsis,
+          child: alinharDireita
+              ? IntrinsicWidth(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _icone(estado, icone, cor),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        fit: FlexFit.loose,
+                        child: Text(
+                          texto,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cor),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Row(
+                  children: [
+                    _icone(estado, icone, cor),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        texto,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cor),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
         ),
       ),
     );
+    return conteudo;
   }
+
+  static Widget _icone(EstadoSincronizacao estado, IconData icone, Color cor) =>
+      estado.situacao == SituacaoSync.sincronizando
+      ? SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: cor))
+      : Icon(icone, size: 16, color: cor);
 
   static (IconData, String, Color) _aparencia(EstadoSincronizacao estado, int pendentes, ColorScheme esquema) {
     final quieta = esquema.onSurfaceVariant;
@@ -51,22 +75,22 @@ class IndicadorSincronizacao extends ConsumerWidget {
     return switch (estado.situacao) {
       SituacaoSync.sincronizando => (Icons.sync, 'Sincronizando…', quieta),
       SituacaoSync.semConexao => (
-          Icons.cloud_off_outlined,
-          pendentes > 0 ? 'Sem conexão · $aguardando' : 'Sem conexão com o servidor',
-          quieta
-        ),
+        Icons.cloud_off_outlined,
+        pendentes > 0 ? 'Sem conexão · $aguardando' : 'Sem conexão com o servidor',
+        quieta,
+      ),
       SituacaoSync.erro => (Icons.error_outline, 'Não foi possível sincronizar · tocar para tentar', CoresBase.alerta),
       SituacaoSync.ocioso when estado.recusados > 0 => (
-          Icons.warning_amber_rounded,
-          'Sincronizado, mas ${estado.recusados} registro(s) recusado(s) pelo servidor',
-          CoresBase.atencao
-        ),
+        Icons.warning_amber_rounded,
+        'Sincronizado, mas ${estado.recusados} registro(s) recusado(s) pelo servidor',
+        CoresBase.atencao,
+      ),
       SituacaoSync.ocioso when pendentes > 0 => (Icons.cloud_upload_outlined, '$aguardando · sincronizar', quieta),
       SituacaoSync.ocioso when estado.ultimaEm != null => (
-          Icons.cloud_done_outlined,
-          'Sincronizado às ${_hora(estado.ultimaEm!)}',
-          quieta
-        ),
+        Icons.cloud_done_outlined,
+        'Sincronizado às ${_hora(estado.ultimaEm!)}',
+        quieta,
+      ),
       SituacaoSync.ocioso => (Icons.cloud_outlined, 'Toque para sincronizar', quieta),
     };
   }

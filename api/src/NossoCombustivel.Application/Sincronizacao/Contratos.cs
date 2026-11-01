@@ -38,7 +38,8 @@ public sealed record AbastecimentoSync(
     FormaPagamento? FormaPagamento = null,
     Guid? CartaoId = null,
     bool? ContaNaMedia = null,
-    Guid? PostoId = null);
+    Guid? PostoId = null,
+    TipoGasolina? TipoGasolina = null);
 
 public sealed record RecargaSync(
     Guid Id,

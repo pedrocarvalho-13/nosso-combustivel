@@ -1,4 +1,5 @@
 import 'combustivel.dart';
+import 'tipo_gasolina.dart';
 import 'forma_pagamento.dart';
 
 enum LocalRecarga {
@@ -50,6 +51,7 @@ class Abastecimento extends RegistroEnergia {
     required bool tanqueCheio,
     this.posto,
     this.postoId,
+    this.tipoGasolina,
     super.formaPagamento,
     super.cartaoId,
     super.contaNaMedia,
@@ -60,6 +62,7 @@ class Abastecimento extends RegistroEnergia {
   final double precoLitro;
   final String? posto;
   final String? postoId;
+  final TipoGasolina? tipoGasolina;
 
   bool get tanqueCheio => completo;
 

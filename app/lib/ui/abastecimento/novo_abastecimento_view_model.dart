@@ -8,6 +8,7 @@ import '../../domain/calculos/calculo_etanol.dart';
 import '../../domain/calculos/validacao_odometro.dart';
 import '../../domain/combustivel.dart';
 import '../../domain/forma_pagamento.dart';
+import '../../domain/tipo_gasolina.dart';
 import '../../domain/registro_energia.dart';
 import '../../domain/veiculo.dart';
 import '../comum/formulario_registro.dart';
@@ -124,6 +125,7 @@ class NovoAbastecimentoViewModel extends Notifier<NovoAbastecimentoEstado> {
     required bool tanqueCheio,
     required String posto,
     String? postoId,
+    TipoGasolina? tipoGasolina,
     FormaPagamento? formaPagamento,
     String? cartaoId,
     bool contaNaMedia = true,
@@ -165,6 +167,7 @@ class NovoAbastecimentoViewModel extends Notifier<NovoAbastecimentoEstado> {
       tanqueCheio: tanqueCheio,
       posto: posto.trim().isEmpty ? null : posto.trim(),
       postoId: posto.trim().isEmpty ? null : postoId,
+      tipoGasolina: combustivel == Combustivel.gasolina ? tipoGasolina ?? TipoGasolina.comum : null,
       formaPagamento: formaPagamento,
       cartaoId: formaPagamento == FormaPagamento.credito ? cartaoId : null,
       contaNaMedia: contaNaMedia,

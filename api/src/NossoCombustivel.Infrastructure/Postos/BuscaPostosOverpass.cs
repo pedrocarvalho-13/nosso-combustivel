@@ -29,9 +29,9 @@ public sealed class BuscaPostosOverpass(HttpClient http, IOptions<OpcoesOverpass
     public OrigemPosto Origem => OrigemPosto.OpenStreetMap;
 
     public async Task<IReadOnlyList<PostoEncontrado>> BuscarProximosAsync(
-        double latitude, double longitude, int raioMetros, CancellationToken cancelamento)
+        TipoPosto tipo, double latitude, double longitude, int raioMetros, CancellationToken cancelamento)
     {
-        var consulta = Consulta(latitude, longitude, raioMetros);
+        var consulta = Consulta(tipo, latitude, longitude, raioMetros);
         var config = opcoes.Value;
         using var prazo = CancellationTokenSource.CreateLinkedTokenSource(cancelamento);
         prazo.CancelAfter(TimeSpan.FromSeconds(config.SegundosNoTotal));
@@ -49,7 +49,7 @@ public sealed class BuscaPostosOverpass(HttpClient http, IOptions<OpcoesOverpass
                 {
                     await using var corpo = await resposta.Content.ReadAsStreamAsync(limite.Token);
                     using var json = await JsonDocument.ParseAsync(corpo, cancellationToken: limite.Token);
-                    return Ler(json.RootElement);
+                    return Ler(json.RootElement, tipo);
                 }
                 log.LogWarning("Overpass {Endereco} respondeu {Status}", endereco, (int)resposta.StatusCode);
             }
@@ -72,15 +72,15 @@ public sealed class BuscaPostosOverpass(HttpClient http, IOptions<OpcoesOverpass
         throw new BuscaPostosIndisponivelException();
     }
 
-    public static string Consulta(double latitude, double longitude, int raioMetros)
+    public static string Consulta(TipoPosto tipo, double latitude, double longitude, int raioMetros)
     {
         var grausLatitude = raioMetros / 111_320d;
         var grausLongitude = raioMetros / (111_320d * Math.Max(Math.Cos(latitude * Math.PI / 180), 0.01));
         return string.Create(CultureInfo.InvariantCulture,
-            $"[out:json][timeout:25][bbox:{latitude - grausLatitude:F5},{longitude - grausLongitude:F5},{latitude + grausLatitude:F5},{longitude + grausLongitude:F5}];nwr[\"amenity\"=\"fuel\"];out center tags;");
+            $"[out:json][timeout:25][bbox:{latitude - grausLatitude:F5},{longitude - grausLongitude:F5},{latitude + grausLatitude:F5},{longitude + grausLongitude:F5}];nwr[\"amenity\"=\"{BuscaPostosNominatim.Amenity(tipo)}\"];out center tags;");
     }
 
-    public static IReadOnlyList<PostoEncontrado> Ler(JsonElement raiz)
+    public static IReadOnlyList<PostoEncontrado> Ler(JsonElement raiz, TipoPosto tipo = TipoPosto.Combustivel)
     {
         var postos = new List<PostoEncontrado>();
         if (!raiz.TryGetProperty("elements", out var elementos))
@@ -88,7 +88,7 @@ public sealed class BuscaPostosOverpass(HttpClient http, IOptions<OpcoesOverpass
 
         foreach (var elemento in elementos.EnumerateArray())
         {
-            var tipo = elemento.GetProperty("type").GetString();
+            var tipoOsm = elemento.GetProperty("type").GetString();
             var id = elemento.GetProperty("id").GetInt64();
             var coordenadas = elemento.TryGetProperty("center", out var centro) ? centro : elemento;
             if (!coordenadas.TryGetProperty("lat", out var lat) || !coordenadas.TryGetProperty("lon", out var lon))
@@ -96,15 +96,17 @@ public sealed class BuscaPostosOverpass(HttpClient http, IOptions<OpcoesOverpass
 
             var tags = elemento.TryGetProperty("tags", out var t) ? t : default;
             var bandeira = Tag(tags, "brand") ?? Tag(tags, "operator");
-            var nome = Tag(tags, "name") ?? bandeira ?? "Posto sem nome";
+            var nome = Tag(tags, "name") ?? bandeira ?? (tipo == TipoPosto.Eletroposto ? "Eletroposto sem nome" : "Posto sem nome");
             postos.Add(new PostoEncontrado(
+                tipo,
                 OrigemPosto.OpenStreetMap,
-                $"{tipo}/{id}",
+                $"{tipoOsm}/{id}",
                 nome,
                 bandeira,
                 Endereco(tags),
                 lat.GetDouble(),
-                lon.GetDouble()));
+                lon.GetDouble(),
+                Tag(tags, "opening_hours")));
         }
         return postos;
     }

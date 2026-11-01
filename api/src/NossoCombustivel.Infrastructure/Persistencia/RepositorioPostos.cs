@@ -19,15 +19,15 @@ public sealed class RepositorioPostos(NossoCombustivelDbContext banco) : IReposi
         banco.Postos.Where(p => p.Origem == origem && idsExternos.Contains(p.IdExterno!)).ToListAsync(cancelamento);
 
     public Task<List<Posto>> NaAreaAsync(
-        double latitudeMin, double latitudeMax, double longitudeMin, double longitudeMax, CancellationToken cancelamento) =>
+        TipoPosto tipo, double latitudeMin, double latitudeMax, double longitudeMin, double longitudeMax, CancellationToken cancelamento) =>
         banco.Postos.AsNoTracking()
-            .Where(p => p.Latitude >= latitudeMin && p.Latitude <= latitudeMax && p.Longitude >= longitudeMin && p.Longitude <= longitudeMax)
+            .Where(p => p.Tipo == tipo && p.Latitude >= latitudeMin && p.Latitude <= latitudeMax && p.Longitude >= longitudeMin && p.Longitude <= longitudeMax)
             .ToListAsync(cancelamento);
 
     public Task<List<PrecoDoPosto>> PrecosDesdeAsync(IReadOnlyCollection<Guid> postoIds, DateTimeOffset desde, CancellationToken cancelamento) =>
         banco.Abastecimentos.AsNoTracking()
             .Where(a => a.PostoId != null && postoIds.Contains(a.PostoId.Value) && a.ExcluidoEm == null && a.Data >= desde)
-            .Select(a => new PrecoDoPosto(a.PostoId!.Value, a.Combustivel, a.PrecoLitro, a.Data))
+            .Select(a => new PrecoDoPosto(a.PostoId!.Value, a.Combustivel, a.TipoGasolina, a.PrecoLitro, a.Data))
             .ToListAsync(cancelamento);
 
     public Task<bool> AreaBuscadaDesdeAsync(string chave, DateTimeOffset desde, CancellationToken cancelamento) =>

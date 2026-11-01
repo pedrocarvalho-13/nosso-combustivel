@@ -18,6 +18,13 @@ public enum FormaPagamento
     Dinheiro = 4
 }
 
+public enum TipoGasolina
+{
+    Comum = 1,
+    Aditivada = 2,
+    Premium = 3
+}
+
 public sealed record DadosAbastecimento(
     DateTimeOffset Data,
     int Odometro,
@@ -32,7 +39,8 @@ public sealed record DadosAbastecimento(
     FormaPagamento? FormaPagamento = null,
     Guid? CartaoId = null,
     bool ContaNaMedia = true,
-    Guid? PostoId = null);
+    Guid? PostoId = null,
+    TipoGasolina? TipoGasolina = null);
 
 public sealed record DadosRecarga(
     DateTimeOffset Data,
@@ -99,6 +107,7 @@ public sealed class Abastecimento : RegistroEnergia
     public bool TanqueCheio { get; private set; }
     public string? Posto { get; private set; }
     public Guid? PostoId { get; private set; }
+    public TipoGasolina? TipoGasolina { get; private set; }
 
     public static Abastecimento Criar(Guid id, Guid veiculoId, Guid usuarioId, DadosAbastecimento dados, DateTimeOffset criadoEm, DateTimeOffset agora)
     {
@@ -126,6 +135,7 @@ public sealed class Abastecimento : RegistroEnergia
         TanqueCheio = dados.TanqueCheio;
         Posto = string.IsNullOrWhiteSpace(dados.Posto) ? null : dados.Posto.Trim();
         PostoId = dados.PostoId;
+        TipoGasolina = dados.Combustivel == Combustivel.Gasolina ? dados.TipoGasolina : null;
         CopiarPagamento(dados.FormaPagamento, dados.CartaoId);
         ContaNaMedia = dados.ContaNaMedia;
     }

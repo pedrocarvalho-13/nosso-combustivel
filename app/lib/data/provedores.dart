@@ -12,6 +12,7 @@ import 'repositorios/preferencias_repositorio.dart';
 import 'repositorios/registro_repositorio.dart';
 import 'repositorios/veiculo_repositorio.dart';
 import 'sessao/sessao_controller.dart';
+import '../domain/tipo_gasolina.dart';
 
 final relogioProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
@@ -86,6 +87,10 @@ final temaProvider = StreamProvider<String>(
 
 final fotosIaProvider = StreamProvider<bool>(
   (ref) => ref.watch(preferenciasRepositorioProvider).observarFotosIa(),
+);
+
+final gasolinaPadraoProvider = StreamProvider<TipoGasolina>(
+  (ref) => ref.watch(preferenciasRepositorioProvider).observarGasolinaPadrao(),
 );
 
 final pagamentoPadraoProvider = StreamProvider<String?>(

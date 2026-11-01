@@ -213,6 +213,10 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("Horario")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<string>("IdExterno")
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
@@ -232,6 +236,13 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("Combustivel");
 
                     b.HasKey("Id");
 
@@ -298,6 +309,10 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
 
                     b.Property<bool>("TanqueCheio")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("TipoGasolina")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<Guid>("UsuarioId")
                         .HasColumnType("uuid");

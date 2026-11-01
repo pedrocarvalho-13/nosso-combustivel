@@ -10,6 +10,7 @@ import '../../domain/combustivel.dart';
 import '../comum/botao_ler_foto.dart';
 import '../../data/provedores.dart';
 import '../../domain/forma_pagamento.dart';
+import '../../domain/tipo_gasolina.dart';
 import '../comum/campo_com_rotulo.dart';
 import '../comum/campo_pagamento.dart';
 import '../comum/campo_data.dart';
@@ -32,6 +33,8 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
   final _odometro = TextEditingController();
   final _posto = TextEditingController();
   String? _postoId;
+  var _tipoGasolina = TipoGasolina.comum;
+  var _gasolinaEscolhida = false;
   var _data = DateTime.now();
   var _tanqueCheio = false;
   var _contaNaMedia = true;
@@ -62,6 +65,8 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
 
   Future<void> _carregarPagamentoPadrao() async {
     final preferencias = ref.read(preferenciasRepositorioProvider);
+    final gasolina = await preferencias.gasolinaPadrao();
+    if (mounted && !_gasolinaEscolhida) setState(() => _tipoGasolina = gasolina);
     final salvo = await preferencias.pagamentoPadrao() ?? await preferencias.ultimoPagamento();
     if (salvo == null || !mounted || _forma != null) return;
     final partes = salvo.split('|');
@@ -94,6 +99,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
       tanqueCheio: _tanqueCheio,
       posto: _posto.text,
       postoId: _postoId,
+      tipoGasolina: _tipoGasolina,
       formaPagamento: _forma,
       contaNaMedia: _contaNaMedia,
       cartaoId: _cartaoId,
@@ -114,6 +120,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
     final posto = await escolherPosto(
       context,
       combustivel: ref.read(novoAbastecimentoViewModelProvider(widget.registroId)).combustivel,
+      tipoGasolina: _tipoGasolina,
     );
     if (posto == null || !mounted) return;
     setState(() {
@@ -157,6 +164,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
         _contaNaMedia = editando.contaNaMedia;
         _forma = editando.formaPagamento;
         _cartaoId = editando.cartaoId;
+        _tipoGasolina = editando.tipoGasolina ?? TipoGasolina.comum;
       });
       _odometro.text = '${editando.odometro}';
       _valores.preco.text = Formato.paraCampo(editando.precoLitro, casas: 3);
@@ -203,6 +211,28 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
                 showSelectedIcon: false,
                 onSelectionChanged: (selecao) => _vm.selecionarCombustivel(selecao.first),
               ),
+              const SizedBox(height: 16),
+            ],
+            if (estado.combustivel == Combustivel.gasolina) ...[
+              SegmentedButton<TipoGasolina>(
+                segments: [
+                  for (final tipo in TipoGasolina.values) ButtonSegment(value: tipo, label: Text(tipo.rotulo)),
+                ],
+                selected: {_tipoGasolina},
+                showSelectedIcon: false,
+                onSelectionChanged: (selecao) => setState(() {
+                  _tipoGasolina = selecao.first;
+                  _gasolinaEscolhida = true;
+                }),
+              ),
+              if (_tipoGasolina == TipoGasolina.premium)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    'Podium, Ipimax, V-Power Racing e outras de alta octanagem',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                ),
               const SizedBox(height: 16),
             ],
             if (estado.comparacao != null) ...[

@@ -7,7 +7,13 @@ public enum OrigemPosto
     Manual = 3
 }
 
-public sealed record DadosPosto(string Nome, string? Bandeira, string? Endereco, double Latitude, double Longitude);
+public enum TipoPosto
+{
+    Combustivel = 1,
+    Eletroposto = 2
+}
+
+public sealed record DadosPosto(string Nome, string? Bandeira, string? Endereco, double Latitude, double Longitude, string? Horario = null);
 
 public sealed class Posto
 {
@@ -17,17 +23,19 @@ public sealed class Posto
 
     public Guid Id { get; private set; }
     public OrigemPosto Origem { get; private set; }
+    public TipoPosto Tipo { get; private set; } = TipoPosto.Combustivel;
     public string? IdExterno { get; private set; }
     public string Nome { get; private set; } = string.Empty;
     public string? Bandeira { get; private set; }
     public string? Endereco { get; private set; }
+    public string? Horario { get; private set; }
     public double Latitude { get; private set; }
     public double Longitude { get; private set; }
     public Guid? CriadoPor { get; private set; }
     public DateTimeOffset CriadoEm { get; private set; }
     public DateTimeOffset AtualizadoEm { get; private set; }
 
-    public static Posto Criar(Guid id, OrigemPosto origem, string? idExterno, DadosPosto dados, Guid? criadoPor, DateTimeOffset agora)
+    public static Posto Criar(Guid id, TipoPosto tipo, OrigemPosto origem, string? idExterno, DadosPosto dados, Guid? criadoPor, DateTimeOffset agora)
     {
         if (origem != OrigemPosto.Manual && string.IsNullOrWhiteSpace(idExterno))
             throw new ExcecaoDeDominio("Posto de busca precisa do identificador da origem.");
@@ -35,6 +43,7 @@ public sealed class Posto
         {
             Id = id,
             Origem = origem,
+            Tipo = tipo,
             IdExterno = origem == OrigemPosto.Manual ? null : idExterno!.Trim(),
             CriadoPor = criadoPor,
             CriadoEm = agora
@@ -46,7 +55,7 @@ public sealed class Posto
     public bool Atualizar(DadosPosto dados, DateTimeOffset agora)
     {
         var limpos = Limpar(dados);
-        if (limpos == new DadosPosto(Nome, Bandeira, Endereco, Latitude, Longitude))
+        if (limpos == new DadosPosto(Nome, Bandeira, Endereco, Latitude, Longitude, Horario))
             return false;
         Copiar(limpos, agora);
         return true;
@@ -59,6 +68,7 @@ public sealed class Posto
         Endereco = limpos.Endereco;
         Latitude = limpos.Latitude;
         Longitude = limpos.Longitude;
+        Horario = limpos.Horario;
         AtualizadoEm = agora;
     }
 
@@ -71,11 +81,13 @@ public sealed class Posto
         if (dados.Latitude is < -90 or > 90 || dados.Longitude is < -180 or > 180)
             throw new ExcecaoDeDominio("Localização do posto inválida.");
         var endereco = string.IsNullOrWhiteSpace(dados.Endereco) ? null : dados.Endereco.Trim();
+        var horario = string.IsNullOrWhiteSpace(dados.Horario) ? null : dados.Horario.Trim();
         return new DadosPosto(
             dados.Nome.Trim(),
             string.IsNullOrWhiteSpace(dados.Bandeira) ? null : dados.Bandeira.Trim(),
             endereco?.Length > 200 ? endereco[..200] : endereco,
             Math.Round(dados.Latitude, 7),
-            Math.Round(dados.Longitude, 7));
+            Math.Round(dados.Longitude, 7),
+            horario?.Length > 200 ? horario[..200] : horario);
     }
 }

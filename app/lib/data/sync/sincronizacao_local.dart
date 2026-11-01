@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../domain/combustivel.dart';
 import '../../domain/forma_pagamento.dart';
+import '../../domain/tipo_gasolina.dart';
 import '../../domain/registro_energia.dart';
 import '../../domain/tipo_energia.dart';
 import '../../domain/tipo_veiculo.dart';
@@ -55,6 +56,7 @@ class LoteLocal {
               'tanqueCheio': a.tanqueCheio,
               'posto': a.posto,
               'postoId': a.postoId,
+              'tipoGasolina': a.tipoGasolina?.name,
               'formaPagamento': a.formaPagamento?.name,
               'cartaoId': a.cartaoId,
               'contaNaMedia': a.contaNaMedia,
@@ -210,6 +212,7 @@ class SincronizacaoLocal {
                 tanqueCheio: json['tanqueCheio'] as bool,
                 posto: Value(json['posto'] as String?),
                 postoId: Value(json['postoId'] as String?),
+                tipoGasolina: Value(TipoGasolina.values.where((t) => t.name == json['tipoGasolina']).firstOrNull),
                 formaPagamento: Value(_formaPagamento(json['formaPagamento'])),
                 cartaoId: Value(json['cartaoId'] as String?),
                 contaNaMedia: Value((json['contaNaMedia'] as bool?) ?? true),

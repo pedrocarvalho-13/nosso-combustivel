@@ -1167,6 +1167,15 @@ class $AbastecimentosTable extends Abastecimentos
     requiredDuringInsert: false,
   );
   @override
+  late final GeneratedColumnWithTypeConverter<TipoGasolina?, String>
+  tipoGasolina = GeneratedColumn<String>(
+    'tipo_gasolina',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<TipoGasolina?>($AbastecimentosTable.$convertertipoGasolinan);
+  @override
   late final GeneratedColumnWithTypeConverter<FormaPagamento?, String>
   formaPagamento =
       GeneratedColumn<String>(
@@ -1221,6 +1230,7 @@ class $AbastecimentosTable extends Abastecimentos
     tanqueCheio,
     posto,
     postoId,
+    tipoGasolina,
     formaPagamento,
     cartaoId,
     contaNaMedia,
@@ -1436,6 +1446,12 @@ class $AbastecimentosTable extends Abastecimentos
         DriftSqlType.string,
         data['${effectivePrefix}posto_id'],
       ),
+      tipoGasolina: $AbastecimentosTable.$convertertipoGasolinan.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}tipo_gasolina'],
+        ),
+      ),
       formaPagamento: $AbastecimentosTable.$converterformaPagamenton.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
@@ -1460,6 +1476,14 @@ class $AbastecimentosTable extends Abastecimentos
 
   static JsonTypeConverter2<Combustivel, String, String> $convertercombustivel =
       const EnumNameConverter<Combustivel>(Combustivel.values);
+  static JsonTypeConverter2<TipoGasolina, String, String>
+  $convertertipoGasolina = const EnumNameConverter<TipoGasolina>(
+    TipoGasolina.values,
+  );
+  static JsonTypeConverter2<TipoGasolina?, String?, String?>
+  $convertertipoGasolinan = JsonTypeConverter2.asNullable(
+    $convertertipoGasolina,
+  );
   static JsonTypeConverter2<FormaPagamento, String, String>
   $converterformaPagamento = const EnumNameConverter<FormaPagamento>(
     FormaPagamento.values,
@@ -1487,6 +1511,7 @@ class AbastecimentoLinha extends DataClass
   final bool tanqueCheio;
   final String? posto;
   final String? postoId;
+  final TipoGasolina? tipoGasolina;
   final FormaPagamento? formaPagamento;
   final String? cartaoId;
   final bool contaNaMedia;
@@ -1506,6 +1531,7 @@ class AbastecimentoLinha extends DataClass
     required this.tanqueCheio,
     this.posto,
     this.postoId,
+    this.tipoGasolina,
     this.formaPagamento,
     this.cartaoId,
     required this.contaNaMedia,
@@ -1537,6 +1563,11 @@ class AbastecimentoLinha extends DataClass
     }
     if (!nullToAbsent || postoId != null) {
       map['posto_id'] = Variable<String>(postoId);
+    }
+    if (!nullToAbsent || tipoGasolina != null) {
+      map['tipo_gasolina'] = Variable<String>(
+        $AbastecimentosTable.$convertertipoGasolinan.toSql(tipoGasolina),
+      );
     }
     if (!nullToAbsent || formaPagamento != null) {
       map['forma_pagamento'] = Variable<String>(
@@ -1573,6 +1604,9 @@ class AbastecimentoLinha extends DataClass
       postoId: postoId == null && nullToAbsent
           ? const Value.absent()
           : Value(postoId),
+      tipoGasolina: tipoGasolina == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tipoGasolina),
       formaPagamento: formaPagamento == null && nullToAbsent
           ? const Value.absent()
           : Value(formaPagamento),
@@ -1608,6 +1642,9 @@ class AbastecimentoLinha extends DataClass
       tanqueCheio: serializer.fromJson<bool>(json['tanqueCheio']),
       posto: serializer.fromJson<String?>(json['posto']),
       postoId: serializer.fromJson<String?>(json['postoId']),
+      tipoGasolina: $AbastecimentosTable.$convertertipoGasolinan.fromJson(
+        serializer.fromJson<String?>(json['tipoGasolina']),
+      ),
       formaPagamento: $AbastecimentosTable.$converterformaPagamenton.fromJson(
         serializer.fromJson<String?>(json['formaPagamento']),
       ),
@@ -1636,6 +1673,9 @@ class AbastecimentoLinha extends DataClass
       'tanqueCheio': serializer.toJson<bool>(tanqueCheio),
       'posto': serializer.toJson<String?>(posto),
       'postoId': serializer.toJson<String?>(postoId),
+      'tipoGasolina': serializer.toJson<String?>(
+        $AbastecimentosTable.$convertertipoGasolinan.toJson(tipoGasolina),
+      ),
       'formaPagamento': serializer.toJson<String?>(
         $AbastecimentosTable.$converterformaPagamenton.toJson(formaPagamento),
       ),
@@ -1660,6 +1700,7 @@ class AbastecimentoLinha extends DataClass
     bool? tanqueCheio,
     Value<String?> posto = const Value.absent(),
     Value<String?> postoId = const Value.absent(),
+    Value<TipoGasolina?> tipoGasolina = const Value.absent(),
     Value<FormaPagamento?> formaPagamento = const Value.absent(),
     Value<String?> cartaoId = const Value.absent(),
     bool? contaNaMedia,
@@ -1679,6 +1720,7 @@ class AbastecimentoLinha extends DataClass
     tanqueCheio: tanqueCheio ?? this.tanqueCheio,
     posto: posto.present ? posto.value : this.posto,
     postoId: postoId.present ? postoId.value : this.postoId,
+    tipoGasolina: tipoGasolina.present ? tipoGasolina.value : this.tipoGasolina,
     formaPagamento: formaPagamento.present
         ? formaPagamento.value
         : this.formaPagamento,
@@ -1714,6 +1756,9 @@ class AbastecimentoLinha extends DataClass
           : this.tanqueCheio,
       posto: data.posto.present ? data.posto.value : this.posto,
       postoId: data.postoId.present ? data.postoId.value : this.postoId,
+      tipoGasolina: data.tipoGasolina.present
+          ? data.tipoGasolina.value
+          : this.tipoGasolina,
       formaPagamento: data.formaPagamento.present
           ? data.formaPagamento.value
           : this.formaPagamento,
@@ -1742,6 +1787,7 @@ class AbastecimentoLinha extends DataClass
           ..write('tanqueCheio: $tanqueCheio, ')
           ..write('posto: $posto, ')
           ..write('postoId: $postoId, ')
+          ..write('tipoGasolina: $tipoGasolina, ')
           ..write('formaPagamento: $formaPagamento, ')
           ..write('cartaoId: $cartaoId, ')
           ..write('contaNaMedia: $contaNaMedia')
@@ -1766,6 +1812,7 @@ class AbastecimentoLinha extends DataClass
     tanqueCheio,
     posto,
     postoId,
+    tipoGasolina,
     formaPagamento,
     cartaoId,
     contaNaMedia,
@@ -1789,6 +1836,7 @@ class AbastecimentoLinha extends DataClass
           other.tanqueCheio == this.tanqueCheio &&
           other.posto == this.posto &&
           other.postoId == this.postoId &&
+          other.tipoGasolina == this.tipoGasolina &&
           other.formaPagamento == this.formaPagamento &&
           other.cartaoId == this.cartaoId &&
           other.contaNaMedia == this.contaNaMedia);
@@ -1810,6 +1858,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
   final Value<bool> tanqueCheio;
   final Value<String?> posto;
   final Value<String?> postoId;
+  final Value<TipoGasolina?> tipoGasolina;
   final Value<FormaPagamento?> formaPagamento;
   final Value<String?> cartaoId;
   final Value<bool> contaNaMedia;
@@ -1830,6 +1879,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     this.tanqueCheio = const Value.absent(),
     this.posto = const Value.absent(),
     this.postoId = const Value.absent(),
+    this.tipoGasolina = const Value.absent(),
     this.formaPagamento = const Value.absent(),
     this.cartaoId = const Value.absent(),
     this.contaNaMedia = const Value.absent(),
@@ -1851,6 +1901,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     required bool tanqueCheio,
     this.posto = const Value.absent(),
     this.postoId = const Value.absent(),
+    this.tipoGasolina = const Value.absent(),
     this.formaPagamento = const Value.absent(),
     this.cartaoId = const Value.absent(),
     this.contaNaMedia = const Value.absent(),
@@ -1882,6 +1933,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     Expression<bool>? tanqueCheio,
     Expression<String>? posto,
     Expression<String>? postoId,
+    Expression<String>? tipoGasolina,
     Expression<String>? formaPagamento,
     Expression<String>? cartaoId,
     Expression<bool>? contaNaMedia,
@@ -1904,6 +1956,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
       if (tanqueCheio != null) 'tanque_cheio': tanqueCheio,
       if (posto != null) 'posto': posto,
       if (postoId != null) 'posto_id': postoId,
+      if (tipoGasolina != null) 'tipo_gasolina': tipoGasolina,
       if (formaPagamento != null) 'forma_pagamento': formaPagamento,
       if (cartaoId != null) 'cartao_id': cartaoId,
       if (contaNaMedia != null) 'conta_na_media': contaNaMedia,
@@ -1927,6 +1980,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     Value<bool>? tanqueCheio,
     Value<String?>? posto,
     Value<String?>? postoId,
+    Value<TipoGasolina?>? tipoGasolina,
     Value<FormaPagamento?>? formaPagamento,
     Value<String?>? cartaoId,
     Value<bool>? contaNaMedia,
@@ -1948,6 +2002,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
       tanqueCheio: tanqueCheio ?? this.tanqueCheio,
       posto: posto ?? this.posto,
       postoId: postoId ?? this.postoId,
+      tipoGasolina: tipoGasolina ?? this.tipoGasolina,
       formaPagamento: formaPagamento ?? this.formaPagamento,
       cartaoId: cartaoId ?? this.cartaoId,
       contaNaMedia: contaNaMedia ?? this.contaNaMedia,
@@ -2005,6 +2060,11 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
     if (postoId.present) {
       map['posto_id'] = Variable<String>(postoId.value);
     }
+    if (tipoGasolina.present) {
+      map['tipo_gasolina'] = Variable<String>(
+        $AbastecimentosTable.$convertertipoGasolinan.toSql(tipoGasolina.value),
+      );
+    }
     if (formaPagamento.present) {
       map['forma_pagamento'] = Variable<String>(
         $AbastecimentosTable.$converterformaPagamenton.toSql(
@@ -2042,6 +2102,7 @@ class AbastecimentosCompanion extends UpdateCompanion<AbastecimentoLinha> {
           ..write('tanqueCheio: $tanqueCheio, ')
           ..write('posto: $posto, ')
           ..write('postoId: $postoId, ')
+          ..write('tipoGasolina: $tipoGasolina, ')
           ..write('formaPagamento: $formaPagamento, ')
           ..write('cartaoId: $cartaoId, ')
           ..write('contaNaMedia: $contaNaMedia, ')
@@ -4465,6 +4526,7 @@ typedef $$AbastecimentosTableCreateCompanionBuilder =
       required bool tanqueCheio,
       Value<String?> posto,
       Value<String?> postoId,
+      Value<TipoGasolina?> tipoGasolina,
       Value<FormaPagamento?> formaPagamento,
       Value<String?> cartaoId,
       Value<bool> contaNaMedia,
@@ -4487,6 +4549,7 @@ typedef $$AbastecimentosTableUpdateCompanionBuilder =
       Value<bool> tanqueCheio,
       Value<String?> posto,
       Value<String?> postoId,
+      Value<TipoGasolina?> tipoGasolina,
       Value<FormaPagamento?> formaPagamento,
       Value<String?> cartaoId,
       Value<bool> contaNaMedia,
@@ -4598,6 +4661,12 @@ class $$AbastecimentosTableFilterComposer
   ColumnFilters<String> get postoId => $composableBuilder(
     column: $table.postoId,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<TipoGasolina?, TipoGasolina, String>
+  get tipoGasolina => $composableBuilder(
+    column: $table.tipoGasolina,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnWithTypeConverterFilters<FormaPagamento?, FormaPagamento, String>
@@ -4719,6 +4788,11 @@ class $$AbastecimentosTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get tipoGasolina => $composableBuilder(
+    column: $table.tipoGasolina,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get formaPagamento => $composableBuilder(
     column: $table.formaPagamento,
     builder: (column) => ColumnOrderings(column),
@@ -4822,6 +4896,12 @@ class $$AbastecimentosTableAnnotationComposer
   GeneratedColumn<String> get postoId =>
       $composableBuilder(column: $table.postoId, builder: (column) => column);
 
+  GeneratedColumnWithTypeConverter<TipoGasolina?, String> get tipoGasolina =>
+      $composableBuilder(
+        column: $table.tipoGasolina,
+        builder: (column) => column,
+      );
+
   GeneratedColumnWithTypeConverter<FormaPagamento?, String>
   get formaPagamento => $composableBuilder(
     column: $table.formaPagamento,
@@ -4903,6 +4983,7 @@ class $$AbastecimentosTableTableManager
                 Value<bool> tanqueCheio = const Value.absent(),
                 Value<String?> posto = const Value.absent(),
                 Value<String?> postoId = const Value.absent(),
+                Value<TipoGasolina?> tipoGasolina = const Value.absent(),
                 Value<FormaPagamento?> formaPagamento = const Value.absent(),
                 Value<String?> cartaoId = const Value.absent(),
                 Value<bool> contaNaMedia = const Value.absent(),
@@ -4923,6 +5004,7 @@ class $$AbastecimentosTableTableManager
                 tanqueCheio: tanqueCheio,
                 posto: posto,
                 postoId: postoId,
+                tipoGasolina: tipoGasolina,
                 formaPagamento: formaPagamento,
                 cartaoId: cartaoId,
                 contaNaMedia: contaNaMedia,
@@ -4945,6 +5027,7 @@ class $$AbastecimentosTableTableManager
                 required bool tanqueCheio,
                 Value<String?> posto = const Value.absent(),
                 Value<String?> postoId = const Value.absent(),
+                Value<TipoGasolina?> tipoGasolina = const Value.absent(),
                 Value<FormaPagamento?> formaPagamento = const Value.absent(),
                 Value<String?> cartaoId = const Value.absent(),
                 Value<bool> contaNaMedia = const Value.absent(),
@@ -4965,6 +5048,7 @@ class $$AbastecimentosTableTableManager
                 tanqueCheio: tanqueCheio,
                 posto: posto,
                 postoId: postoId,
+                tipoGasolina: tipoGasolina,
                 formaPagamento: formaPagamento,
                 cartaoId: cartaoId,
                 contaNaMedia: contaNaMedia,

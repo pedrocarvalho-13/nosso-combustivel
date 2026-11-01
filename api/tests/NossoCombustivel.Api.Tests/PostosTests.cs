@@ -10,6 +10,7 @@ using NossoCombustivel.Api.Endpoints;
 using NossoCombustivel.Application.Postos;
 using NossoCombustivel.Application.Sincronizacao;
 using NossoCombustivel.Domain.Postos;
+using NossoCombustivel.Domain.Registros;
 using NossoCombustivel.Domain.Veiculos;
 using NossoCombustivel.Infrastructure.Postos;
 
@@ -24,11 +25,11 @@ public sealed class BuscaPostosFalsa : IBuscaPostos
     public OrigemPosto Origem => OrigemPosto.OpenStreetMap;
 
     public Task<IReadOnlyList<PostoEncontrado>> BuscarProximosAsync(
-        double latitude, double longitude, int raioMetros, CancellationToken cancelamento)
+        TipoPosto tipo, double latitude, double longitude, int raioMetros, CancellationToken cancelamento)
     {
         Chamadas++;
         if (Fora) throw new BuscaPostosIndisponivelException();
-        return Task.FromResult<IReadOnlyList<PostoEncontrado>>(Postos);
+        return Task.FromResult<IReadOnlyList<PostoEncontrado>>(Postos.Where(p => p.Tipo == tipo).ToList());
     }
 }
 
@@ -65,12 +66,14 @@ public class PostosTests(FabricaApiComPostos fabrica) : IClassFixture<FabricaApi
         return cliente;
     }
 
-    private static PostoEncontrado Encontrado(string id, string nome, double latitude, double longitude, string? bandeira = null) =>
-        new(OrigemPosto.OpenStreetMap, id, nome, bandeira, null, latitude, longitude);
+    private static PostoEncontrado Encontrado(
+        string id, string nome, double latitude, double longitude, string? bandeira = null, TipoPosto tipo = TipoPosto.Combustivel) =>
+        new(tipo, OrigemPosto.OpenStreetMap, id, nome, bandeira, null, latitude, longitude);
 
-    private static async Task<PostosProximos> ProximosAsync(HttpClient cliente, double latitude, double longitude, int raio = 1500)
+    private static async Task<PostosProximos> ProximosAsync(
+        HttpClient cliente, double latitude, double longitude, int raio = 1500, string tipo = "combustivel")
     {
-        var url = FormattableString.Invariant($"/postos/proximos?lat={latitude}&lng={longitude}&raio={raio}");
+        var url = FormattableString.Invariant($"/postos/proximos?lat={latitude}&lng={longitude}&raio={raio}&tipo={tipo}");
         return (await cliente.GetFromJsonAsync<PostosProximos>(url, Json))!;
     }
 
@@ -88,7 +91,7 @@ public class PostosTests(FabricaApiComPostos fabrica) : IClassFixture<FabricaApi
         fabrica.Busca.Postos.Clear();
         fabrica.Busca.Postos.AddRange([
             Encontrado("node/2", "Posto Longe", -10.0090, -40.0000),
-            Encontrado("node/1", "Posto Perto", -10.0010, -40.0000, "Shell"),
+            Encontrado("node/1", "Posto Perto", -10.0010, -40.0000, "Shell") with { Horario = "Mo-Su 06:00-22:00" },
             Encontrado("node/3", "Fora do raio", -10.0500, -40.0000)
         ]);
         var antes = fabrica.Busca.Chamadas;
@@ -99,6 +102,7 @@ public class PostosTests(FabricaApiComPostos fabrica) : IClassFixture<FabricaApi
         Assert.True(primeira.BuscaCompleta);
         Assert.Equal(["Posto Perto", "Posto Longe"], primeira.Postos.Select(p => p.Nome));
         Assert.Equal("Shell", primeira.Postos[0].Bandeira);
+        Assert.Equal("Mo-Su 06:00-22:00", primeira.Postos[0].Horario);
         Assert.InRange(primeira.Postos[0].DistanciaMetros, 100, 120);
         Assert.Equal(primeira.Postos.Select(p => p.Id), segunda.Postos.Select(p => p.Id));
         Assert.Equal(antes + 1, fabrica.Busca.Chamadas);
@@ -159,7 +163,7 @@ public class PostosTests(FabricaApiComPostos fabrica) : IClassFixture<FabricaApi
         var carro = new VeiculoSync(carroId, "Celta", "GM", "Celta", 2010, null, TipoEnergia.Combustao,
             [Combustivel.Gasolina], 54m, null, 90000, quando, quando, null);
         var abastecimento = new AbastecimentoSync(Guid.CreateVersion7(), carroId, quando, 90100, Combustivel.Gasolina,
-            20m, 6.5m, 130m, false, null, quando, quando, null, PostoId: posto!.Id);
+            20m, 6.5m, 130m, false, null, quando, quando, null, PostoId: posto!.Id, TipoGasolina: TipoGasolina.Aditivada);
 
         await cliente.PostAsJsonAsync("/sync", new LoteSync([carro], [abastecimento], []), Json);
         var busca = (await cliente.GetFromJsonAsync<RespostaBusca>("/sync", Json))!;
@@ -169,7 +173,8 @@ public class PostosTests(FabricaApiComPostos fabrica) : IClassFixture<FabricaApi
 
         var proximos = await ProximosAsync(cliente, -14.0, -44.0);
         var preco = proximos.Postos.Single().Precos!.Single();
-        Assert.Equal((Combustivel.Gasolina, 6.5m), (preco.Combustivel, preco.PrecoLitro));
+        Assert.Equal((Combustivel.Gasolina, 6.5m, TipoGasolina.Aditivada), (preco.Combustivel, preco.PrecoLitro, preco.TipoGasolina));
+        Assert.Equal(TipoGasolina.Aditivada, busca.Alteracoes.Abastecimentos.Single().TipoGasolina);
     }
 
     [Fact]
@@ -186,7 +191,7 @@ public class PostosTests(FabricaApiComPostos fabrica) : IClassFixture<FabricaApi
         var postos = BuscaPostosOverpass.Ler(json.RootElement);
 
         Assert.Equal(3, postos.Count);
-        Assert.Equal(new PostoEncontrado(OrigemPosto.OpenStreetMap, "node/10", "Posto Sol", "Shell", "Rua A, 12 - Centro", -23.5, -46.6), postos[0]);
+        Assert.Equal(new PostoEncontrado(TipoPosto.Combustivel, OrigemPosto.OpenStreetMap, "node/10", "Posto Sol", "Shell", "Rua A, 12 - Centro", -23.5, -46.6), postos[0]);
         Assert.Equal(("way/20", "Petrobras", -23.51), (postos[1].IdExterno, postos[1].Nome, postos[1].Latitude));
         Assert.Equal("Posto sem nome", postos[2].Nome);
     }
@@ -197,7 +202,7 @@ public class PostosTests(FabricaApiComPostos fabrica) : IClassFixture<FabricaApi
         using var json = JsonDocument.Parse("""
             [
               {"osm_type":"way","osm_id":414735742,"lat":"-23.5601","lon":"-46.6550","name":"Ipiranga",
-               "address":{"road":"Rua Augusta","house_number":"100","suburb":"Consolação"},"extratags":{"brand":"Ipiranga"}},
+               "address":{"road":"Rua Augusta","house_number":"100","suburb":"Consolação"},"extratags":{"brand":"Ipiranga","opening_hours":"24/7"}},
               {"osm_type":"node","osm_id":5,"lat":"-23.57","lon":"-46.66","extratags":{"operator":"Petrobras"}},
               {"osm_type":"node","osm_id":6,"lat":"x","lon":"-46.66"}
             ]
@@ -206,7 +211,24 @@ public class PostosTests(FabricaApiComPostos fabrica) : IClassFixture<FabricaApi
         var postos = BuscaPostosNominatim.Ler(json.RootElement);
 
         Assert.Equal(2, postos.Count);
-        Assert.Equal(new PostoEncontrado(OrigemPosto.OpenStreetMap, "way/414735742", "Ipiranga", "Ipiranga", "Rua Augusta, 100 - Consolação", -23.5601, -46.6550), postos[0]);
+        Assert.Equal(new PostoEncontrado(TipoPosto.Combustivel, OrigemPosto.OpenStreetMap, "way/414735742", "Ipiranga", "Ipiranga", "Rua Augusta, 100 - Consolação", -23.5601, -46.6550, "24/7"), postos[0]);
         Assert.Equal(("node/5", "Petrobras", null), (postos[1].IdExterno, postos[1].Nome, postos[1].Endereco));
+    }
+
+    [Fact]
+    public async Task Eletropostos_e_postos_de_combustivel_vem_separados()
+    {
+        var cliente = await ClienteLogadoAsync();
+        fabrica.Busca.Postos.Clear();
+        fabrica.Busca.Postos.AddRange([
+            Encontrado("node/50", "Posto Gasolina", -15.0010, -45.0000),
+            Encontrado("node/51", "Carregador Rapido", -15.0020, -45.0000, tipo: TipoPosto.Eletroposto)
+        ]);
+
+        var combustivel = await ProximosAsync(cliente, -15.0, -45.0);
+        var eletro = await ProximosAsync(cliente, -15.0, -45.0, tipo: "eletroposto");
+
+        Assert.Equal(["Posto Gasolina"], combustivel.Postos.Select(p => p.Nome));
+        Assert.Equal(["Carregador Rapido"], eletro.Postos.Select(p => p.Nome));
     }
 }

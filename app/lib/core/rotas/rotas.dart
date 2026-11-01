@@ -12,6 +12,7 @@ import '../../ui/carros/editar_veiculo_view.dart';
 import '../../ui/conta/conta_view.dart';
 import '../../ui/historico/historico_view.dart';
 import '../../ui/inicio/inicio_view.dart';
+import '../../ui/postos/postos_view.dart';
 import '../../ui/recarga/nova_recarga_view.dart';
 import '../../ui/relatorios/relatorios_view.dart';
 import '../../ui/shell/shell_view.dart';
@@ -28,6 +29,7 @@ abstract final class Rotas {
   static const novoAbastecimento = '/abastecimento/novo';
   static const novaRecarga = '/recarga/nova';
   static const cartoes = '/cartoes';
+  static const postos = '/postos';
   static const ajustes = '/ajustes';
 
   static String editarVeiculo(String id) => '/veiculo/$id/editar';
@@ -86,6 +88,7 @@ final rotasProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Rotas.novoAbastecimento, builder: (_, _) => const NovoAbastecimentoView()),
       GoRoute(path: Rotas.novaRecarga, builder: (_, _) => const NovaRecargaView()),
       GoRoute(path: Rotas.cartoes, builder: (_, _) => const CartoesView()),
+      GoRoute(path: Rotas.postos, builder: (_, _) => const PostosView()),
       GoRoute(
         path: '/veiculo/:id/editar',
         builder: (_, state) => EditarVeiculoView(veiculoId: state.pathParameters['id']!),

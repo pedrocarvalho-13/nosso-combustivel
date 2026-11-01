@@ -5,10 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../core/formato.dart';
 import '../../core/rotas/rotas.dart';
 import '../../core/tema/cores_base.dart';
+import '../../data/sessao/sessao_controller.dart';
 import '../../domain/calculos/calculo_consumo.dart';
 import '../../domain/registro_energia.dart';
 import '../comum/estado_vazio.dart';
-import '../comum/icone_energia.dart';
 import '../comum/indicador_sincronizacao.dart';
 import 'inicio_view_model.dart';
 
@@ -17,7 +17,9 @@ class InicioView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(inicioViewModelProvider).when(
+    return ref
+        .watch(inicioViewModelProvider)
+        .when(
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (erro, _) => Center(child: Text('Não foi possível carregar: $erro')),
           data: (estado) {
@@ -31,16 +33,18 @@ class InicioView extends ConsumerWidget {
                 aoAcionar: () => context.push(Rotas.novoCarro),
               );
             }
-            return _Painel(estado: estado);
+            final nome = ref.watch(sessaoProvider).value?.usuario.nome ?? '';
+            return _Painel(estado: estado, primeiroNome: nome.trim().split(' ').first);
           },
         );
   }
 }
 
 class _Painel extends StatelessWidget {
-  const _Painel({required this.estado});
+  const _Painel({required this.estado, required this.primeiroNome});
 
   final InicioEstado estado;
+  final String primeiroNome;
 
   @override
   Widget build(BuildContext context) {
@@ -60,56 +64,68 @@ class _Painel extends StatelessWidget {
             Row(
               children: [
                 Expanded(
+                  child: Text(
+                    _saudacao(primeiroNome),
+                    overflow: TextOverflow.ellipsis,
+                    style: textos.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                _BotaoRedondo(
+                  icone: Icons.location_on_outlined,
+                  cor: esquema.primary,
+                  dica: abastece ? 'Postos perto' : 'Eletropostos perto',
+                  aoTocar: () => context.push(Rotas.postos),
+                ),
+                const SizedBox(width: 8),
+                _BotaoRedondo(
+                  icone: Icons.notifications_none_rounded,
+                  dica: 'Notificações',
+                  aoTocar: () => ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('As notificações chegam em breve.'))),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Material(
-                      color: esquema.surfaceContainer,
-                      shape: StadiumBorder(side: BorderSide(color: esquema.outline)),
-                      child: InkWell(
-                        customBorder: const StadiumBorder(),
-                        onTap: () => context.go(Rotas.carros),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(6, 6, 14, 6),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconeEnergia(icone: iconeDoVeiculo(veiculo), tamanho: 32),
-                              const SizedBox(width: 10),
-                              Flexible(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      veiculo.apelido,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: textos.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
-                                    ),
-                                    Text(
-                                      veiculo.descricaoEnergia,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: textos.bodySmall?.copyWith(color: esquema.onSurfaceVariant),
-                                    ),
-                                  ],
-                                ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () => context.go(Rotas.carros),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                veiculo.apelido,
+                                overflow: TextOverflow.ellipsis,
+                                style: textos.titleMedium?.copyWith(fontWeight: FontWeight.w500),
                               ),
-                              const SizedBox(width: 6),
-                              Icon(Icons.expand_more, size: 18, color: esquema.onSurfaceVariant),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(width: 2),
+                            Icon(Icons.expand_more, size: 20, color: esquema.onSurfaceVariant),
+                          ],
                         ),
                       ),
                     ),
                   ),
                 ),
+                const SizedBox(width: 12),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.55),
+                  child: const IndicadorSincronizacao(alinharDireita: true),
+                ),
               ],
             ),
-            const IndicadorSincronizacao(),
-            const SizedBox(height: 6),
+            const SizedBox(height: 14),
             _CartaoGasto(estado: estado),
-            for (final consumo in estado.consumos) ...[
-              const SizedBox(height: 10),
-              _CarrosselConsumo(consumo: consumo),
-            ],
+            for (final consumo in estado.consumos) ...[const SizedBox(height: 10), _CarrosselConsumo(consumo: consumo)],
             const SizedBox(height: 10),
             Row(
               children: [
@@ -150,6 +166,38 @@ class _Painel extends StatelessWidget {
             else
               _LinhaDoTempo(itens: estado.ultimos),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+String _saudacao(String nome) {
+  final hora = DateTime.now().hour;
+  final periodo = hora >= 5 && hora < 12 ? 'Bom dia' : (hora >= 12 && hora < 18 ? 'Boa tarde' : 'Boa noite');
+  return nome.isEmpty ? periodo : '$periodo, $nome';
+}
+
+class _BotaoRedondo extends StatelessWidget {
+  const _BotaoRedondo({required this.icone, required this.dica, required this.aoTocar, this.cor});
+
+  final IconData icone;
+  final String dica;
+  final VoidCallback aoTocar;
+  final Color? cor;
+
+  @override
+  Widget build(BuildContext context) {
+    final esquema = Theme.of(context).colorScheme;
+    return Tooltip(
+      message: dica,
+      child: Material(
+        color: esquema.surfaceContainerHigh,
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: aoTocar,
+          child: SizedBox(width: 44, height: 44, child: Icon(icone, size: 22, color: cor ?? esquema.onSurfaceVariant)),
         ),
       ),
     );
@@ -304,15 +352,15 @@ class _MesAtual extends StatelessWidget {
     final corBarra = meta == null || fracao == null
         ? null
         : fracao > 1
-            ? CoresBase.alerta
-            : fracao >= 0.8
-                ? CoresBase.atencao
-                : null;
+        ? CoresBase.alerta
+        : fracao >= 0.8
+        ? CoresBase.atencao
+        : null;
     final textoReferencia = meta != null
         ? 'Meta ${Formato.moeda(meta)} · ${(fracao! * 100).round()}%'
         : projecao == null
-            ? 'Projeção após 7 dias de uso'
-            : 'Projeção ${Formato.moeda(projecao)}';
+        ? 'Projeção após 7 dias de uso'
+        : 'Projeção ${Formato.moeda(projecao)}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -351,7 +399,9 @@ class _MesAtual extends StatelessWidget {
         const SizedBox(height: 10),
         Row(
           children: [
-            Expanded(child: _Numero(rotulo: 'Esta semana', valor: Formato.moeda(estado.semanaCentavos))),
+            Expanded(
+              child: _Numero(rotulo: 'Esta semana', valor: Formato.moeda(estado.semanaCentavos)),
+            ),
             Expanded(
               child: _Numero(
                 rotulo: 'Custo por km',
@@ -385,7 +435,9 @@ class _MesPassado extends StatelessWidget {
         const SizedBox(height: 10),
         Row(
           children: [
-            Expanded(child: _Numero(rotulo: 'Média por semana', valor: Formato.moeda(mes.mediaSemanalCentavos))),
+            Expanded(
+              child: _Numero(rotulo: 'Média por semana', valor: Formato.moeda(mes.mediaSemanalCentavos)),
+            ),
             Expanded(
               child: _Numero(
                 rotulo: 'Gasto por km rodado',
@@ -422,10 +474,7 @@ class _MesSeguinte extends StatelessWidget {
           style: secundario,
         ),
         const Spacer(),
-        Text(
-          'Vale pelo dia de fechamento de cada cartão, em Ajustes · Meus cartões.',
-          style: secundario,
-        ),
+        Text('Vale pelo dia de fechamento de cada cartão, em Ajustes · Meus cartões.', style: secundario),
       ],
     );
   }
@@ -508,7 +557,11 @@ class _CarrosselConsumoState extends State<_CarrosselConsumo> {
               Semantics(
                 button: true,
                 selected: i == _atual,
-                label: const ['Média dos últimos 30 dias', 'Último abastecimento', 'Gráfico dos últimos abastecimentos'][i],
+                label: const [
+                  'Média dos últimos 30 dias',
+                  'Último abastecimento',
+                  'Gráfico dos últimos abastecimentos',
+                ][i],
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => _irPara(i),
@@ -576,7 +629,10 @@ class _ValorConsumo extends StatelessWidget {
             text: Formato.decimal(valor!),
             style: textos.headlineSmall?.copyWith(fontWeight: FontWeight.w600, color: cor),
           ),
-          TextSpan(text: ' $unidade', style: textos.bodyMedium?.copyWith(color: esquema.onSurfaceVariant)),
+          TextSpan(
+            text: ' $unidade',
+            style: textos.bodyMedium?.copyWith(color: esquema.onSurfaceVariant),
+          ),
         ],
       ),
     );
@@ -661,7 +717,9 @@ class _VisaoGrafico extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 'O gráfico aparece a partir do terceiro abastecimento',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             )
           : CustomPaint(
@@ -736,20 +794,29 @@ class _PintorGrafico extends CustomPainter {
       final cor = ultimo && abaixo ? CoresBase.alerta : corLinha;
       canvas.drawCircle(pontos[i], ultimo ? 3.5 : 3, Paint()..color = cor);
       _texto(canvas, Formato.decimal(valores[i]), pontos[i].translate(0, -11), cor == corLinha ? corTexto : cor);
-      _texto(canvas, Formato.dataCurta(ciclos[i].inicio).split(' ').first, Offset(pontos[i].dx, size.height - 5), corTexto);
+      _texto(
+        canvas,
+        Formato.dataCurta(ciclos[i].inicio).split(' ').first,
+        Offset(pontos[i].dx, size.height - 5),
+        corTexto,
+      );
     }
   }
 
   void _texto(Canvas canvas, String texto, Offset centro, Color cor) {
     final pintor = TextPainter(
-      text: TextSpan(text: texto, style: TextStyle(color: cor, fontSize: 9)),
+      text: TextSpan(
+        text: texto,
+        style: TextStyle(color: cor, fontSize: 9),
+      ),
       textDirection: TextDirection.ltr,
     )..layout();
     pintor.paint(canvas, centro - Offset(pintor.width / 2, pintor.height / 2));
   }
 
   @override
-  bool shouldRepaint(_PintorGrafico antigo) => antigo.ciclos != ciclos || antigo.media != media || antigo.corLinha != corLinha;
+  bool shouldRepaint(_PintorGrafico antigo) =>
+      antigo.ciclos != ciclos || antigo.media != media || antigo.corLinha != corLinha;
 }
 
 class _LinhaDoTempo extends StatelessWidget {
@@ -765,7 +832,9 @@ class _LinhaDoTempo extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(left: 6),
-      decoration: BoxDecoration(border: Border(left: BorderSide(color: esquema.outlineVariant, width: 2))),
+      decoration: BoxDecoration(
+        border: Border(left: BorderSide(color: esquema.outlineVariant, width: 2)),
+      ),
       child: Column(
         children: [
           for (final (indice, item) in itens.indexed)
@@ -838,7 +907,8 @@ class _LinhaDoTempo extends StatelessWidget {
   static String _titulo(RegistroEnergia registro) {
     final data = Formato.dataCurta(registro.data);
     return switch (registro) {
-      Abastecimento(:final combustivel, :final litros) => '$data · ${combustivel.rotulo} · ${Formato.decimal(litros)} L',
+      Abastecimento(:final combustivel, :final litros) =>
+        '$data · ${combustivel.rotulo} · ${Formato.decimal(litros)} L',
       Recarga(:final kwh) => '$data · Recarga · ${Formato.decimal(kwh)} kWh',
     };
   }

@@ -13,11 +13,11 @@ public sealed class BuscaPostosNominatim(HttpClient http, ILogger<BuscaPostosNom
     public OrigemPosto Origem => OrigemPosto.OpenStreetMap;
 
     public async Task<IReadOnlyList<PostoEncontrado>> BuscarProximosAsync(
-        double latitude, double longitude, int raioMetros, CancellationToken cancelamento)
+        TipoPosto tipo, double latitude, double longitude, int raioMetros, CancellationToken cancelamento)
     {
         try
         {
-            using var resposta = await http.GetAsync(Caminho(latitude, longitude, raioMetros), cancelamento);
+            using var resposta = await http.GetAsync(Caminho(tipo, latitude, longitude, raioMetros), cancelamento);
             if (!resposta.IsSuccessStatusCode)
             {
                 log.LogWarning("Nominatim respondeu {Status}", (int)resposta.StatusCode);
@@ -25,7 +25,7 @@ public sealed class BuscaPostosNominatim(HttpClient http, ILogger<BuscaPostosNom
             }
             await using var corpo = await resposta.Content.ReadAsStreamAsync(cancelamento);
             using var json = await JsonDocument.ParseAsync(corpo, cancellationToken: cancelamento);
-            return Ler(json.RootElement);
+            return Ler(json.RootElement, tipo);
         }
         catch (Exception erro) when (erro is HttpRequestException or JsonException
                                          || (erro is TaskCanceledException && !cancelamento.IsCancellationRequested))
@@ -35,15 +35,17 @@ public sealed class BuscaPostosNominatim(HttpClient http, ILogger<BuscaPostosNom
         }
     }
 
-    public static string Caminho(double latitude, double longitude, int raioMetros)
+    public static string Caminho(TipoPosto tipo, double latitude, double longitude, int raioMetros)
     {
         var grausLatitude = raioMetros / 111_320d;
         var grausLongitude = raioMetros / (111_320d * Math.Max(Math.Cos(latitude * Math.PI / 180), 0.01));
         return string.Create(CultureInfo.InvariantCulture,
-            $"search?amenity=fuel&viewbox={longitude - grausLongitude:F5},{latitude + grausLatitude:F5},{longitude + grausLongitude:F5},{latitude - grausLatitude:F5}&bounded=1&format=jsonv2&limit=40&addressdetails=1&extratags=1");
+            $"search?amenity={Amenity(tipo)}&viewbox={longitude - grausLongitude:F5},{latitude + grausLatitude:F5},{longitude + grausLongitude:F5},{latitude - grausLatitude:F5}&bounded=1&format=jsonv2&limit=40&addressdetails=1&extratags=1");
     }
 
-    public static IReadOnlyList<PostoEncontrado> Ler(JsonElement raiz)
+    public static string Amenity(TipoPosto tipo) => tipo == TipoPosto.Eletroposto ? "charging_station" : "fuel";
+
+    public static IReadOnlyList<PostoEncontrado> Ler(JsonElement raiz, TipoPosto tipo = TipoPosto.Combustivel)
     {
         var postos = new List<PostoEncontrado>();
         if (raiz.ValueKind != JsonValueKind.Array)
@@ -51,8 +53,8 @@ public sealed class BuscaPostosNominatim(HttpClient http, ILogger<BuscaPostosNom
 
         foreach (var item in raiz.EnumerateArray())
         {
-            var tipo = Texto(item, "osm_type");
-            if (tipo is null || !item.TryGetProperty("osm_id", out var id))
+            var tipoOsm = Texto(item, "osm_type");
+            if (tipoOsm is null || !item.TryGetProperty("osm_id", out var id))
                 continue;
             if (!double.TryParse(Texto(item, "lat"), CultureInfo.InvariantCulture, out var lat) ||
                 !double.TryParse(Texto(item, "lon"), CultureInfo.InvariantCulture, out var lon))
@@ -60,10 +62,12 @@ public sealed class BuscaPostosNominatim(HttpClient http, ILogger<BuscaPostosNom
 
             var extras = item.TryGetProperty("extratags", out var e) && e.ValueKind == JsonValueKind.Object ? e : default;
             var bandeira = Texto(extras, "brand") ?? Texto(extras, "operator");
-            var nome = Texto(item, "name") ?? bandeira ?? "Posto sem nome";
+            var nome = Texto(item, "name") ?? bandeira ?? (tipo == TipoPosto.Eletroposto ? "Eletroposto sem nome" : "Posto sem nome");
             var endereco = item.TryGetProperty("address", out var a) && a.ValueKind == JsonValueKind.Object ? a : default;
             postos.Add(new PostoEncontrado(
-                OrigemPosto.OpenStreetMap, $"{tipo}/{id.GetInt64()}", nome, bandeira, MontarEndereco(endereco), lat, lon));
+                tipo,
+                OrigemPosto.OpenStreetMap, $"{tipoOsm}/{id.GetInt64()}", nome, bandeira, MontarEndereco(endereco), lat, lon,
+                Texto(extras, "opening_hours")));
         }
         return postos;
     }
@@ -91,15 +95,15 @@ public sealed class BuscaPostosComReserva(BuscaPostosNominatim principal, BuscaP
     public OrigemPosto Origem => OrigemPosto.OpenStreetMap;
 
     public async Task<IReadOnlyList<PostoEncontrado>> BuscarProximosAsync(
-        double latitude, double longitude, int raioMetros, CancellationToken cancelamento)
+        TipoPosto tipo, double latitude, double longitude, int raioMetros, CancellationToken cancelamento)
     {
         try
         {
-            return await principal.BuscarProximosAsync(latitude, longitude, raioMetros, cancelamento);
+            return await principal.BuscarProximosAsync(tipo, latitude, longitude, raioMetros, cancelamento);
         }
         catch (BuscaPostosIndisponivelException)
         {
-            return await reserva.BuscarProximosAsync(latitude, longitude, raioMetros, cancelamento);
+            return await reserva.BuscarProximosAsync(tipo, latitude, longitude, raioMetros, cancelamento);
         }
     }
 }

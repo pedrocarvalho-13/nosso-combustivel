@@ -3,6 +3,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 import '../../domain/combustivel.dart';
 import '../../domain/forma_pagamento.dart';
+import '../../domain/tipo_gasolina.dart';
 import '../../domain/registro_energia.dart';
 import '../../domain/tipo_energia.dart';
 import '../../domain/tipo_veiculo.dart';
@@ -48,6 +49,7 @@ class Abastecimentos extends Table with Sincronizavel {
   BoolColumn get tanqueCheio => boolean()();
   TextColumn get posto => text().nullable()();
   TextColumn get postoId => text().nullable()();
+  TextColumn get tipoGasolina => textEnum<TipoGasolina>().nullable()();
   TextColumn get formaPagamento => textEnum<FormaPagamento>().nullable()();
   TextColumn get cartaoId => text().nullable()();
   BoolColumn get contaNaMedia => boolean().withDefault(const Constant(true))();
@@ -113,6 +115,7 @@ class BancoLocal extends _$BancoLocal {
     await _adicionarSeFaltar(migrador, abastecimentos, abastecimentos.contaNaMedia);
     await _adicionarSeFaltar(migrador, recargas, recargas.contaNaMedia);
     await _adicionarSeFaltar(migrador, abastecimentos, abastecimentos.postoId);
+    await _adicionarSeFaltar(migrador, abastecimentos, abastecimentos.tipoGasolina);
     final tabelas = await customSelect(
       "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
       variables: [Variable.withString(cartoes.actualTableName)],

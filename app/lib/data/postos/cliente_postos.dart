@@ -2,14 +2,18 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/combustivel.dart';
+import '../../domain/tipo_gasolina.dart';
 import '../sync/cliente_sync.dart';
 
+enum TipoPosto { combustivel, eletroposto }
+
 class PrecoInformado {
-  const PrecoInformado({required this.combustivel, required this.precoLitro, required this.data});
+  const PrecoInformado({required this.combustivel, required this.precoLitro, required this.data, this.tipoGasolina});
 
   final Combustivel combustivel;
   final double precoLitro;
   final DateTime data;
+  final TipoGasolina? tipoGasolina;
 }
 
 class PostoProximo {
@@ -22,6 +26,7 @@ class PostoProximo {
     this.bandeira,
     this.endereco,
     this.precos = const [],
+    this.horario,
   });
 
   factory PostoProximo.deJson(Map<String, dynamic> json) => PostoProximo(
@@ -32,6 +37,7 @@ class PostoProximo {
         latitude: (json['latitude'] as num).toDouble(),
         longitude: (json['longitude'] as num).toDouble(),
         distanciaMetros: (json['distanciaMetros'] as num).toInt(),
+        horario: json['horario'] as String?,
         precos: [
           for (final preco in (json['precos'] as List?) ?? const [])
             if (Combustivel.values.where((c) => c.name == preco['combustivel']).firstOrNull case final combustivel?)
@@ -39,6 +45,7 @@ class PostoProximo {
                 combustivel: combustivel,
                 precoLitro: (preco['precoLitro'] as num).toDouble(),
                 data: DateTime.parse(preco['data'] as String).toLocal(),
+                tipoGasolina: TipoGasolina.values.where((t) => t.name == preco['tipoGasolina']).firstOrNull,
               ),
         ],
       );
@@ -51,9 +58,17 @@ class PostoProximo {
   final double longitude;
   final int distanciaMetros;
   final List<PrecoInformado> precos;
+  final String? horario;
 
-  PrecoInformado? precoDe(Combustivel? combustivel) =>
-      combustivel == null ? null : precos.where((p) => p.combustivel == combustivel).firstOrNull;
+  PrecoInformado? precoDe(Combustivel? combustivel, {TipoGasolina? tipoGasolina}) {
+    if (combustivel == null) return null;
+    final doCombustivel = precos.where((p) => p.combustivel == combustivel);
+    if (combustivel != Combustivel.gasolina) {
+      return doCombustivel.fold<PrecoInformado?>(null, (r, p) => r == null || p.data.isAfter(r.data) ? p : r);
+    }
+    final tipo = tipoGasolina ?? TipoGasolina.comum;
+    return doCombustivel.where((p) => (p.tipoGasolina ?? TipoGasolina.comum) == tipo).firstOrNull;
+  }
 }
 
 class PostosProximos {
@@ -77,11 +92,16 @@ class ClientePostos {
 
   final Dio _dio;
 
-  Future<PostosProximos> proximos({required double latitude, required double longitude, int raioMetros = 1500}) async {
+  Future<PostosProximos> proximos({
+    required double latitude,
+    required double longitude,
+    int raioMetros = 1500,
+    TipoPosto tipo = TipoPosto.combustivel,
+  }) async {
     try {
       final resposta = await _dio.get<Map<String, dynamic>>(
         '/postos/proximos',
-        queryParameters: {'lat': latitude, 'lng': longitude, 'raio': raioMetros},
+        queryParameters: {'lat': latitude, 'lng': longitude, 'raio': raioMetros, 'tipo': tipo.name},
       );
       final corpo = resposta.data!;
       return PostosProximos(
@@ -98,6 +118,7 @@ class ClientePostos {
     String? bandeira,
     required double latitude,
     required double longitude,
+    TipoPosto tipo = TipoPosto.combustivel,
   }) async {
     try {
       final resposta = await _dio.post<Map<String, dynamic>>('/postos', data: {
@@ -105,6 +126,7 @@ class ClientePostos {
         'bandeira': bandeira,
         'latitude': latitude,
         'longitude': longitude,
+        'tipo': tipo.name,
       });
       return PostoProximo.deJson(resposta.data!);
     } on DioException catch (erro) {

@@ -63,7 +63,7 @@ public sealed class ServicoSincronizacao(IRepositorioSincronizacao repositorio, 
                 var existente = abastecimentos.GetValueOrDefault(dto.Id);
                 ExigirCarroPermitido(existente?.VeiculoId ?? dto.VeiculoId, permitidos);
                 var dados = new DadosAbastecimento(dto.Data, dto.Odometro, dto.Combustivel, dto.Litros, dto.PrecoLitro,
-                    dto.ValorTotal, dto.TanqueCheio, dto.Posto, dto.AtualizadoEm, dto.ExcluidoEm, dto.FormaPagamento, dto.CartaoId, dto.ContaNaMedia ?? true, dto.PostoId);
+                    dto.ValorTotal, dto.TanqueCheio, dto.Posto, dto.AtualizadoEm, dto.ExcluidoEm, dto.FormaPagamento, dto.CartaoId, dto.ContaNaMedia ?? true, dto.PostoId, dto.TipoGasolina);
                 if (existente is null)
                     repositorio.Adicionar(Abastecimento.Criar(dto.Id, dto.VeiculoId, usuarioId, dados, dto.CriadoEm, agora));
                 else
@@ -145,7 +145,7 @@ public sealed class ServicoSincronizacao(IRepositorioSincronizacao repositorio, 
 
     private static AbastecimentoSync ParaDto(Abastecimento a) => new(
         a.Id, a.VeiculoId, a.Data, a.Odometro, a.Combustivel, a.Litros, a.PrecoLitro, a.ValorTotal,
-        a.TanqueCheio, a.Posto, a.CriadoEm, a.AtualizadoEm, a.ExcluidoEm, a.FormaPagamento, a.CartaoId, a.ContaNaMedia, a.PostoId);
+        a.TanqueCheio, a.Posto, a.CriadoEm, a.AtualizadoEm, a.ExcluidoEm, a.FormaPagamento, a.CartaoId, a.ContaNaMedia, a.PostoId, a.TipoGasolina);
 
     private static RecargaSync ParaDto(Recarga r) => new(
         r.Id, r.VeiculoId, r.Data, r.Odometro, r.Local, r.Kwh, r.PrecoKwh, r.ValorTotal,

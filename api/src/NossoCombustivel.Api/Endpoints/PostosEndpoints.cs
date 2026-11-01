@@ -5,7 +5,7 @@ using NossoCombustivel.Domain.Postos;
 
 namespace NossoCombustivel.Api.Endpoints;
 
-public sealed record CadastroPostoRequisicao(string Nome, string? Bandeira, double Latitude, double Longitude);
+public sealed record CadastroPostoRequisicao(string Nome, string? Bandeira, double Latitude, double Longitude, TipoPosto? Tipo = null);
 
 public static class PostosEndpoints
 {
@@ -15,9 +15,9 @@ public static class PostosEndpoints
     {
         var grupo = app.MapGroup("/postos").RequireAuthorization().RequireRateLimiting(PoliticaLimite);
 
-        grupo.MapGet("/proximos", async (double lat, double lng, int? raio, ServicoPostos servico, CancellationToken cancelamento) =>
+        grupo.MapGet("/proximos", async (double lat, double lng, int? raio, string? tipo, ServicoPostos servico, CancellationToken cancelamento) =>
         {
-            var resultado = await servico.BuscarProximosAsync(lat, lng, raio, cancelamento);
+            var resultado = await servico.BuscarProximosAsync(LerTipo(tipo), lat, lng, raio, cancelamento);
             return resultado.Sucesso
                 ? Results.Ok(resultado.Valor)
                 : Results.Problem(title: resultado.Erro!.Mensagem, statusCode: StatusCodes.Status400BadRequest);
@@ -27,7 +27,7 @@ public static class PostosEndpoints
         {
             var dados = new DadosPosto(requisicao.Nome, requisicao.Bandeira, null, requisicao.Latitude, requisicao.Longitude);
             var resultado = await servico.CadastrarAsync(
-                Guid.Parse(usuario.FindFirstValue(JwtRegisteredClaimNames.Sub)!), dados, cancelamento);
+                Guid.Parse(usuario.FindFirstValue(JwtRegisteredClaimNames.Sub)!), requisicao.Tipo ?? TipoPosto.Combustivel, dados, cancelamento);
             return resultado.Sucesso
                 ? Results.Ok(resultado.Valor)
                 : Results.Problem(title: resultado.Erro!.Mensagem, statusCode: StatusCodes.Status400BadRequest);
@@ -35,4 +35,7 @@ public static class PostosEndpoints
 
         return app;
     }
+
+    private static TipoPosto LerTipo(string? tipo) =>
+        Enum.TryParse<TipoPosto>(tipo, ignoreCase: true, out var lido) && Enum.IsDefined(lido) ? lido : TipoPosto.Combustivel;
 }

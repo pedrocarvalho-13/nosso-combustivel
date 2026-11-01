@@ -14,7 +14,7 @@ public sealed class ServicoPostos(IBuscaPostos busca, IRepositorioPostos reposit
     private static readonly TimeSpan IdadeMaximaDoPreco = TimeSpan.FromDays(60);
 
     public async Task<Resultado<PostosProximos>> BuscarProximosAsync(
-        double latitude, double longitude, int? raioMetros, CancellationToken cancelamento)
+        TipoPosto tipo, double latitude, double longitude, int? raioMetros, CancellationToken cancelamento)
     {
         if (!LocalizacaoValida(latitude, longitude))
             return Resultado<PostosProximos>.Falha(TipoErro.Validacao, "Localização inválida.");
@@ -22,12 +22,12 @@ public sealed class ServicoPostos(IBuscaPostos busca, IRepositorioPostos reposit
         var agora = relogio.Agora;
 
         var buscaCompleta = true;
-        var chave = ChaveDaArea(busca.Origem, latitude, longitude, raio);
+        var chave = ChaveDaArea(tipo, busca.Origem, latitude, longitude, raio);
         if (!await repositorio.AreaBuscadaDesdeAsync(chave, agora - ValidadeDaBusca, cancelamento))
         {
             try
             {
-                var encontrados = await busca.BuscarProximosAsync(latitude, longitude, raio, cancelamento);
+                var encontrados = await busca.BuscarProximosAsync(tipo, latitude, longitude, raio, cancelamento);
                 await GuardarAsync(encontrados, agora, cancelamento);
                 await repositorio.MarcarAreaBuscadaAsync(chave, agora, cancelamento);
                 await repositorio.SalvarAsync(cancelamento);
@@ -38,24 +38,24 @@ public sealed class ServicoPostos(IBuscaPostos busca, IRepositorioPostos reposit
             }
         }
 
-        var postos = await PertoAsync(latitude, longitude, raio, cancelamento);
+        var postos = await PertoAsync(tipo, latitude, longitude, raio, cancelamento);
         var precos = postos.Count == 0
             ? []
             : await repositorio.PrecosDesdeAsync(postos.Select(p => p.Id).ToList(), agora - IdadeMaximaDoPreco, cancelamento);
         var ultimos = precos
-            .GroupBy(p => (p.PostoId, p.Combustivel))
+            .GroupBy(p => (p.PostoId, p.Combustivel, p.TipoGasolina))
             .Select(g => g.MaxBy(p => p.Data)!)
-            .ToLookup(p => p.PostoId, p => new PrecoInformado(p.Combustivel, p.PrecoLitro, p.Data));
+            .ToLookup(p => p.PostoId, p => new PrecoInformado(p.Combustivel, p.PrecoLitro, p.Data, p.TipoGasolina));
         var comPrecos = postos.Select(p => p with { Precos = ultimos[p.Id].ToList() }).ToList();
         return Resultado<PostosProximos>.Ok(new PostosProximos(comPrecos, buscaCompleta));
     }
 
-    public async Task<Resultado<PostoProximo>> CadastrarAsync(Guid usuarioId, DadosPosto dados, CancellationToken cancelamento)
+    public async Task<Resultado<PostoProximo>> CadastrarAsync(Guid usuarioId, TipoPosto tipo, DadosPosto dados, CancellationToken cancelamento)
     {
         if (!LocalizacaoValida(dados.Latitude, dados.Longitude))
             return Resultado<PostoProximo>.Falha(TipoErro.Validacao, "Localização inválida.");
 
-        var parecido = (await PertoAsync(dados.Latitude, dados.Longitude, DistanciaDuplicadoMetros, cancelamento))
+        var parecido = (await PertoAsync(tipo, dados.Latitude, dados.Longitude, DistanciaDuplicadoMetros, cancelamento))
             .FirstOrDefault(p => Normalizar(p.Nome) == Normalizar(dados.Nome ?? string.Empty));
         if (parecido is not null)
             return Resultado<PostoProximo>.Ok(parecido);
@@ -63,7 +63,7 @@ public sealed class ServicoPostos(IBuscaPostos busca, IRepositorioPostos reposit
         Posto posto;
         try
         {
-            posto = Posto.Criar(Guid.CreateVersion7(), OrigemPosto.Manual, null, dados, usuarioId, relogio.Agora);
+            posto = Posto.Criar(Guid.CreateVersion7(), tipo, OrigemPosto.Manual, null, dados, usuarioId, relogio.Agora);
         }
         catch (ExcecaoDeDominio erro)
         {
@@ -83,13 +83,13 @@ public sealed class ServicoPostos(IBuscaPostos busca, IRepositorioPostos reposit
                 .ToDictionary(p => p.IdExterno!);
             foreach (var encontrado in unicos)
             {
-                var dados = new DadosPosto(encontrado.Nome, encontrado.Bandeira, encontrado.Endereco, encontrado.Latitude, encontrado.Longitude);
+                var dados = new DadosPosto(encontrado.Nome, encontrado.Bandeira, encontrado.Endereco, encontrado.Latitude, encontrado.Longitude, encontrado.Horario);
                 try
                 {
                     if (existentes.TryGetValue(encontrado.IdExterno, out var posto))
                         posto.Atualizar(dados, agora);
                     else
-                        repositorio.Adicionar(Posto.Criar(Guid.CreateVersion7(), grupo.Key, encontrado.IdExterno, dados, null, agora));
+                        repositorio.Adicionar(Posto.Criar(Guid.CreateVersion7(), encontrado.Tipo, grupo.Key, encontrado.IdExterno, dados, null, agora));
                 }
                 catch (ExcecaoDeDominio)
                 {
@@ -98,11 +98,12 @@ public sealed class ServicoPostos(IBuscaPostos busca, IRepositorioPostos reposit
         }
     }
 
-    private async Task<List<PostoProximo>> PertoAsync(double latitude, double longitude, int raio, CancellationToken cancelamento)
+    private async Task<List<PostoProximo>> PertoAsync(TipoPosto tipo, double latitude, double longitude, int raio, CancellationToken cancelamento)
     {
         var grausLatitude = raio / 111_320d;
         var grausLongitude = raio / (111_320d * Math.Max(Math.Cos(latitude * Math.PI / 180), 0.01));
         var naArea = await repositorio.NaAreaAsync(
+            tipo,
             latitude - grausLatitude, latitude + grausLatitude, longitude - grausLongitude, longitude + grausLongitude, cancelamento);
         return naArea
             .Select(p => ParaProximo(p, DistanciaMetros(latitude, longitude, p.Latitude, p.Longitude)))
@@ -125,12 +126,12 @@ public sealed class ServicoPostos(IBuscaPostos busca, IRepositorioPostos reposit
     private static bool LocalizacaoValida(double latitude, double longitude) =>
         latitude is >= -90 and <= 90 && longitude is >= -180 and <= 180;
 
-    private static string ChaveDaArea(OrigemPosto origem, double latitude, double longitude, int raio) =>
-        string.Create(CultureInfo.InvariantCulture, $"{origem}:{latitude:F2}:{longitude:F2}:{raio}");
+    private static string ChaveDaArea(TipoPosto tipo, OrigemPosto origem, double latitude, double longitude, int raio) =>
+        string.Create(CultureInfo.InvariantCulture, $"{tipo}:{origem}:{latitude:F2}:{longitude:F2}:{raio}");
 
     private static string Normalizar(string texto) =>
         string.Join(' ', texto.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
     private static PostoProximo ParaProximo(Posto p, int distancia) =>
-        new(p.Id, p.Nome, p.Bandeira, p.Endereco, p.Latitude, p.Longitude, distancia);
+        new(p.Id, p.Nome, p.Bandeira, p.Endereco, p.Latitude, p.Longitude, distancia, Horario: p.Horario);
 }

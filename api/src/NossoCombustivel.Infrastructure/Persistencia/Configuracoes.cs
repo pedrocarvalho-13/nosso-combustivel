@@ -44,6 +44,7 @@ public sealed class AbastecimentoConfiguracao : IEntityTypeConfiguration<Abastec
         builder.Property(a => a.Posto).HasMaxLength(100);
         builder.Property(a => a.FormaPagamento).HasConversion<string>().HasMaxLength(10);
         builder.HasIndex(a => a.PostoId);
+        builder.Property(a => a.TipoGasolina).HasConversion<string>().HasMaxLength(10);
         builder.HasOne<Veiculo>().WithMany().HasForeignKey(a => a.VeiculoId).OnDelete(DeleteBehavior.Cascade);
         builder.HasIndex(a => new { a.VeiculoId, a.SincronizadoEm });
     }
@@ -105,10 +106,12 @@ public sealed class PostoConfiguracao : IEntityTypeConfiguration<Posto>
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id).ValueGeneratedNever();
         builder.Property(p => p.Origem).HasConversion<string>().HasMaxLength(20);
+        builder.Property(p => p.Tipo).HasConversion<string>().HasMaxLength(20).HasDefaultValue(TipoPosto.Combustivel).HasSentinel((TipoPosto)0);
         builder.Property(p => p.IdExterno).HasMaxLength(60);
         builder.Property(p => p.Nome).HasMaxLength(100).IsRequired();
         builder.Property(p => p.Bandeira).HasMaxLength(60);
         builder.Property(p => p.Endereco).HasMaxLength(200);
+        builder.Property(p => p.Horario).HasMaxLength(200);
         builder.HasIndex(p => new { p.Origem, p.IdExterno }).IsUnique();
         builder.HasIndex(p => new { p.Latitude, p.Longitude });
     }

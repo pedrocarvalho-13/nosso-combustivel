@@ -10,6 +10,7 @@ import '../../data/provedores.dart';
 import '../../data/sessao/sessao_controller.dart';
 import '../../data/sync/sincronizacao_controller.dart';
 import '../../domain/forma_pagamento.dart';
+import '../../domain/tipo_gasolina.dart';
 
 class AjustesView extends ConsumerWidget {
   const AjustesView({super.key});
@@ -21,6 +22,7 @@ class AjustesView extends ConsumerWidget {
     final usuario = ref.watch(sessaoProvider).value?.usuario;
     final cartoes = ref.watch(cartoesProvider).value ?? const [];
     final pagamento = ref.watch(pagamentoPadraoProvider).value;
+    final gasolina = ref.watch(gasolinaPadraoProvider).value ?? TipoGasolina.comum;
     final meta = ref.watch(metaMensalProvider).value;
     final dias = ref.watch(periodoMediaProvider).value ?? 30;
     final tema = ref.watch(temaProvider).value ?? 'escuro';
@@ -77,6 +79,25 @@ class AjustesView extends ConsumerWidget {
                       ],
                     );
                     if (escolha != null) await preferencias.definirPagamentoPadrao(escolha.isEmpty ? null : escolha);
+                  },
+                ),
+                _Item(
+                  icone: Icons.local_gas_station_outlined,
+                  titulo: 'Gasolina padrão',
+                  descricao: 'Já vem marcada no abastecimento e nos preços dos postos',
+                  valor: gasolina.rotulo,
+                  aoTocar: () async {
+                    final escolha = await _escolher<TipoGasolina>(
+                      context,
+                      titulo: 'Gasolina padrão',
+                      atual: gasolina,
+                      opcoes: const [
+                        (TipoGasolina.comum, 'Comum'),
+                        (TipoGasolina.aditivada, 'Aditivada'),
+                        (TipoGasolina.premium, 'Premium (Podium, Ipimax, V-Power...)'),
+                      ],
+                    );
+                    if (escolha != null) await preferencias.definirGasolinaPadrao(escolha);
                   },
                 ),
                 _Item(

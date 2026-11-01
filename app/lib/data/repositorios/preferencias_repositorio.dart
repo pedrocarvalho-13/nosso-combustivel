@@ -1,4 +1,5 @@
 import '../banco/banco_local.dart';
+import '../../domain/tipo_gasolina.dart';
 
 class PreferenciasRepositorio {
   PreferenciasRepositorio(this._banco);
@@ -8,6 +9,7 @@ class PreferenciasRepositorio {
   static const _onboardingHodometro = 'onboarding_hodometro';
   static const _ultimoPagamento = 'ultimo_pagamento';
   static const _pagamentoPadrao = 'pagamento_padrao';
+  static const _gasolinaPadrao = 'gasolina_padrao';
   static const _metaMensal = 'meta_mensal_centavos';
   static const _periodoMedia = 'periodo_media_dias';
   static const _tema = 'tema';
@@ -32,6 +34,15 @@ class PreferenciasRepositorio {
   Future<void> definirUltimoPagamento(String valor) => _gravar(_ultimoPagamento, valor);
 
   Stream<String?> observarPagamentoPadrao() => _observar(_pagamentoPadrao);
+
+  Stream<TipoGasolina> observarGasolinaPadrao() => _observar(_gasolinaPadrao).map(_lerGasolina);
+
+  Future<TipoGasolina> gasolinaPadrao() async => _lerGasolina(await _ler(_gasolinaPadrao));
+
+  Future<void> definirGasolinaPadrao(TipoGasolina tipo) => _gravar(_gasolinaPadrao, tipo.name);
+
+  static TipoGasolina _lerGasolina(String? valor) =>
+      TipoGasolina.values.where((t) => t.name == valor).firstOrNull ?? TipoGasolina.comum;
 
   Future<String?> pagamentoPadrao() => _ler(_pagamentoPadrao);
 
