@@ -43,7 +43,13 @@ public sealed class BuscaPostosNominatim(HttpClient http, ILogger<BuscaPostosNom
             $"search?amenity={Amenity(tipo)}&viewbox={longitude - grausLongitude:F5},{latitude + grausLatitude:F5},{longitude + grausLongitude:F5},{latitude - grausLatitude:F5}&bounded=1&format=jsonv2&limit=40&addressdetails=1&extratags=1");
     }
 
-    public static string Amenity(TipoPosto tipo) => tipo == TipoPosto.Eletroposto ? "charging_station" : "fuel";
+    public static string Amenity(TipoPosto tipo) => tipo switch
+    {
+        TipoPosto.Eletroposto => "charging_station",
+        TipoPosto.Oficina => "car_repair",
+        TipoPosto.Estetica => "car_wash",
+        _ => "fuel"
+    };
 
     public static IReadOnlyList<PostoEncontrado> Ler(JsonElement raiz, TipoPosto tipo = TipoPosto.Combustivel)
     {
@@ -62,7 +68,7 @@ public sealed class BuscaPostosNominatim(HttpClient http, ILogger<BuscaPostosNom
 
             var extras = item.TryGetProperty("extratags", out var e) && e.ValueKind == JsonValueKind.Object ? e : default;
             var bandeira = Texto(extras, "brand") ?? Texto(extras, "operator");
-            var nome = Texto(item, "name") ?? bandeira ?? (tipo == TipoPosto.Eletroposto ? "Eletroposto sem nome" : "Posto sem nome");
+            var nome = Texto(item, "name") ?? bandeira ?? TiposDeLugar.NomePadrao(tipo);
             var endereco = item.TryGetProperty("address", out var a) && a.ValueKind == JsonValueKind.Object ? a : default;
             postos.Add(new PostoEncontrado(
                 tipo,

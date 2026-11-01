@@ -231,4 +231,28 @@ public class PostosTests(FabricaApiComPostos fabrica) : IClassFixture<FabricaApi
         Assert.Equal(["Posto Gasolina"], combustivel.Postos.Select(p => p.Nome));
         Assert.Equal(["Carregador Rapido"], eletro.Postos.Select(p => p.Nome));
     }
+
+    [Fact]
+    public async Task Oficinas_e_esteticas_vem_pela_rota_de_lugares()
+    {
+        var cliente = await ClienteLogadoAsync();
+        fabrica.Busca.Postos.Clear();
+        fabrica.Busca.Postos.AddRange([
+            Encontrado("node/60", "Auto Center Atalaia", -16.0010, -46.0000, tipo: TipoPosto.Oficina),
+            Encontrado("node/61", "Lava-jato Atalaia", -16.0020, -46.0000, tipo: TipoPosto.Estetica)
+        ]);
+
+        var oficinas = (await cliente.GetFromJsonAsync<PostosProximos>("/lugares/proximos?lat=-16&lng=-46&tipo=oficina", Json))!;
+        var esteticas = (await cliente.GetFromJsonAsync<PostosProximos>("/lugares/proximos?lat=-16&lng=-46&tipo=estetica", Json))!;
+
+        Assert.Equal(["Auto Center Atalaia"], oficinas.Postos.Select(p => p.Nome));
+        Assert.Equal(["Lava-jato Atalaia"], esteticas.Postos.Select(p => p.Nome));
+    }
+
+    [Fact]
+    public void Overpass_procura_oficina_pela_etiqueta_de_loja()
+    {
+        Assert.Contains("nwr[\"shop\"=\"car_repair\"]", BuscaPostosOverpass.Consulta(TipoPosto.Oficina, -10, -37, 1500));
+        Assert.Contains("nwr[\"amenity\"=\"car_wash\"]", BuscaPostosOverpass.Consulta(TipoPosto.Estetica, -10, -37, 1500));
+    }
 }

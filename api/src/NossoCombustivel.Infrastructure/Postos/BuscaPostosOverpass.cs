@@ -72,12 +72,18 @@ public sealed class BuscaPostosOverpass(HttpClient http, IOptions<OpcoesOverpass
         throw new BuscaPostosIndisponivelException();
     }
 
+    public static string Etiqueta(TipoPosto tipo) => tipo switch
+    {
+        TipoPosto.Oficina => "\"shop\"=\"car_repair\"",
+        _ => $"\"amenity\"=\"{BuscaPostosNominatim.Amenity(tipo)}\""
+    };
+
     public static string Consulta(TipoPosto tipo, double latitude, double longitude, int raioMetros)
     {
         var grausLatitude = raioMetros / 111_320d;
         var grausLongitude = raioMetros / (111_320d * Math.Max(Math.Cos(latitude * Math.PI / 180), 0.01));
         return string.Create(CultureInfo.InvariantCulture,
-            $"[out:json][timeout:25][bbox:{latitude - grausLatitude:F5},{longitude - grausLongitude:F5},{latitude + grausLatitude:F5},{longitude + grausLongitude:F5}];nwr[\"amenity\"=\"{BuscaPostosNominatim.Amenity(tipo)}\"];out center tags;");
+            $"[out:json][timeout:25][bbox:{latitude - grausLatitude:F5},{longitude - grausLongitude:F5},{latitude + grausLatitude:F5},{longitude + grausLongitude:F5}];nwr[{Etiqueta(tipo)}];out center tags;");
     }
 
     public static IReadOnlyList<PostoEncontrado> Ler(JsonElement raiz, TipoPosto tipo = TipoPosto.Combustivel)
@@ -96,7 +102,7 @@ public sealed class BuscaPostosOverpass(HttpClient http, IOptions<OpcoesOverpass
 
             var tags = elemento.TryGetProperty("tags", out var t) ? t : default;
             var bandeira = Tag(tags, "brand") ?? Tag(tags, "operator");
-            var nome = Tag(tags, "name") ?? bandeira ?? (tipo == TipoPosto.Eletroposto ? "Eletroposto sem nome" : "Posto sem nome");
+            var nome = Tag(tags, "name") ?? bandeira ?? TiposDeLugar.NomePadrao(tipo);
             postos.Add(new PostoEncontrado(
                 tipo,
                 OrigemPosto.OpenStreetMap,

@@ -9,113 +9,25 @@ import '../../domain/combustivel.dart';
 import '../../domain/horario_posto.dart';
 import '../../domain/tipo_gasolina.dart';
 import 'lista_postos_perto.dart';
+import 'lugares_view.dart';
 
-class PostosView extends ConsumerStatefulWidget {
+class PostosView extends ConsumerWidget {
   const PostosView({super.key});
 
   @override
-  ConsumerState<PostosView> createState() => _PostosViewState();
-}
-
-class _PostosViewState extends ConsumerState<PostosView> {
-  TipoPosto? _tipo;
-  Combustivel? _combustivel;
-  TipoGasolina? _tipoGasolina;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final veiculo = ref.watch(veiculoAtivoProvider).value;
     final abastece = veiculo?.tipoEnergia.abastece ?? true;
-    final recarrega = veiculo?.tipoEnergia.recarrega ?? false;
-    final tipo = _tipo ?? (abastece ? TipoPosto.combustivel : TipoPosto.eletroposto);
-    final combustiveis = veiculo?.combustiveis ?? const <Combustivel>[];
-    final combustivel = _combustivel ?? combustiveis.firstOrNull;
-    final tipoGasolina = _tipoGasolina ?? ref.watch(gasolinaPadraoProvider).value ?? TipoGasolina.comum;
-
-    return Scaffold(
-      appBar: AppBar(title: Text(tipo == TipoPosto.eletroposto ? 'Eletropostos perto' : 'Postos perto')),
-      body: SafeArea(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 640),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      SegmentedButton<TipoPosto>(
-                        segments: const [
-                          ButtonSegment(
-                            value: TipoPosto.combustivel,
-                            label: Text('Combustível'),
-                            icon: Icon(Icons.local_gas_station_outlined),
-                          ),
-                          ButtonSegment(
-                            value: TipoPosto.eletroposto,
-                            label: Text('Eletroposto'),
-                            icon: Icon(Icons.ev_station_outlined),
-                          ),
-                        ],
-                        selected: {tipo},
-                        showSelectedIcon: false,
-                        onSelectionChanged: (selecao) => setState(() => _tipo = selecao.first),
-                      ),
-                      if (tipo == TipoPosto.combustivel && combustiveis.length > 1) ...[
-                        const SizedBox(height: 10),
-                        SegmentedButton<Combustivel>(
-                          segments: [
-                            for (final c in combustiveis) ButtonSegment(value: c, label: Text(c.rotulo)),
-                          ],
-                          selected: {?combustivel},
-                          showSelectedIcon: false,
-                          onSelectionChanged: (selecao) => setState(() => _combustivel = selecao.first),
-                        ),
-                      ],
-                      if (tipo == TipoPosto.combustivel && combustivel == Combustivel.gasolina) ...[
-                        const SizedBox(height: 10),
-                        SegmentedButton<TipoGasolina>(
-                          segments: [
-                            for (final t in TipoGasolina.values) ButtonSegment(value: t, label: Text(t.rotulo)),
-                          ],
-                          selected: {tipoGasolina},
-                          showSelectedIcon: false,
-                          onSelectionChanged: (selecao) => setState(() => _tipoGasolina = selecao.first),
-                        ),
-                      ],
-                      if (tipo == TipoPosto.eletroposto && !recarrega && veiculo != null) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          'Seu veículo ativo não recarrega na tomada.',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                      const SizedBox(height: 12),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListaPostosPerto(
-                    tipo: tipo,
-                    combustivel: combustivel,
-                    tipoGasolina: tipoGasolina,
-                    ocuparEspaco: true,
-                    aoEscolher: (posto) => _abrirRota(context, posto),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return LugaresView(
+      tipoInicial: abastece ? TipoPosto.combustivel : TipoPosto.eletroposto,
+      combustiveis: veiculo?.combustiveis ?? const <Combustivel>[],
+      tipoGasolinaInicial: ref.watch(gasolinaPadraoProvider).value ?? TipoGasolina.comum,
+      aoIrAte: (posto) => abrirRota(context, posto),
     );
   }
 }
 
-Future<void> _abrirRota(BuildContext context, PostoProximo posto) => showModalBottomSheet<void>(
+Future<void> abrirRota(BuildContext context, PostoProximo posto) => showModalBottomSheet<void>(
       context: context,
       useRootNavigator: true,
       showDragHandle: true,

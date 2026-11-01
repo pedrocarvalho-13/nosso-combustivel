@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../data/postos/cliente_postos.dart';
 import '../../domain/combustivel.dart';
 import '../../domain/tipo_gasolina.dart';
-import '../postos/lista_postos_perto.dart';
+import '../postos/lugares_view.dart';
+import '../postos/postos_view.dart';
 
 class PostoEscolhido {
   const PostoEscolhido({required this.id, required this.nome});
@@ -11,35 +13,22 @@ class PostoEscolhido {
   final String nome;
 }
 
-Future<PostoEscolhido?> escolherPosto(BuildContext context, {Combustivel? combustivel, TipoGasolina? tipoGasolina}) =>
-    showModalBottomSheet<PostoEscolhido>(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (contexto) => SafeArea(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(contexto).height * 0.75),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-                child: Text(
-                  'Postos perto de você',
-                  style: Theme.of(contexto).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-                ),
-              ),
-              Flexible(
-                child: ListaPostosPerto(
-                  combustivel: combustivel,
-                  tipoGasolina: tipoGasolina,
-                  aoEscolher: (posto) => Navigator.of(contexto).pop(PostoEscolhido(id: posto.id, nome: posto.nome)),
-                ),
-              ),
-            ],
-          ),
+Future<PostoEscolhido?> escolherPosto(
+  BuildContext context, {
+  Combustivel? combustivel,
+  List<Combustivel> combustiveis = const [],
+  TipoGasolina? tipoGasolina,
+}) =>
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute<PostoEscolhido>(
+        builder: (contexto) => LugaresView(
+          tipoInicial: TipoPosto.combustivel,
+          tiposPermitidos: const [TipoPosto.combustivel],
+          combustiveis: combustiveis.isEmpty && combustivel != null ? [combustivel] : combustiveis,
+          combustivelInicial: combustivel,
+          tipoGasolinaInicial: tipoGasolina ?? TipoGasolina.comum,
+          aoEscolher: (posto) => Navigator.of(contexto).pop(PostoEscolhido(id: posto.id, nome: posto.nome)),
+          aoIrAte: (posto) => abrirRota(contexto, posto),
         ),
       ),
     );

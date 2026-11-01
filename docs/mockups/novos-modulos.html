@@ -1,0 +1,317 @@
+<title>Mockups dos novos módulos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600&family=Roboto:wght@400;500&display=swap">
+<style>
+/* Galeria de telas: seções por módulo, celulares lado a lado que quebram em coluna no telefone. Visual único escuro, igual ao app. */
+:root{
+  --bg:#0b0c0e;--fg:#e9e7e3;--muted:#9a978f;--rule:#24252a;
+  --tela:#111215;--borda:#2a2b2f;--sup:#18191c;--sup2:#1d1e22;--linha:#2c2d31;
+  --laranja:#f07a20;--laranja-f:#2a1a0e;--azul:#5aaee8;--azul-f:#12263a;--roxo:#a98be8;--roxo-f:#2a2238;--verde:#7fcf8f;--vermelho:#e86a5a;--amarelo:#e8b04a;
+  --display:"Inter Tight",system-ui,sans-serif;--body:"Roboto",system-ui,sans-serif;
+  color-scheme:dark;
+}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
+header h1{font-family:var(--display);font-weight:600;font-size:clamp(26px,4vw,36px);margin:0 0 8px;text-wrap:balance}
+header p{color:var(--muted);margin:0;max-width:65ch;line-height:1.6}
+nav.idx{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+nav.idx a{color:var(--fg);text-decoration:none;font-size:13px;border:1px solid var(--rule);border-radius:999px;padding:6px 12px}
+nav.idx a:hover,nav.idx a:focus-visible{border-color:var(--laranja);color:var(--laranja);outline:none}
+section{display:flex;flex-direction:column;gap:16px;scroll-margin-top:16px}
+section h2{font-family:var(--display);font-weight:600;font-size:22px;margin:0;padding-top:16px;border-top:1px solid var(--rule)}
+section>p{color:var(--muted);margin:0;max-width:70ch;line-height:1.6}
+.grade{display:flex;flex-wrap:wrap;gap:24px}
+figure{margin:0;display:flex;flex-direction:column;gap:8px;width:300px;max-width:100%}
+figcaption b{display:block;font-family:var(--display);font-weight:500;font-size:14px}
+figcaption span{display:block;color:var(--muted);font-size:13px;line-height:1.5}
+.ph{background:var(--tela);border-radius:26px;border:6px solid var(--borda);width:300px;max-width:100%;height:600px;box-sizing:border-box;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:10px;padding:14px;font-size:13px}
+.t1{color:#eee;font-weight:500}.t2{color:#999;font-size:11px}
+.card{border:1px solid var(--linha);background:var(--sup);border-radius:16px;padding:12px}
+.hd{display:flex;align-items:center;gap:10px}
+.pg{display:flex;gap:4px}.pg span{flex:1;height:4px;border-radius:2px;background:var(--linha)}
+.q{color:#eee;font-weight:500;font-size:18px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.tile{border:1px solid var(--linha);background:var(--sup);border-radius:14px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;color:#ddd;text-align:center}
+.tile i{font-style:normal;font-size:18px;line-height:1}
+.ch{display:inline-flex;font-size:11px;color:#ccc;border:1px solid #33343a;border-radius:8px;padding:5px 8px;margin:0 4px 5px 0}
+.f{border:1px solid #33343a;border-radius:12px;padding:7px 10px}.f .l{font-size:10px;color:#999}.f .v{font-size:13px;color:#eee}
+.btn{background:var(--laranja);color:#1a0d02;border-radius:14px;padding:12px;text-align:center;font-size:13px;font-weight:500}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;font-size:11px;color:#bbb}.cal span{padding:5px 0;border-radius:8px}.cal .h{color:#666}
+.row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1f2024}
+.ic{width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex:none}
+.fab{position:absolute;right:16px;bottom:16px;width:52px;height:52px;border-radius:17px;background:var(--laranja);color:#1a0d02;display:flex;align-items:center;justify-content:center;font-size:26px}
+.spacer{flex:1}
+.bar5{height:5px;border-radius:3px;background:var(--linha);margin:8px 0 5px}.bar5 span{display:block;height:5px;border-radius:3px}
+.sw{width:36px;height:20px;border-radius:10px;position:relative;flex:none}.sw::after{content:"";position:absolute;top:3px;width:14px;height:14px;border-radius:50%}
+.sw.on::after{right:3px;background:#1a0d02}.sw.off{background:#33343a}.sw.off::after{left:3px;background:#999}
+/* temas por módulo */
+.lar .pg .on,.lar .sw.on{background:var(--laranja)}.lar .tile i{color:var(--laranja)}.lar .tile.on{border-color:var(--laranja);background:var(--laranja-f)}.lar .ch.on{background:var(--laranja-f);color:var(--laranja);border-color:var(--laranja)}.lar .cal .s{background:var(--laranja);color:#1a0d02;font-weight:500}.lar .ic{background:var(--laranja-f);color:var(--laranja)}
+.azu .pg .on{background:var(--azul)}.azu .tile i{color:var(--azul)}.azu .tile.on{border-color:var(--azul);background:var(--azul-f)}.azu .ch.on{background:var(--azul-f);color:var(--azul);border-color:var(--azul)}.azu .cal .s{background:var(--azul);color:#06182a;font-weight:500}.azu .ic{background:var(--azul-f);color:var(--azul)}
+.rox .pg .on,.rox .sw.on{background:var(--roxo)}.rox .tile i{color:var(--roxo)}.rox .tile.on{border-color:var(--roxo);background:var(--roxo-f)}.rox .ch.on{background:var(--roxo-f);color:var(--roxo);border-color:var(--roxo)}.rox .ic{background:var(--roxo-f);color:var(--roxo)}
+/* mapa */
+.map{position:absolute;inset:0;background:#18202b}.rd{position:absolute;background:#26303d}
+.pin{position:absolute;background:var(--sup2);border:1.5px solid var(--laranja);color:var(--laranja);font-size:11px;font-weight:500;border-radius:9px;padding:2px 6px;transform:translate(-50%,-100%)}.pin.sel{background:var(--laranja);color:#1a0d02;z-index:2}
+.me{position:absolute;width:12px;height:12px;border-radius:50%;background:#4a9be8;border:3px solid #18202b;box-shadow:0 0 0 6px rgba(74,155,232,.25)}
+.seg{display:flex;background:#1b1c20;border-radius:12px;padding:3px}.seg div{flex:1;text-align:center;font-size:12px;color:#999;padding:6px}.seg .on{background:var(--laranja);color:#1a0d02;border-radius:9px;font-weight:500}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chips span{font-size:11px;color:#ccc;background:#1b1c20;border-radius:8px;padding:5px 8px}.chips .on{color:var(--laranja);border:1px solid var(--laranja)}
+.sec{font-size:11px;color:#999}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#1b1c20;border-radius:22px 22px 0 0;padding:8px 18px 18px;display:flex;flex-direction:column;gap:9px}
+.grab{width:36px;height:4px;border-radius:2px;background:#444;margin:0 auto 6px}
+.veu{position:absolute;inset:0;background:rgba(0,0,0,.6)}
+.big{border:1px solid var(--linha);background:var(--sup);border-radius:16px;padding:14px;display:flex;align-items:center;gap:12px}.big.on{border-color:var(--azul);background:var(--azul-f)}
+.big .i{width:40px;height:40px;border-radius:12px;background:var(--azul-f);color:var(--azul);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}
+.sh{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--laranja);font-weight:500}.sh span{width:18px;height:18px;border-radius:50%;background:var(--laranja-f);display:inline-flex;align-items:center;justify-content:center;font-size:10px}
+.nav{display:flex;justify-content:space-around;background:#1b1c20;border:1px solid var(--linha);border-radius:18px;padding:8px 4px;position:absolute;left:10px;right:10px;bottom:10px;font-size:10px;color:#888}
+.nav div{display:flex;flex-direction:column;align-items:center;gap:2px}.nav .on{color:var(--laranja)}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>Mockups dos novos módulos</h1>
+  <p>Telas aprovadas para o Nosso Combustível: mapa de lugares, o padrão de passos usado em manutenção, estética e outros custos, o abastecimento adaptado e o rascunho. Ícones aqui são marcadores simples; no app entram os ícones do Material.</p>
+  <nav class="idx" aria-label="Seções">
+    <a href="#postos">Postos</a><a href="#manutencao">Manutenção</a><a href="#estetica">Estética</a><a href="#custos">Outros custos</a><a href="#abastecimento">Abastecimento</a><a href="#rascunho">Rascunho</a><a href="#garagem">Garagem</a>
+  </nav>
+</header>
+
+<section id="postos">
+<h2>Postos perto: mapa cheio com lista</h2>
+<p>Mistura das versões B e C: o mapa ocupa a tela com cartões que deslizam, e a alternância Lista | Mapa fica no topo.</p>
+<div class="grade">
+<figure><div class="ph" style="padding:0">
+<div class="map"><div class="rd" style="left:0;right:0;top:230px;height:12px"></div><div class="rd" style="top:0;bottom:0;left:110px;width:10px"></div><div class="rd" style="left:0;right:0;top:380px;height:8px"></div><div class="rd" style="top:0;bottom:0;left:230px;width:8px"></div>
+<div class="me" style="left:150px;top:290px"></div><div class="pin" style="left:80px;top:225px">R$ 6,19</div><div class="pin sel" style="left:200px;top:215px">R$ 6,29</div><div class="pin" style="left:250px;top:370px">R$ 6,39</div><div class="pin" style="left:180px;top:155px">R$ 6,49</div></div>
+<div style="position:absolute;left:12px;right:12px;top:12px;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;gap:8px;background:#1b1c20;border-radius:14px;padding:9px 12px"><span style="color:#ccc">←</span><span class="t1" style="flex:1">Postos perto</span></div>
+<div class="seg"><div>Lista</div><div class="on">Mapa</div></div>
+<div class="chips"><span class="on">1,5 km</span><span>3 km</span><span>5 km</span><span>Mais barato</span></div></div>
+<div style="position:absolute;left:14px;right:14px;bottom:16px;background:#1b1c20;border:1.5px solid var(--laranja);border-radius:16px;padding:12px">
+<div style="display:flex;justify-content:space-between"><div><div class="t1" style="font-size:14px">Shell</div><div class="t2">900 m · aberto 24h</div></div><div style="text-align:right"><div style="color:var(--laranja);font-weight:500;font-size:16px">R$ 6,29</div><div class="t2">comum · hoje</div></div></div>
+<div style="display:flex;gap:8px;margin-top:10px"><div class="btn" style="flex:1;padding:8px;font-size:12px">Ir até lá</div><div style="flex:1;border:1px solid #33343a;color:#ddd;border-radius:10px;padding:8px;text-align:center;font-size:12px">Detalhes</div></div></div>
+</div><figcaption><b>Modo mapa</b><span>Deslizar os cartões move o mapa até o pino; tocar num pino puxa o cartão dele.</span></figcaption></figure>
+<figure><div class="ph lar">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:16px">Postos perto</span></div>
+<div class="seg"><div class="on">Lista</div><div>Mapa</div></div>
+<div class="chips"><span class="on">1,5 km</span><span>3 km</span><span>5 km</span><span>Mais barato</span></div>
+<div class="row"><div class="ic">⛽</div><div style="flex:1"><div class="t1">Posto Petrox Farolândia</div><div class="t2">Av. Murilo Dantas · 24 horas</div></div><div style="text-align:right"><div style="color:var(--laranja)">R$ 6,19</div><div class="t2">350 m</div></div></div>
+<div class="row"><div class="ic">⛽</div><div style="flex:1"><div class="t1">Shell</div><div class="t2">Av. Empresário J. C. Silva</div></div><div style="text-align:right"><div style="color:var(--laranja)">R$ 6,29</div><div class="t2">900 m</div></div></div>
+<div class="row"><div class="ic">⛽</div><div style="flex:1"><div class="t1">BR</div><div class="t2">Av. Melício Machado</div></div><div style="text-align:right"><div style="color:#666">R$ --,--</div><div class="t2">1,8 km</div></div></div>
+</div><figcaption><b>Modo lista</b><span>Tocar num posto volta ao mapa já centralizado nele, com o cartão aberto.</span></figcaption></figure>
+</div></section>
+
+<section id="manutencao">
+<h2>Manutenção: padrão de passos</h2>
+<p>Painel com resumo e "+"; registro em 4 passos: serviços, detalhes, quando e onde, valor e pagamento.</p>
+<div class="grade lar">
+<figure><div class="ph lar">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:16px">Manutenção</span></div>
+<div class="card"><div class="t2">Última manutenção</div><div class="t1" style="font-size:22px">há 3 meses</div><div class="t2">Alinhamento · 02 ago · 94.100 km</div></div>
+<div class="card" style="border-color:var(--amarelo)"><div style="display:flex;justify-content:space-between"><span class="t1">Troca de óleo</span><span style="font-size:11px;color:var(--amarelo)">em 800 km</span></div><div class="bar5"><span style="width:92%;background:var(--amarelo)"></span></div><div class="t2">Próxima aos 97.420 km</div></div>
+<div style="display:flex;gap:8px"><div class="card" style="flex:1;padding:10px"><div class="t2">Gasto em 2026</div><div class="t1" style="font-size:16px">R$ 1.840</div></div><div class="card" style="flex:1;padding:10px"><div class="t2">Por km</div><div class="t1" style="font-size:16px">R$ 0,09</div></div></div>
+<div class="row"><div class="ic">⚙</div><div style="flex:1"><div class="t1">Alinhamento e balanceamento</div><div class="t2">02 ago · Pneus Atalaia</div></div><span class="t1">R$ 120</span></div>
+<div class="fab">+</div>
+</div><figcaption><b>Painel</b><span>Última manutenção, próxima troca com barra, gastos e histórico.</span></figcaption></figure>
+<figure><div class="ph lar">
+<div class="hd"><span style="color:#ccc">×</span><span class="t1" style="font-size:15px;flex:1">Nova manutenção</span><span class="t2">1 de 4</span></div>
+<div class="pg"><span class="on"></span><span></span><span></span><span></span></div>
+<div class="q">O que foi feito?</div>
+<div class="tiles"><div class="tile on"><i>💧</i>Troca de óleo</div><div class="tile on"><i>⧩</i>Filtros</div><div class="tile"><i>◎</i>Pneus</div><div class="tile"><i>◉</i>Freios</div><div class="tile"><i>⚙</i>Correias</div><div class="tile"><i>▭</i>Bateria</div><div class="tile"><i>⬒</i>Funilaria</div><div class="tile"><i>⌂</i>Tapeçaria</div><div class="tile"><i>❄</i>Ar-cond.</div><div class="tile"><i>≋</i>Suspensão</div><div class="tile"><i>✓</i>Revisão</div><div class="tile"><i>…</i>Outro</div></div>
+<div class="spacer"></div><div class="btn">Continuar · 2 serviços</div>
+</div><figcaption><b>Passo 1 · Serviços</b><span>Blocos com ícone, vários de uma vez.</span></figcaption></figure>
+<figure><div class="ph lar">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:15px;flex:1">Nova manutenção</span><span class="t2">2 de 4</span></div>
+<div class="pg"><span class="on"></span><span class="on"></span><span></span><span></span></div>
+<div class="q">Detalhes</div>
+<div class="card" style="padding:10px"><div class="t1" style="font-size:12px">Troca de óleo</div>
+<div class="t2" style="margin:8px 0 5px">Tipo</div><span class="ch">Mineral</span><span class="ch on">Semissintético</span><span class="ch">Sintético</span>
+<div class="t2" style="margin:3px 0 5px">Viscosidade</div><span class="ch">5W-30</span><span class="ch">10W-40</span><span class="ch on">15W-40</span>
+<div style="display:flex;gap:6px"><div class="f" style="flex:1"><div class="l">Marca</div><div class="v">Lubrax</div></div><div class="f" style="width:70px"><div class="l">Litros</div><div class="v">3,5</div></div></div></div>
+<div class="card" style="padding:10px"><div class="t1" style="font-size:12px;margin-bottom:8px">Filtros</div><span class="ch on">De óleo</span><span class="ch">De ar</span><span class="ch">De combustível</span></div>
+<div class="card" style="padding:10px;display:flex;align-items:center;gap:8px"><div style="flex:1"><div class="t1" style="font-size:12px">Lembrar a próxima troca</div><div class="t2">a cada 10.000 km ou 12 meses</div></div><div class="sw on"></div></div>
+<div class="spacer"></div><div class="btn">Continuar</div>
+</div><figcaption><b>Passo 2 · Detalhes</b><span>Um cartão por serviço marcado, com o lembrete já ligado.</span></figcaption></figure>
+<figure><div class="ph lar">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:15px;flex:1">Nova manutenção</span><span class="t2">3 de 4</span></div>
+<div class="pg"><span class="on"></span><span class="on"></span><span class="on"></span><span></span></div>
+<div class="q">Quando e onde?</div>
+<div class="card" style="padding:10px"><div style="text-align:center;margin-bottom:6px" class="t1">Novembro 2026</div>
+<div class="cal"><span class="h">D</span><span class="h">S</span><span class="h">T</span><span class="h">Q</span><span class="h">Q</span><span class="h">S</span><span class="h">S</span><span class="s">1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span></div>
+<div style="margin-top:6px"><span class="ch on">Hoje</span><span class="ch">Ontem</span></div></div>
+<div class="f"><div class="l">Hodômetro</div><div class="v">97.420 km</div><div class="t2">Último registrado: 97.400 km</div></div>
+<div class="f" style="border-color:var(--laranja)"><div class="l">Oficina</div><div class="v">Auto Center Atalaia</div><div class="t2">1,1 km · escolhida no mapa</div></div>
+<div class="spacer"></div><div class="btn">Continuar</div>
+</div><figcaption><b>Passo 3 · Quando e onde</b><span>Calendário padrão com Hoje e Ontem; oficina pelo mapa.</span></figcaption></figure>
+<figure><div class="ph lar">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:15px;flex:1">Nova manutenção</span><span class="t2">4 de 4</span></div>
+<div class="pg"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span></div>
+<div class="q">Quanto custou?</div>
+<div style="text-align:center"><div class="t2">Valor total</div><div class="t1" style="font-size:32px">R$ 280,00</div></div>
+<div style="display:flex;gap:8px"><div class="f" style="flex:1"><div class="l">Peças (opcional)</div><div class="v">R$ 230,00</div></div><div class="f" style="flex:1"><div class="l">Mão de obra</div><div class="v">R$ 50,00</div></div></div>
+<div><span class="ch">Pix</span><span class="ch">Débito</span><span class="ch on">Crédito · Roxinho</span></div>
+<div class="card" style="padding:10px"><div class="t2">Resumo</div><div style="font-size:12px;color:#ddd;line-height:1.7">Óleo semissint. 15W-40 e filtro<br>01 nov · 97.420 km · Auto Center<br><span style="color:var(--laranja)">Próxima troca aos 107.420 km</span></div></div>
+<div class="spacer"></div><div class="btn">Salvar manutenção</div>
+</div><figcaption><b>Passo 4 · Valor e pagamento</b><span>Valor no centro, pagamento e resumo antes de salvar.</span></figcaption></figure>
+</div></section>
+
+<section id="estetica">
+<h2>Estética: quem leva na estética e quem lava em casa</h2>
+<p>Mesmo padrão de passos. O passo 1 escolhe o caminho: levei numa estética, lavei em casa ou comprei produtos. Em casa, o custo por lavagem vem dos produtos.</p>
+<div class="grade">
+<figure><div class="ph azu">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:16px">Estética</span></div>
+<div class="card"><div class="t2">Última lavagem</div><div class="t1" style="font-size:22px">há 12 dias</div><div class="bar5"><span style="width:60%;background:var(--azul)"></span></div><div class="t2">Lavar de novo em 8 dias</div></div>
+<div style="display:flex;gap:8px"><div class="card" style="flex:1;padding:10px"><div class="t2">Estética</div><div class="t1" style="font-size:15px">R$ 310</div><div class="t2">2 serviços no ano</div></div><div class="card" style="flex:1;padding:10px"><div class="t2">Em casa</div><div class="t1" style="font-size:15px">R$ 145</div><div class="t2">9 lavagens · R$ 16 cada</div></div></div>
+<div class="row"><div class="ic">⌂</div><div style="flex:1"><div class="t1">Lavagem em casa</div><div class="t2">20 out · externa + pretinho</div></div><span class="t2">produtos</span></div>
+<div class="row"><div class="ic">✦</div><div style="flex:1"><div class="t1">Polimento</div><div class="t2">02 out · Estética Brilho</div></div><span class="t1">R$ 250</span></div>
+<div class="fab">+</div>
+</div><figcaption><b>Painel</b><span>Gasto separado em Estética e Em casa.</span></figcaption></figure>
+<figure><div class="ph azu">
+<div class="hd"><span style="color:#ccc">×</span><span class="t1" style="font-size:15px;flex:1">Nova estética</span><span class="t2">1 de 4</span></div>
+<div class="pg"><span class="on"></span><span></span><span></span><span></span></div>
+<div class="q">O que você fez?</div>
+<div class="big on"><div class="i">▣</div><div><div class="t1" style="font-size:14px">Levei numa estética</div><div class="t2">Lava-jato, estética automotiva</div></div></div>
+<div class="big"><div class="i">⌂</div><div><div class="t1" style="font-size:14px">Lavei em casa</div><div class="t2">Usando produtos que já tenho</div></div></div>
+<div class="big"><div class="i">◫</div><div><div class="t1" style="font-size:14px">Comprei produtos</div><div class="t2">Shampoo, cera, panos...</div></div></div>
+<div class="spacer"></div><div class="btn">Continuar</div>
+</div><figcaption><b>Passo 1 · Modalidade</b><span>A mesma pessoa pode usar os três caminhos.</span></figcaption></figure>
+<figure><div class="ph azu">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:15px;flex:1">Nova estética</span><span class="t2">2 de 4</span></div>
+<div class="pg"><span class="on"></span><span class="on"></span><span></span><span></span></div>
+<div class="q">Quais serviços?</div>
+<div class="tiles"><div class="tile"><i>💧</i>Simples</div><div class="tile on"><i>💦</i>Completa</div><div class="tile"><i>≈</i>A seco</div><div class="tile on"><i>⌂</i>Higienização</div><div class="tile"><i>⚙</i>Motor</div><div class="tile"><i>✎</i>Enceramento</div><div class="tile"><i>✦</i>Polimento</div><div class="tile"><i>◆</i>Vitrificação</div><div class="tile"><i>⊘</i>Oxi-sanitização</div></div>
+<div class="t2">Em "Lavei em casa": Externa, Interna, Aspiração, Pretinho, Cera, Vidros</div>
+<div class="spacer"></div><div class="btn">Continuar · 2 serviços</div>
+</div><figcaption><b>Passo 2 · Serviços</b><span>Profissionais na estética, partes lavadas em casa.</span></figcaption></figure>
+<figure><div class="ph azu">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:15px;flex:1">Comprei produtos</span><span class="t2">2 de 3</span></div>
+<div class="pg"><span class="on"></span><span class="on"></span><span></span></div>
+<div class="q">O que você comprou?</div>
+<div class="tiles"><div class="tile on"><i>◫</i>Shampoo</div><div class="tile on"><i>✎</i>Cera</div><div class="tile on"><i>◎</i>Pretinho</div><div class="tile"><i>≋</i>Limpa-vidro</div><div class="tile"><i>▢</i>Panos</div><div class="tile"><i>…</i>Outro</div></div>
+<div class="row" style="font-size:12px"><span style="flex:1">Shampoo automotivo 1 L</span><span>R$ 32,90</span></div>
+<div class="row" style="font-size:12px"><span style="flex:1">Cera de carnaúba</span><span>R$ 49,90</span></div>
+<div class="row" style="font-size:12px"><span style="flex:1">Pretinho 500 ml</span><span>R$ 18,00</span></div>
+<div class="spacer"></div><div class="btn">Continuar</div>
+</div><figcaption><b>Passo 2 · Produtos</b><span>Caminho de 3 passos para quem lava em casa.</span></figcaption></figure>
+<figure><div class="ph azu">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:15px;flex:1">Nova estética</span><span class="t2">3 de 4</span></div>
+<div class="pg"><span class="on"></span><span class="on"></span><span class="on"></span><span></span></div>
+<div class="q">Quando e onde?</div>
+<div class="card" style="padding:10px"><div style="text-align:center;margin-bottom:6px" class="t1">Novembro 2026</div>
+<div class="cal"><span class="h">D</span><span class="h">S</span><span class="h">T</span><span class="h">Q</span><span class="h">Q</span><span class="h">S</span><span class="h">S</span><span class="s">1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div>
+<div style="margin-top:6px"><span class="ch on">Hoje</span><span class="ch">Ontem</span></div></div>
+<div class="f" style="border-color:var(--azul)"><div class="l">Estética</div><div class="v">Lava-jato Atalaia</div><div class="t2">800 m · escolhida no mapa</div></div>
+<div class="t2">Em casa, o local some e entra:</div>
+<div class="f"><div class="l">Produtos usados</div><div class="v">Shampoo, cera, pretinho</div></div>
+<div class="spacer"></div><div class="btn">Continuar</div>
+</div><figcaption><b>Passo 3 · Quando e onde</b><span>Mesmo calendário; em casa, marca os produtos usados.</span></figcaption></figure>
+<figure><div class="ph azu">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:15px;flex:1">Nova estética</span><span class="t2">4 de 4</span></div>
+<div class="pg"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span></div>
+<div class="q">Quanto custou?</div>
+<div style="text-align:center"><div class="t2">Valor</div><div class="t1" style="font-size:32px">R$ 120,00</div></div>
+<div style="display:flex;align-items:center;gap:8px;border:1px solid var(--linha);border-radius:12px;padding:10px"><div style="flex:1"><div class="t1" style="font-size:12px">Está no plano mensal</div><div class="t2">A mensalidade conta no mês</div></div><div class="sw off"></div></div>
+<div><span class="ch on">Pix</span><span class="ch">Débito</span><span class="ch">Crédito</span></div>
+<div class="card" style="padding:10px"><div class="t2">Lembrar de lavar de novo</div><div class="t1" style="font-size:12px">em 20 dias</div></div>
+<div class="spacer"></div><div class="btn">Salvar</div>
+</div><figcaption><b>Passo 4 · Valor</b><span>Some em "Lavei em casa": o custo vem dos produtos.</span></figcaption></figure>
+</div></section>
+
+<section id="custos">
+<h2>Outros custos: padrão de passos</h2>
+<p>Painel de contas a pagar; registro em 3 passos: tipo, detalhes que mudam por tipo e pagamento. Estacionamento e pedágio têm um passo só.</p>
+<div class="grade">
+<figure><div class="ph rox">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:16px">Outros custos</span></div>
+<div class="card"><div class="t2">A pagar em 30 dias</div><div class="t1" style="font-size:22px">R$ 812,40</div><div class="t2">3 contas · 1 atrasada</div></div>
+<div class="sec">Atrasada</div>
+<div class="row"><div class="ic" style="background:#3a1a1a;color:var(--vermelho)">!</div><div style="flex:1"><div class="t1">Multa · velocidade</div><div class="t2" style="color:var(--vermelho)">venceu 28/10 · R$ 104,12</div></div><span class="btn" style="padding:5px 9px;font-size:11px;border-radius:8px">Pagar</span></div>
+<div class="sec">Próximos dias</div>
+<div class="row"><div class="ic">▤</div><div style="flex:1"><div class="t1">IPVA 2026 · 3/3</div><div class="t2">vence 05/11 · em 4 dias</div></div><span class="btn" style="padding:5px 9px;font-size:11px;border-radius:8px">Pagar</span></div>
+<div class="row"><div class="ic">⛨</div><div style="flex:1"><div class="t1">Seguro · 5/10</div><div class="t2">vence 15/11</div></div><span class="t1">R$ 296</span></div>
+<div class="fab">+</div>
+</div><figcaption><b>Painel</b><span>Atrasadas primeiro, depois o que vence logo.</span></figcaption></figure>
+<figure><div class="ph rox">
+<div class="hd"><span style="color:#ccc">×</span><span class="t1" style="font-size:15px;flex:1">Novo custo</span><span class="t2">1 de 3</span></div>
+<div class="pg"><span class="on"></span><span></span><span></span></div>
+<div class="q">Que tipo de custo?</div>
+<div class="tiles"><div class="tile on"><i>▤</i>IPVA</div><div class="tile"><i>▥</i>Licenciamento</div><div class="tile"><i>⛨</i>Seguro</div><div class="tile"><i>!</i>Multa</div><div class="tile"><i>⌂</i>Financiamento</div><div class="tile"><i>P</i>Estacionamento</div><div class="tile"><i>⟿</i>Pedágio</div><div class="tile"><i>▦</i>Despachante</div><div class="tile"><i>…</i>Outro</div></div>
+<div class="spacer"></div><div class="btn">Continuar</div>
+</div><figcaption><b>Passo 1 · Tipo</b><span>Mesmos blocos, um tipo por vez.</span></figcaption></figure>
+<figure><div class="ph rox">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:15px;flex:1">IPVA</span><span class="t2">2 de 3</span></div>
+<div class="pg"><span class="on"></span><span class="on"></span><span></span></div>
+<div class="q">Detalhes do IPVA</div>
+<div style="display:flex;gap:8px"><div class="f" style="flex:1"><div class="l">Ano</div><div class="v">2026</div></div><div class="f" style="flex:1"><div class="l">Valor total</div><div class="v">R$ 1.236,00</div></div></div>
+<div><span class="ch">À vista</span><span class="ch on">Parcelado</span> <span class="ch">2x</span><span class="ch on">3x</span><span class="ch">5x</span></div>
+<div class="card" style="padding:8px 10px">
+<div class="row" style="font-size:12px"><span style="flex:1">1ª · 05/09</span><span>R$ 412,00 · paga</span></div>
+<div class="row" style="font-size:12px"><span style="flex:1">2ª · 05/10</span><span>R$ 412,00 · paga</span></div>
+<div class="row" style="font-size:12px;border:none"><span style="flex:1">3ª · 05/11</span><span>R$ 412,00</span></div></div>
+<div class="spacer"></div><div class="btn">Continuar</div>
+</div><figcaption><b>Passo 2 · Detalhes</b><span>Muda por tipo: parcelas no IPVA, pontos e SNE na multa.</span></figcaption></figure>
+<figure><div class="ph rox">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:15px;flex:1">IPVA</span><span class="t2">3 de 3</span></div>
+<div class="pg"><span class="on"></span><span class="on"></span><span class="on"></span></div>
+<div class="q">Pagamento</div>
+<div><span class="ch on">Pix</span><span class="ch">Débito</span><span class="ch">Crédito</span><span class="ch">Boleto</span></div>
+<div class="card" style="padding:10px;display:flex;align-items:center;gap:8px"><div style="flex:1"><div class="t1" style="font-size:12px">Avisar antes de vencer</div><div class="t2">3 dias antes de cada parcela</div></div><div class="sw on"></div></div>
+<div class="card" style="padding:10px"><div class="t2">Resumo</div><div style="font-size:12px;color:#ddd;line-height:1.7">IPVA 2026 · R$ 1.236,00 em 3x<br>2 pagas · 1 a pagar em 05/11</div></div>
+<div class="spacer"></div><div class="btn">Salvar IPVA</div>
+</div><figcaption><b>Passo 3 · Pagamento</b><span>Cada parcela entra no gasto do mês em que foi paga.</span></figcaption></figure>
+</div></section>
+
+<section id="abastecimento">
+<h2>Abastecimento adaptado</h2>
+<p>Continua numa tela só, porque é o registro mais frequente e a foto com IA preenche tudo de uma vez. Ganha as seções dos passos, o calendário padrão e o posto pelo mapa.</p>
+<div class="grade">
+<figure><div class="ph lar">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:16px">Novo abastecimento</span></div>
+<div style="display:flex;gap:8px"><div class="f" style="flex:1;text-align:center;font-size:11px;color:#ddd">Foto da bomba</div><div class="f" style="flex:1;text-align:center;font-size:11px;color:#ddd">Foto do painel</div></div>
+<div class="sh"><span>1</span>O quê</div>
+<div><span class="ch on">Gasolina</span><span class="ch">Etanol</span><span class="ch">Comum</span><span class="ch on">Aditivada</span><span class="ch">Premium</span></div>
+<div style="display:flex;gap:6px"><div class="f" style="flex:1"><div class="l">Litros</div><div class="v">20,000</div></div><div class="f" style="flex:1"><div class="l">Preço/L</div><div class="v">6,19</div></div><div class="f" style="flex:1"><div class="l">Total</div><div class="v">123,80</div></div></div>
+<div class="sh"><span>2</span>Quando e onde</div>
+<div style="display:flex;gap:6px"><div class="f" style="flex:1"><div class="l">Data</div><div class="v">Hoje, 01/11</div></div><div class="f" style="flex:1"><div class="l">Hodômetro</div><div class="v">97.420</div></div></div>
+<div class="f" style="border-color:var(--laranja)"><div class="l">Posto</div><div class="v">Posto Petrox Farolândia</div></div>
+<div class="sh"><span>3</span>Pagamento</div>
+<div><span class="ch">Pix</span><span class="ch">Débito</span><span class="ch on">Crédito · Roxinho</span></div>
+<div class="spacer"></div><div class="btn">Salvar abastecimento</div>
+</div><figcaption><b>Uma tela, com as seções dos passos</b><span>O quê, Quando e onde, Pagamento.</span></figcaption></figure>
+<figure><div class="ph lar">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:16px">Novo abastecimento</span></div>
+<div class="veu"></div>
+<div class="sheet"><div class="grab"></div><div class="t1" style="font-size:16px">Data do abastecimento</div><div class="t1" style="text-align:center">Novembro 2026</div>
+<div class="cal"><span class="h">D</span><span class="h">S</span><span class="h">T</span><span class="h">Q</span><span class="h">Q</span><span class="h">S</span><span class="h">S</span><span class="s">1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span></div>
+<div><span class="ch on">Hoje</span><span class="ch">Ontem</span><span class="ch">Anteontem</span></div><div class="btn">Confirmar</div></div>
+</div><figcaption><b>Calendário padrão</b><span>A data abre o mesmo calendário dos passos.</span></figcaption></figure>
+</div></section>
+
+<section id="rascunho">
+<h2>Rascunho ao sair</h2>
+<p>Vale para todos os formulários. O rascunho fica só no aparelho.</p>
+<div class="grade">
+<figure><div class="ph">
+<div class="hd"><span style="color:#ccc">←</span><span class="t1" style="font-size:16px">Novo abastecimento</span></div>
+<div class="f"><div class="l">Litros</div><div class="v">20,000</div></div><div class="f"><div class="l">Preço por litro</div><div class="v">6,19</div></div>
+<div class="veu"></div>
+<div class="sheet"><div class="grab"></div><div class="t1" style="font-size:17px">Sair sem salvar?</div><div class="t2" style="font-size:12px">Você preencheu data, hodômetro, litros e preço.</div>
+<div class="btn">Salvar rascunho</div><div style="border:1px solid #33343a;color:#eee;border-radius:14px;padding:12px;text-align:center">Continuar editando</div><div style="color:var(--vermelho);text-align:center;padding:8px">Descartar</div></div>
+</div><figcaption><b>Janela de baixo com 3 opções</b><span>Ao reabrir: "Você tem um rascunho · Continuar · Descartar".</span></figcaption></figure>
+</div></section>
+
+<section id="garagem">
+<h2>Onde os módulos ficam: Garagem</h2>
+<p>Proposta: a aba Veículos vira Garagem e reúne manutenção, estética, custos, lugares e os veículos. A tela inicial pode ganhar cards com os avisos mais urgentes.</p>
+<div class="grade">
+<figure><div class="ph lar">
+<div class="t1" style="font-size:18px">Garagem</div>
+<div class="card" style="display:flex;align-items:center;gap:10px"><div class="ic" style="width:40px;height:40px">🚗</div><div style="flex:1"><div class="t1" style="font-size:14px">Celtinha</div><div class="t2">Flex · 97.420 km</div></div></div>
+<div class="row"><div class="ic">⚙</div><div style="flex:1"><div class="t1">Manutenção</div><div class="t2">Óleo em 800 km</div></div></div>
+<div class="row"><div class="ic" style="background:var(--azul-f);color:var(--azul)">💧</div><div style="flex:1"><div class="t1">Estética</div><div class="t2">Última lavagem há 12 dias</div></div></div>
+<div class="row"><div class="ic" style="background:var(--roxo-f);color:var(--roxo)">▤</div><div style="flex:1"><div class="t1">Outros custos</div><div class="t2">1 atrasada · IPVA em 4 dias</div></div></div>
+<div class="row"><div class="ic" style="background:#1f2a1f;color:var(--verde)">⌖</div><div style="flex:1"><div class="t1">Lugares</div><div class="t2">Postos, oficinas e estéticas</div></div></div>
+<div class="nav"><div>Início</div><div>Histórico</div><div>Relatórios</div><div class="on">Garagem</div><div>Ajustes</div></div>
+</div><figcaption><b>Aba Garagem</b><span>A navegação continua com 5 itens.</span></figcaption></figure>
+</div></section>
+</div>

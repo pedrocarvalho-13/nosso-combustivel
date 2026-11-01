@@ -102,7 +102,7 @@ public sealed class PostoConfiguracao : IEntityTypeConfiguration<Posto>
 {
     public void Configure(EntityTypeBuilder<Posto> builder)
     {
-        builder.ToTable("Postos");
+        builder.ToTable("Lugares");
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id).ValueGeneratedNever();
         builder.Property(p => p.Origem).HasConversion<string>().HasMaxLength(20);

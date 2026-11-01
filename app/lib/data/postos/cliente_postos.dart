@@ -5,7 +5,7 @@ import '../../domain/combustivel.dart';
 import '../../domain/tipo_gasolina.dart';
 import '../sync/cliente_sync.dart';
 
-enum TipoPosto { combustivel, eletroposto }
+enum TipoPosto { combustivel, eletroposto, oficina, estetica }
 
 class PrecoInformado {
   const PrecoInformado({required this.combustivel, required this.precoLitro, required this.data, this.tipoGasolina});
@@ -100,7 +100,7 @@ class ClientePostos {
   }) async {
     try {
       final resposta = await _dio.get<Map<String, dynamic>>(
-        '/postos/proximos',
+        '/lugares/proximos',
         queryParameters: {'lat': latitude, 'lng': longitude, 'raio': raioMetros, 'tipo': tipo.name},
       );
       final corpo = resposta.data!;
@@ -121,7 +121,7 @@ class ClientePostos {
     TipoPosto tipo = TipoPosto.combustivel,
   }) async {
     try {
-      final resposta = await _dio.post<Map<String, dynamic>>('/postos', data: {
+      final resposta = await _dio.post<Map<String, dynamic>>('/lugares', data: {
         'nome': nome,
         'bandeira': bandeira,
         'latitude': latitude,

@@ -10,7 +10,20 @@ public enum OrigemPosto
 public enum TipoPosto
 {
     Combustivel = 1,
-    Eletroposto = 2
+    Eletroposto = 2,
+    Oficina = 3,
+    Estetica = 4
+}
+
+public static class TiposDeLugar
+{
+    public static string NomePadrao(TipoPosto tipo) => tipo switch
+    {
+        TipoPosto.Eletroposto => "Eletroposto sem nome",
+        TipoPosto.Oficina => "Oficina sem nome",
+        TipoPosto.Estetica => "Estética sem nome",
+        _ => "Posto sem nome"
+    };
 }
 
 public sealed record DadosPosto(string Nome, string? Bandeira, string? Endereco, double Latitude, double Longitude, string? Horario = null);

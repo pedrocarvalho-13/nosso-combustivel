@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/formato.dart';
 import '../../domain/registro_energia.dart';
@@ -9,11 +8,13 @@ import '../../data/ia/cliente_ia.dart';
 import '../comum/botao_ler_foto.dart';
 import '../../data/provedores.dart';
 import '../../domain/forma_pagamento.dart';
+import '../comum/cabecalho_secao.dart';
 import '../comum/campo_com_rotulo.dart';
 import '../comum/campo_pagamento.dart';
 import '../comum/campo_data.dart';
 import '../comum/campos_valor.dart';
 import '../comum/formulario_registro.dart';
+import '../comum/saida_com_rascunho.dart';
 import 'nova_recarga_view_model.dart';
 
 class NovaRecargaView extends ConsumerStatefulWidget {
@@ -25,7 +26,7 @@ class NovaRecargaView extends ConsumerStatefulWidget {
   ConsumerState<NovaRecargaView> createState() => _NovaRecargaViewState();
 }
 
-class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
+class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> with SaidaComRascunho<NovaRecargaView> {
   final _valores = CamposValor();
   final _odometro = TextEditingController();
   var _data = DateTime.now();
@@ -38,6 +39,56 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
   bool get _editando => widget.registroId != null;
 
   NovaRecargaViewModel get _vm => ref.read(novaRecargaViewModelProvider(widget.registroId).notifier);
+
+  @override
+  String get tipoRascunho => 'recarga';
+
+  @override
+  String get nomeDoRegistro => 'recarga';
+
+  @override
+  bool get editandoRegistro => _editando;
+
+  @override
+  String? get veiculoIdRascunho => ref.read(novaRecargaViewModelProvider(widget.registroId)).veiculo?.id;
+
+  @override
+  Map<String, dynamic> dadosDoFormulario() => {
+        'data': _data.toIso8601String(),
+        'odometro': _odometro.text,
+        'kwh': _valores.quantidade.text,
+        'preco': _valores.preco.text,
+        'total': _valores.total.text,
+        'cargaCompleta': _cargaCompleta,
+        'contaNaMedia': _contaNaMedia,
+        'forma': _forma?.name,
+        'cartaoId': _cartaoId,
+        'local': ref.read(novaRecargaViewModelProvider(widget.registroId)).local.name,
+      };
+
+  @override
+  List<String> camposPreenchidos() => [
+        if (_odometro.text.trim().isNotEmpty) 'Hodômetro',
+        if (_valores.quantidade.text.trim().isNotEmpty) 'Energia',
+        if (_valores.total.text.trim().isNotEmpty) 'Total',
+      ];
+
+  @override
+  void aplicarRascunho(Map<String, dynamic> dados) {
+    final local = LocalRecarga.values.where((l) => l.name == dados['local']).firstOrNull;
+    if (local != null) _selecionarLocal(local);
+    setState(() {
+      _data = DateTime.tryParse(dados['data'] as String? ?? '') ?? _data;
+      _cargaCompleta = dados['cargaCompleta'] as bool? ?? false;
+      _contaNaMedia = dados['contaNaMedia'] as bool? ?? true;
+      _forma = FormaPagamento.values.where((f) => f.name == dados['forma']).firstOrNull;
+      _cartaoId = dados['cartaoId'] as String?;
+    });
+    _odometro.text = dados['odometro'] as String? ?? '';
+    _valores.quantidade.text = dados['kwh'] as String? ?? '';
+    _valores.preco.text = dados['preco'] as String? ?? '';
+    _valores.total.text = dados['total'] as String? ?? '';
+  }
 
   @override
   void initState() {
@@ -105,7 +156,8 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(_editando ? 'Recarga atualizada.' : 'Recarga salva.')));
-    context.pop();
+    await apagarRascunhoSalvo();
+    sairLiberado();
   }
 
   void _preencherDaFoto(LeituraFoto leitura) {
@@ -123,7 +175,7 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
     await _vm.excluir();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Recarga excluída.')));
-    context.pop();
+    sairLiberado();
   }
 
   @override
@@ -145,6 +197,7 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
         _valores.preco.text = Formato.paraCampo(editando.precoKwh, casas: 3);
         _valores.quantidade.text = Formato.paraCampo(editando.kwh, casas: 3);
         _valores.total.text = Formato.paraCampo(editando.valorCentavos / 100);
+        WidgetsBinding.instance.addPostFrameCallback((_) => registrarEstadoDaEdicao());
         return;
       }
       final carregouTarifa = anterior?.tarifaCasa == null && atual.tarifaCasa != null;
@@ -153,7 +206,8 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
       }
     });
 
-    return Scaffold(
+    if (veiculo != null) WidgetsBinding.instance.addPostFrameCallback((_) => verificarRascunho());
+    return envolverSaida(Scaffold(
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,6 +224,8 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (rascunhoPendente != null)
+              AvisoRascunho(rascunho: rascunhoPendente!, aoContinuar: continuarRascunho, aoDescartar: descartarRascunho),
             if (ref.watch(fotosIaProvider).value ?? true) ...[
               Row(
                 children: [
@@ -180,6 +236,7 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
               ),
               const SizedBox(height: 16),
             ],
+            const CabecalhoSecao(numero: 1, titulo: 'O quê'),
             SegmentedButton<LocalRecarga>(
               segments: [
                 for (final local in LocalRecarga.values) ButtonSegment(value: local, label: Text(local.rotulo)),
@@ -189,30 +246,6 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
               onSelectionChanged: (selecao) => _selecionarLocal(selecao.first),
             ),
             const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: CampoData(data: _data, aoMudar: (data) => setState(() => _data = data)),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: CampoComRotulo(
-                    rotulo: 'Hodômetro (km)',
-                    child: TextField(
-                      controller: _odometro,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: InputDecoration(
-                        helperText: 'Último: ${Formato.km(estado.ultimoOdometro)}',
-                        errorText: _erros[CampoRegistro.odometro],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -265,7 +298,34 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
               value: _contaNaMedia,
               onChanged: (valor) => setState(() => _contaNaMedia = valor),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
+            const CabecalhoSecao(numero: 2, titulo: 'Quando e onde'),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: CampoData(data: _data, aoMudar: (data) => setState(() => _data = data)),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: CampoComRotulo(
+                    rotulo: 'Hodômetro (km)',
+                    child: TextField(
+                      controller: _odometro,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: InputDecoration(
+                        helperText: 'Último: ${Formato.km(estado.ultimoOdometro)}',
+                        errorText: _erros[CampoRegistro.odometro],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const SizedBox(height: 16),
+            const CabecalhoSecao(numero: 3, titulo: 'Pagamento'),
             CampoPagamento(
               forma: _forma,
               cartaoId: _cartaoId,
@@ -282,6 +342,6 @@ class _NovaRecargaViewState extends ConsumerState<NovaRecargaView> {
           ],
         ),
       ),
-    );
+    ));
   }
 }

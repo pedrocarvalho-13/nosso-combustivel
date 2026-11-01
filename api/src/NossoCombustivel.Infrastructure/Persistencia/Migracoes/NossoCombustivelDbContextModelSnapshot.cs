@@ -251,7 +251,7 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                     b.HasIndex("Origem", "IdExterno")
                         .IsUnique();
 
-                    b.ToTable("Postos", (string)null);
+                    b.ToTable("Lugares", (string)null);
                 });
 
             modelBuilder.Entity("NossoCombustivel.Domain.Registros.Abastecimento", b =>

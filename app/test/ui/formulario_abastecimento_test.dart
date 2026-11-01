@@ -47,8 +47,9 @@ void main() {
     await tester.tap(find.text('Salvar abastecimento'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Informe o hodômetro.'), findsOneWidget);
-    expect(find.text('Informe os litros.'), findsOneWidget);
-    expect(find.text('Informe o preço.'), findsOneWidget);
+    for (final erro in ['Informe o hodômetro.', 'Informe os litros.', 'Informe o preço.']) {
+      await tester.scrollUntilVisible(find.text(erro), -200, scrollable: find.byType(Scrollable).first);
+      expect(find.text(erro), findsOneWidget);
+    }
   });
 }

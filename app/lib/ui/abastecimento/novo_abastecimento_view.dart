@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/formato.dart';
 import '../../data/ia/cliente_ia.dart';
@@ -11,11 +10,13 @@ import '../comum/botao_ler_foto.dart';
 import '../../data/provedores.dart';
 import '../../domain/forma_pagamento.dart';
 import '../../domain/tipo_gasolina.dart';
+import '../comum/cabecalho_secao.dart';
 import '../comum/campo_com_rotulo.dart';
 import '../comum/campo_pagamento.dart';
 import '../comum/campo_data.dart';
 import '../comum/campos_valor.dart';
 import '../comum/formulario_registro.dart';
+import '../comum/saida_com_rascunho.dart';
 import 'novo_abastecimento_view_model.dart';
 import 'seletor_posto.dart';
 
@@ -28,7 +29,8 @@ class NovoAbastecimentoView extends ConsumerStatefulWidget {
   ConsumerState<NovoAbastecimentoView> createState() => _NovoAbastecimentoViewState();
 }
 
-class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
+class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView>
+    with SaidaComRascunho<NovoAbastecimentoView> {
   final _valores = CamposValor();
   final _odometro = TextEditingController();
   final _posto = TextEditingController();
@@ -45,6 +47,66 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
   bool get _editando => widget.registroId != null;
 
   NovoAbastecimentoViewModel get _vm => ref.read(novoAbastecimentoViewModelProvider(widget.registroId).notifier);
+
+  @override
+  String get tipoRascunho => 'abastecimento';
+
+  @override
+  String get nomeDoRegistro => 'abastecimento';
+
+  @override
+  bool get editandoRegistro => _editando;
+
+  @override
+  String? get veiculoIdRascunho => ref.read(novoAbastecimentoViewModelProvider(widget.registroId)).veiculo?.id;
+
+  @override
+  Map<String, dynamic> dadosDoFormulario() => {
+        'data': _data.toIso8601String(),
+        'odometro': _odometro.text,
+        'litros': _valores.quantidade.text,
+        'preco': _valores.preco.text,
+        'total': _valores.total.text,
+        'tanqueCheio': _tanqueCheio,
+        'contaNaMedia': _contaNaMedia,
+        'forma': _forma?.name,
+        'cartaoId': _cartaoId,
+        'posto': _posto.text,
+        'postoId': _postoId,
+        'tipoGasolina': _tipoGasolina.name,
+        'combustivel': ref.read(novoAbastecimentoViewModelProvider(widget.registroId)).combustivel?.name,
+      };
+
+  @override
+  List<String> camposPreenchidos() => [
+        if (_odometro.text.trim().isNotEmpty) 'Hodômetro',
+        if (_valores.quantidade.text.trim().isNotEmpty) 'Litros',
+        if (_valores.preco.text.trim().isNotEmpty) 'Preço',
+        if (_valores.total.text.trim().isNotEmpty) 'Total',
+        if (_posto.text.trim().isNotEmpty) 'Posto',
+      ];
+
+  @override
+  void aplicarRascunho(Map<String, dynamic> dados) {
+    final combustivel = Combustivel.values.where((c) => c.name == dados['combustivel']).firstOrNull;
+    final combustiveis = ref.read(novoAbastecimentoViewModelProvider(widget.registroId)).veiculo?.combustiveis ?? const [];
+    if (combustivel != null && combustiveis.contains(combustivel)) _vm.selecionarCombustivel(combustivel);
+    setState(() {
+      _data = DateTime.tryParse(dados['data'] as String? ?? '') ?? _data;
+      _tanqueCheio = dados['tanqueCheio'] as bool? ?? false;
+      _contaNaMedia = dados['contaNaMedia'] as bool? ?? true;
+      _forma = FormaPagamento.values.where((f) => f.name == dados['forma']).firstOrNull;
+      _cartaoId = dados['cartaoId'] as String?;
+      _postoId = dados['postoId'] as String?;
+      _tipoGasolina = TipoGasolina.values.where((t) => t.name == dados['tipoGasolina']).firstOrNull ?? _tipoGasolina;
+      _gasolinaEscolhida = true;
+    });
+    _odometro.text = dados['odometro'] as String? ?? '';
+    _valores.quantidade.text = dados['litros'] as String? ?? '';
+    _valores.preco.text = dados['preco'] as String? ?? '';
+    _valores.total.text = dados['total'] as String? ?? '';
+    _posto.text = dados['posto'] as String? ?? '';
+  }
 
   @override
   void initState() {
@@ -113,13 +175,15 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(_editando ? 'Abastecimento atualizado.' : 'Abastecimento salvo.')));
-    context.pop();
+    await apagarRascunhoSalvo();
+    sairLiberado();
   }
 
   Future<void> _escolherPosto() async {
     final posto = await escolherPosto(
       context,
       combustivel: ref.read(novoAbastecimentoViewModelProvider(widget.registroId)).combustivel,
+      combustiveis: ref.read(novoAbastecimentoViewModelProvider(widget.registroId)).veiculo?.combustiveis ?? const [],
       tipoGasolina: _tipoGasolina,
     );
     if (posto == null || !mounted) return;
@@ -149,7 +213,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
     await _vm.excluir();
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Abastecimento excluído.')));
-    context.pop();
+    sairLiberado();
   }
 
   @override
@@ -172,9 +236,11 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
       _valores.total.text = Formato.paraCampo(editando.valorCentavos / 100);
       _posto.text = editando.posto ?? '';
       _postoId = editando.postoId;
+      WidgetsBinding.instance.addPostFrameCallback((_) => registrarEstadoDaEdicao());
     });
+    if (veiculo != null) WidgetsBinding.instance.addPostFrameCallback((_) => verificarRascunho());
 
-    return Scaffold(
+    return envolverSaida(Scaffold(
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,6 +257,8 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (rascunhoPendente != null)
+              AvisoRascunho(rascunho: rascunhoPendente!, aoContinuar: continuarRascunho, aoDescartar: descartarRascunho),
             if (ref.watch(fotosIaProvider).value ?? true) ...[
               Row(
                 children: [
@@ -201,6 +269,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
               ),
               const SizedBox(height: 16),
             ],
+            const CabecalhoSecao(numero: 1, titulo: 'O quê'),
             if (veiculo != null && veiculo.combustiveis.length > 1) ...[
               SegmentedButton<Combustivel>(
                 segments: [
@@ -239,30 +308,6 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
               _AvisoEtanol(comparacao: estado.comparacao!, combustivel: estado.combustivel!),
               const SizedBox(height: 16),
             ],
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: CampoData(data: _data, aoMudar: (data) => setState(() => _data = data)),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: CampoComRotulo(
-                    rotulo: 'Hodômetro (km)',
-                    child: TextField(
-                      controller: _odometro,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: InputDecoration(
-                        helperText: 'Último: ${Formato.km(estado.ultimoOdometro)}',
-                        errorText: _erros[CampoRegistro.odometro],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -313,16 +358,32 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
               value: _contaNaMedia,
               onChanged: (valor) => setState(() => _contaNaMedia = valor),
             ),
-            const SizedBox(height: 8),
-            CampoPagamento(
-              forma: _forma,
-              cartaoId: _cartaoId,
-              aoMudar: (forma, cartaoId) => setState(() {
-                _forma = forma;
-                _cartaoId = cartaoId;
-              }),
+            const SizedBox(height: 16),
+            const CabecalhoSecao(numero: 2, titulo: 'Quando e onde'),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: CampoData(data: _data, aoMudar: (data) => setState(() => _data = data)),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: CampoComRotulo(
+                    rotulo: 'Hodômetro (km)',
+                    child: TextField(
+                      controller: _odometro,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      decoration: InputDecoration(
+                        helperText: 'Último: ${Formato.km(estado.ultimoOdometro)}',
+                        errorText: _erros[CampoRegistro.odometro],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             CampoComRotulo(
               rotulo: 'Posto (opcional)',
               child: TextField(
@@ -341,6 +402,16 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+            const CabecalhoSecao(numero: 3, titulo: 'Pagamento'),
+            CampoPagamento(
+              forma: _forma,
+              cartaoId: _cartaoId,
+              aoMudar: (forma, cartaoId) => setState(() {
+                _forma = forma;
+                _cartaoId = cartaoId;
+              }),
+            ),
             const SizedBox(height: 24),
             FilledButton(
               onPressed: estado.salvando || veiculo == null ? null : _salvar,
@@ -349,7 +420,7 @@ class _NovoAbastecimentoViewState extends ConsumerState<NovoAbastecimentoView> {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 

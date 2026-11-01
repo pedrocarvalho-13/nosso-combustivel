@@ -66,6 +66,12 @@ class PreferenciasRepositorio {
 
   Future<void> definirFotosIa(bool ligado) => _gravar(_fotosIa, ligado ? 'sim' : 'nao');
 
+  Future<String?> rascunho(String chave) => _ler(chave);
+
+  Future<void> definirRascunho(String chave, String json) => _gravar(chave, json);
+
+  Future<void> apagarRascunho(String chave) => _apagar(chave);
+
   Future<void> _apagar(String chave) => (_banco.delete(_banco.preferencias)..where((p) => p.chave.equals(chave))).go();
 
   Future<String?> _ler(String chave) async =>

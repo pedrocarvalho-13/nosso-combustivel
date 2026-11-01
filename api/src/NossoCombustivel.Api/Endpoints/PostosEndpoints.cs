@@ -13,25 +13,28 @@ public static class PostosEndpoints
 
     public static IEndpointRouteBuilder MapPostos(this IEndpointRouteBuilder app)
     {
-        var grupo = app.MapGroup("/postos").RequireAuthorization().RequireRateLimiting(PoliticaLimite);
-
-        grupo.MapGet("/proximos", async (double lat, double lng, int? raio, string? tipo, ServicoPostos servico, CancellationToken cancelamento) =>
+        foreach (var prefixo in new[] { "/lugares", "/postos" })
         {
-            var resultado = await servico.BuscarProximosAsync(LerTipo(tipo), lat, lng, raio, cancelamento);
-            return resultado.Sucesso
-                ? Results.Ok(resultado.Valor)
-                : Results.Problem(title: resultado.Erro!.Mensagem, statusCode: StatusCodes.Status400BadRequest);
-        });
+            var grupo = app.MapGroup(prefixo).RequireAuthorization().RequireRateLimiting(PoliticaLimite);
 
-        grupo.MapPost("/", async (CadastroPostoRequisicao requisicao, ClaimsPrincipal usuario, ServicoPostos servico, CancellationToken cancelamento) =>
-        {
-            var dados = new DadosPosto(requisicao.Nome, requisicao.Bandeira, null, requisicao.Latitude, requisicao.Longitude);
-            var resultado = await servico.CadastrarAsync(
-                Guid.Parse(usuario.FindFirstValue(JwtRegisteredClaimNames.Sub)!), requisicao.Tipo ?? TipoPosto.Combustivel, dados, cancelamento);
-            return resultado.Sucesso
-                ? Results.Ok(resultado.Valor)
-                : Results.Problem(title: resultado.Erro!.Mensagem, statusCode: StatusCodes.Status400BadRequest);
-        });
+            grupo.MapGet("/proximos", async (double lat, double lng, int? raio, string? tipo, ServicoPostos servico, CancellationToken cancelamento) =>
+            {
+                var resultado = await servico.BuscarProximosAsync(LerTipo(tipo), lat, lng, raio, cancelamento);
+                return resultado.Sucesso
+                    ? Results.Ok(resultado.Valor)
+                    : Results.Problem(title: resultado.Erro!.Mensagem, statusCode: StatusCodes.Status400BadRequest);
+            });
+
+            grupo.MapPost("/", async (CadastroPostoRequisicao requisicao, ClaimsPrincipal usuario, ServicoPostos servico, CancellationToken cancelamento) =>
+            {
+                var dados = new DadosPosto(requisicao.Nome, requisicao.Bandeira, null, requisicao.Latitude, requisicao.Longitude);
+                var resultado = await servico.CadastrarAsync(
+                    Guid.Parse(usuario.FindFirstValue(JwtRegisteredClaimNames.Sub)!), requisicao.Tipo ?? TipoPosto.Combustivel, dados, cancelamento);
+                return resultado.Sucesso
+                    ? Results.Ok(resultado.Valor)
+                    : Results.Problem(title: resultado.Erro!.Mensagem, statusCode: StatusCodes.Status400BadRequest);
+            });
+        }
 
         return app;
     }
