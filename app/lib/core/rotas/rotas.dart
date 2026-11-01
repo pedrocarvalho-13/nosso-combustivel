@@ -10,6 +10,8 @@ import '../../ui/cartoes/cartoes_view.dart';
 import '../../ui/carros/carros_view.dart';
 import '../../ui/carros/editar_veiculo_view.dart';
 import '../../ui/conta/conta_view.dart';
+import '../../ui/estetica/estetica_view.dart';
+import '../../ui/estetica/nova_estetica_view.dart';
 import '../../ui/garagem/garagem_view.dart';
 import '../../ui/historico/historico_view.dart';
 import '../../ui/inicio/inicio_view.dart';
@@ -37,6 +39,8 @@ abstract final class Rotas {
   static const garagem = '/garagem';
   static const manutencao = '/manutencao';
   static const novaManutencao = '/manutencao/nova';
+  static const estetica = '/estetica';
+  static const novaEstetica = '/estetica/nova';
   static const ajustes = '/ajustes';
 
   static String editarVeiculo(String id) => '/veiculo/$id/editar';
@@ -100,6 +104,12 @@ final rotasProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Rotas.carros, builder: (_, _) => const CarrosView()),
       GoRoute(path: Rotas.manutencao, builder: (_, _) => const ManutencaoView()),
       GoRoute(path: Rotas.novaManutencao, builder: (_, _) => const NovaManutencaoView()),
+      GoRoute(path: Rotas.estetica, builder: (_, _) => const EsteticaView()),
+      GoRoute(path: Rotas.novaEstetica, builder: (_, _) => const NovaEsteticaView()),
+      GoRoute(
+        path: '/estetica/:id',
+        builder: (_, state) => NovaEsteticaView(servicoId: state.pathParameters['id']),
+      ),
       GoRoute(
         path: '/manutencao/:id',
         builder: (_, state) => NovaManutencaoView(servicoId: state.pathParameters['id']),

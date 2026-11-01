@@ -47,6 +47,7 @@ class _NovaManutencaoViewState extends ConsumerState<NovaManutencaoView> with Sa
   String? _oficinaId;
   FormaPagamento? _forma;
   String? _cartaoId;
+  var _parcelas = 1;
   String? _erroValor;
   var _salvando = false;
   Servico? _original;
@@ -107,7 +108,10 @@ class _NovaManutencaoViewState extends ConsumerState<NovaManutencaoView> with Sa
     _original = servico;
     aplicarRascunho({
       'categorias': servico.categorias,
-      'detalhes': servico.detalhes,
+      'detalhes': {
+        for (final entrada in servico.detalhes.entries)
+          if (entrada.value is Map) entrada.key: entrada.value,
+      },
       'data': servico.data.toIso8601String(),
       'odometro': servico.odometro == null ? '' : '${servico.odometro}',
       'oficina': servico.lugarNome ?? '',
@@ -117,6 +121,7 @@ class _NovaManutencaoViewState extends ConsumerState<NovaManutencaoView> with Sa
       'maoDeObra': servico.maoDeObraCentavos == null ? '' : Formato.paraCampo(servico.maoDeObraCentavos! / 100),
       'forma': servico.formaPagamento?.name,
       'cartaoId': servico.cartaoId,
+      'parcelas': servico.parcelas,
       'observacao': servico.observacao ?? '',
     });
     WidgetsBinding.instance.addPostFrameCallback((_) => registrarEstadoDaEdicao());
@@ -156,6 +161,7 @@ class _NovaManutencaoViewState extends ConsumerState<NovaManutencaoView> with Sa
     'maoDeObra': _maoDeObra.text,
     'forma': _forma?.name,
     'cartaoId': _cartaoId,
+    'parcelas': _parcelas,
     'observacao': _observacao.text,
   };
 
@@ -180,7 +186,7 @@ class _NovaManutencaoViewState extends ConsumerState<NovaManutencaoView> with Sa
         ..clear()
         ..addAll({
           for (final entrada in ((dados['detalhes'] as Map?) ?? const {}).entries)
-            entrada.key as String: Map<String, dynamic>.from(entrada.value as Map),
+            if (entrada.value is Map) entrada.key as String: Map<String, dynamic>.from(entrada.value as Map),
         });
       for (final controle in _textos.values) {
         controle.dispose();
@@ -191,6 +197,7 @@ class _NovaManutencaoViewState extends ConsumerState<NovaManutencaoView> with Sa
       _oficinaId = dados['oficinaId'] as String?;
       _forma = FormaPagamento.values.where((f) => f.name == dados['forma']).firstOrNull;
       _cartaoId = dados['cartaoId'] as String?;
+      _parcelas = (dados['parcelas'] as num?)?.toInt() ?? 1;
     });
     _odometro.text = dados['odometro'] as String? ?? '';
     _oficina.text = dados['oficina'] as String? ?? '';
@@ -317,7 +324,10 @@ class _NovaManutencaoViewState extends ConsumerState<NovaManutencaoView> with Sa
       return;
     }
     setState(() => _salvando = true);
-    final detalhes = _detalhesLimpos();
+    final detalhes = {
+      ..._detalhesLimpos(),
+      if (_forma == FormaPagamento.credito && _parcelas > 1) 'parcelas': _parcelas,
+    };
     await ref
         .read(servicoRepositorioProvider)
         .salvar(
@@ -902,6 +912,9 @@ class _NovaManutencaoViewState extends ConsumerState<NovaManutencaoView> with Sa
             _forma = forma;
             _cartaoId = cartaoId;
           }),
+          parcelas: _parcelas,
+          aoMudarParcelas: (vezes) => setState(() => _parcelas = vezes),
+          valorCentavos: ((Formato.lerDecimal(_total.text) ?? 0) * 100).round(),
         ),
         const SizedBox(height: 12),
         CampoComRotulo(

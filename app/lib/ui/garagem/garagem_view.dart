@@ -6,6 +6,7 @@ import '../../core/formato.dart';
 import '../../core/rotas/rotas.dart';
 import '../../data/provedores.dart';
 import '../../domain/calculos/calculo_manutencao.dart';
+import '../../domain/estetica.dart';
 import '../../domain/registro_energia.dart';
 import '../../domain/servico.dart';
 import '../comum/estado_vazio.dart';
@@ -21,6 +22,7 @@ class GaragemView extends ConsumerWidget {
     final veiculos = ref.watch(veiculosProvider).value ?? const [];
     final registros = ref.watch(registrosDoAtivoProvider).value ?? const <RegistroEnergia>[];
     final manutencoes = ref.watch(manutencoesDoAtivoProvider).value ?? const <Servico>[];
+    final esteticas = ref.watch(esteticasDoAtivoProvider).value ?? const <Servico>[];
     final agora = ref.watch(relogioProvider)();
     final esquema = Theme.of(context).colorScheme;
     final textos = Theme.of(context).textTheme;
@@ -84,12 +86,21 @@ class GaragemView extends ConsumerWidget {
                 corDescricao: corManutencao,
                 aoTocar: () => context.push(Rotas.manutencao),
               ),
-              const _Item(
-                icone: Icons.local_car_wash_outlined,
-                cor: Color(0xFF5AAEE8),
-                titulo: 'Estética',
-                descricao: 'Chega no próximo lançamento',
-              ),
+              () {
+                final resumo = CalculoEstetica.resumo(esteticas, agora);
+                final ultima = resumo.ultimaLavagem;
+                final dias = resumo.diasParaLavar;
+                return _Item(
+                  icone: Icons.local_car_wash_outlined,
+                  cor: const Color(0xFF5AAEE8),
+                  titulo: 'Estética',
+                  descricao: ultima == null
+                      ? 'Nenhuma lavagem registrada'
+                      : 'Última lavagem ${haQuantoTempo(ultima.data, agora)}${dias != null && dias < 0 ? ' · hora de lavar' : ''}',
+                  corDescricao: dias != null && dias < 0 ? const Color(0xFFE8B04A) : null,
+                  aoTocar: () => context.push(Rotas.estetica),
+                );
+              }(),
               const _Item(
                 icone: Icons.receipt_long_outlined,
                 cor: Color(0xFFA98BE8),

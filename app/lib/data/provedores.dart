@@ -44,6 +44,12 @@ final manutencoesDoAtivoProvider = StreamProvider<List<Servico>>((ref) {
   return ref.watch(servicoRepositorioProvider).observarDoVeiculo(veiculo.id, TipoServico.manutencao);
 });
 
+final esteticasDoAtivoProvider = StreamProvider<List<Servico>>((ref) {
+  final veiculo = ref.watch(veiculoAtivoProvider).value;
+  if (veiculo == null) return Stream.value(const []);
+  return ref.watch(servicoRepositorioProvider).observarDoVeiculo(veiculo.id, TipoServico.estetica);
+});
+
 final cartaoRepositorioProvider = Provider<CartaoRepositorio>(
   (ref) => CartaoRepositorio(ref.watch(bancoLocalProvider), ref.watch(relogioProvider)),
 );

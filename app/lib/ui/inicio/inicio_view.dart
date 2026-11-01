@@ -367,7 +367,7 @@ class _MesAtual extends StatelessWidget {
       children: [
         _ValorDoMes(
           centavos: estado.gastoMesCentavos,
-          etiqueta: estado.manutencaoMesCentavos > 0 ? '${Formato.moeda(estado.manutencaoMesCentavos)} manutenção' : null,
+          etiqueta: estado.manutencaoMesCentavos > 0 ? '${Formato.moeda(estado.manutencaoMesCentavos)} em serviços' : null,
         ),
         const SizedBox(height: 10),
         ClipRRect(

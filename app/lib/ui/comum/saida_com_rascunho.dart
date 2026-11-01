@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/rotas/rotas.dart';
 import '../../core/tema/cores_base.dart';
 import '../../data/provedores.dart';
 
@@ -79,7 +80,12 @@ mixin SaidaComRascunho<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   void sairLiberado() {
     setState(() => _liberado = true);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.pop();
+      if (!mounted) return;
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go(Rotas.inicio);
+      }
     });
   }
 

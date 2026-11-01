@@ -106,7 +106,10 @@ const quedaParaDestacar = 0.15;
 final inicioViewModelProvider = Provider<AsyncValue<InicioEstado?>>((ref) {
   final registros = ref.watch(registrosDoAtivoProvider).value ?? const <RegistroEnergia>[];
   final cartoes = {for (final c in ref.watch(cartoesProvider).value ?? const <Cartao>[]) c.id: c};
-  final manutencoes = ref.watch(manutencoesDoAtivoProvider).value ?? const <Servico>[];
+  final manutencoes = [
+    ...ref.watch(manutencoesDoAtivoProvider).value ?? const <Servico>[],
+    ...ref.watch(esteticasDoAtivoProvider).value ?? const <Servico>[],
+  ];
   final agora = ref.watch(relogioProvider)();
   final dias = ref.watch(periodoMediaProvider).value ?? 30;
   final meta = ref.watch(metaMensalProvider).value;
@@ -235,12 +238,12 @@ List<MesGasto> _meses(
     mes = DateTime(mes.year, mes.month + 1);
   }
 
-  final noSeguinte = gastos.where((r) => CalculoFatura.mesDoGasto(r, cartoes) == seguinte).toList();
+  final noSeguinte = gastos.where((r) => CalculoFatura.valorNoMes(r, cartoes, seguinte) > 0).toList();
   if (noSeguinte.isNotEmpty) {
     meses.add(MesGasto(
       mes: seguinte,
       tipo: TipoMes.seguinte,
-      totalCentavos: noSeguinte.fold(0, (soma, r) => soma + r.valorCentavos),
+      totalCentavos: CalculoFatura.gastoDoMes(noSeguinte, cartoes, seguinte),
       kmRodados: 0,
       registrosNoCredito: noSeguinte.where((r) => r.data.isBefore(seguinte)).length,
     ));

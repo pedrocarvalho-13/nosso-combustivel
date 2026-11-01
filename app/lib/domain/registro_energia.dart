@@ -17,6 +17,7 @@ abstract interface class GastoComPagamento {
   int get valorCentavos;
   FormaPagamento? get formaPagamento;
   String? get cartaoId;
+  int get parcelas;
 }
 
 sealed class RegistroEnergia implements GastoComPagamento {
@@ -45,6 +46,9 @@ sealed class RegistroEnergia implements GastoComPagamento {
   @override
   final String? cartaoId;
   final bool contaNaMedia;
+
+  @override
+  int get parcelas => 1;
 
   double get quantidade;
 }

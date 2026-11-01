@@ -14,6 +14,16 @@ abstract final class CalculoFatura {
 
   static int gastoDoMes(Iterable<GastoComPagamento> registros, Map<String, Cartao> cartoes, DateTime mes) {
     final alvo = DateTime(mes.year, mes.month);
-    return registros.where((r) => mesDoGasto(r, cartoes) == alvo).fold(0, (soma, r) => soma + r.valorCentavos);
+    return registros.fold(0, (soma, r) => soma + valorNoMes(r, cartoes, alvo));
+  }
+
+  static int valorNoMes(GastoComPagamento registro, Map<String, Cartao> cartoes, DateTime mes) {
+    final primeiro = mesDoGasto(registro, cartoes);
+    final indice = (mes.year - primeiro.year) * 12 + mes.month - primeiro.month;
+    final parcelas = registro.parcelas < 1 ? 1 : registro.parcelas;
+    if (indice < 0 || indice >= parcelas) return 0;
+    final base = registro.valorCentavos ~/ parcelas;
+    final resto = registro.valorCentavos - base * parcelas;
+    return base + (indice < resto ? 1 : 0);
   }
 }

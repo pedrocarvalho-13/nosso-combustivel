@@ -42,6 +42,12 @@ class Servico implements GastoComPagamento {
   final String? cartaoId;
   final String? observacao;
 
+  @override
+  int get parcelas {
+    final valor = (detalhes['parcelas'] as num?)?.toInt() ?? 1;
+    return formaPagamento == FormaPagamento.credito && valor > 1 ? valor : 1;
+  }
+
   Map<String, dynamic> detalhesDe(String categoria) =>
       (detalhes[categoria] as Map?)?.cast<String, dynamic>() ?? const {};
 }
