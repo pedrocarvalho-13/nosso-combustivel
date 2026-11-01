@@ -399,6 +399,86 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                     b.ToTable("Recargas", (string)null);
                 });
 
+            modelBuilder.Entity("NossoCombustivel.Domain.Servicos.Servico", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AtualizadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CartaoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Categorias")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)");
+
+                    b.Property<DateTimeOffset>("CriadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("Data")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Detalhes")
+                        .HasMaxLength(8000)
+                        .HasColumnType("character varying(8000)");
+
+                    b.Property<DateTimeOffset?>("ExcluidoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FormaPagamento")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<Guid?>("LugarId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LugarNome")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Observacao")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int?>("Odometro")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("SincronizadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal?>("ValorMaoDeObra")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<decimal?>("ValorPecas")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<decimal>("ValorTotal")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<Guid>("VeiculoId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VeiculoId", "SincronizadoEm");
+
+                    b.ToTable("Servicos", (string)null);
+                });
+
             modelBuilder.Entity("NossoCombustivel.Domain.Veiculos.Veiculo", b =>
                 {
                     b.Property<Guid>("Id")
@@ -645,6 +725,36 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                     b.ToTable("CapacidadesVeiculo", (string)null);
                 });
 
+            modelBuilder.Entity("NossoCombustivel.Infrastructure.Persistencia.IntervaloManutencao", b =>
+                {
+                    b.Property<string>("Chave")
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)");
+
+                    b.Property<DateTimeOffset>("CriadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("Km")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("KmSevero")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Meses")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("MesesSevero")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Observacao")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Chave");
+
+                    b.ToTable("IntervalosManutencao", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
@@ -715,6 +825,15 @@ namespace NossoCombustivel.Infrastructure.Persistencia.Migracoes
                 });
 
             modelBuilder.Entity("NossoCombustivel.Domain.Registros.Recarga", b =>
+                {
+                    b.HasOne("NossoCombustivel.Domain.Veiculos.Veiculo", null)
+                        .WithMany()
+                        .HasForeignKey("VeiculoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NossoCombustivel.Domain.Servicos.Servico", b =>
                 {
                     b.HasOne("NossoCombustivel.Domain.Veiculos.Veiculo", null)
                         .WithMany()

@@ -9,6 +9,10 @@ public sealed record CapacidadeRequisicao(
 
 public sealed record CapacidadeResposta(decimal? CapacidadeTanqueL, decimal? CapacidadeBateriaKwh);
 
+public sealed record IntervaloRequisicao(
+    TipoVeiculo TipoVeiculo, string Marca, string Modelo, int? Ano, string? CodigoFipe, TipoEnergia TipoEnergia,
+    string Servico, string? Detalhe);
+
 public sealed record LeituraRequisicao(TipoLeitura Tipo, string ImagemBase64, string TipoMime);
 
 public static class IaEndpoints
@@ -27,6 +31,15 @@ public static class IaEndpoints
             return resultado.Sucesso
                 ? Results.Ok(new CapacidadeResposta(resultado.Valor!.TanqueL, resultado.Valor.BateriaKwh))
                 : ParaProblema(resultado.Erro!);
+        });
+
+        grupo.MapPost("/intervalo", async (IntervaloRequisicao requisicao, ServicoIa servico, CancellationToken cancelamento) =>
+        {
+            var veiculo = new VeiculoConsultado(
+                requisicao.TipoVeiculo, requisicao.Marca, requisicao.Modelo, requisicao.Ano, requisicao.TipoEnergia);
+            var resultado = await servico.EstimarIntervaloAsync(
+                veiculo, requisicao.CodigoFipe, requisicao.Servico, requisicao.Detalhe, cancelamento);
+            return resultado.Sucesso ? Results.Ok(resultado.Valor) : ParaProblema(resultado.Erro!);
         });
 
         grupo.MapPost("/leitura", async (LeituraRequisicao requisicao, ServicoIa servico, CancellationToken cancelamento) =>

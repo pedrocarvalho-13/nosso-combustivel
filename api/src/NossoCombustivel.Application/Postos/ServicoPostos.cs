@@ -8,7 +8,7 @@ namespace NossoCombustivel.Application.Postos;
 public sealed class ServicoPostos(IBuscaPostos busca, IRepositorioPostos repositorio, IRelogio relogio)
 {
     public const int RaioPadrao = 1500;
-    public const int RaioMaximo = 5000;
+    public const int RaioMaximo = 12000;
     private const int DistanciaDuplicadoMetros = 80;
     private static readonly TimeSpan ValidadeDaBusca = TimeSpan.FromDays(7);
     private static readonly TimeSpan IdadeMaximaDoPreco = TimeSpan.FromDays(60);

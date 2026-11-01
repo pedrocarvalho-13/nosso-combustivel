@@ -11,6 +11,7 @@ import '../../data/sessao/sessao_controller.dart';
 import '../../data/sync/sincronizacao_controller.dart';
 import '../../domain/forma_pagamento.dart';
 import '../../domain/tipo_gasolina.dart';
+import '../comum/campo_com_rotulo.dart';
 
 class AjustesView extends ConsumerWidget {
   const AjustesView({super.key});
@@ -43,168 +44,180 @@ class AjustesView extends ConsumerWidget {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
             children: [
-              _Grupo(children: [
-                ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: esquema.surfaceContainerHighest,
-                    child: Text(_iniciais(usuario?.nome ?? ''), style: textos.titleSmall),
+              _Grupo(
+                children: [
+                  ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: esquema.surfaceContainerHighest,
+                      child: Text(_iniciais(usuario?.nome ?? ''), style: textos.titleSmall),
+                    ),
+                    title: Text(usuario?.nome ?? '', style: textos.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    subtitle: Text(usuario?.email ?? ''),
                   ),
-                  title: Text(usuario?.nome ?? '', style: textos.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
-                  subtitle: Text(usuario?.email ?? ''),
-                ),
-              ]),
+                ],
+              ),
               const _Secao('Gastos'),
-              _Grupo(children: [
-                _Item(
-                  icone: Icons.credit_card,
-                  titulo: 'Meus cartões',
-                  descricao: 'Banco, nome e fechamento da fatura',
-                  valor: cartoes.isEmpty ? null : '${cartoes.length}',
-                  aoTocar: () => context.push(Rotas.cartoes),
-                ),
-                _Item(
-                  icone: Icons.account_balance_wallet_outlined,
-                  titulo: 'Pagamento padrão',
-                  descricao: 'Já vem marcado no abastecimento',
-                  valor: _rotuloPagamento(pagamento, cartoes.map((c) => (c.id, c.nome)).toList()),
-                  aoTocar: () async {
-                    final escolha = await _escolher<String>(
-                      context,
-                      titulo: 'Pagamento padrão',
-                      atual: pagamento ?? '',
-                      opcoes: [
-                        ('', 'Último usado'),
-                        for (final c in cartoes) ('${FormaPagamento.credito.name}|${c.id}', 'Crédito · ${c.nome}'),
-                        for (final f in FormaPagamento.values.where((f) => f != FormaPagamento.credito)) ('${f.name}|', f.rotulo),
-                      ],
-                    );
-                    if (escolha != null) await preferencias.definirPagamentoPadrao(escolha.isEmpty ? null : escolha);
-                  },
-                ),
-                _Item(
-                  icone: Icons.local_gas_station_outlined,
-                  titulo: 'Gasolina padrão',
-                  descricao: 'Já vem marcada no abastecimento e nos preços dos postos',
-                  valor: gasolina.rotulo,
-                  aoTocar: () async {
-                    final escolha = await _escolher<TipoGasolina>(
-                      context,
-                      titulo: 'Gasolina padrão',
-                      atual: gasolina,
-                      opcoes: const [
-                        (TipoGasolina.comum, 'Comum'),
-                        (TipoGasolina.aditivada, 'Aditivada'),
-                        (TipoGasolina.premium, 'Premium (Podium, Ipimax, V-Power...)'),
-                      ],
-                    );
-                    if (escolha != null) await preferencias.definirGasolinaPadrao(escolha);
-                  },
-                ),
-                _Item(
-                  icone: Icons.flag_outlined,
-                  titulo: 'Meta de gasto mensal',
-                  descricao: 'A barra do mês fica amarela em 80% e vermelha ao passar',
-                  valor: meta == null ? 'Sem meta' : Formato.moeda(meta),
-                  aoTocar: () async {
-                    final valor = await _pedirValor(
-                      context,
-                      titulo: 'Meta de gasto mensal',
-                      rotulo: 'Valor por mês (R\$)',
-                      inicial: meta == null ? null : meta / 100,
-                      casas: 2,
-                    );
-                    if (valor == null) return;
-                    await preferencias.definirMetaMensal(valor.$1 == null ? null : (valor.$1! * 100).round());
-                  },
-                ),
-              ]),
-              const _Secao('Consumo e recarga'),
-              _Grupo(children: [
-                _Item(
-                  icone: Icons.calendar_month_outlined,
-                  titulo: 'Período da média',
-                  descricao: 'Usado no card de consumo médio',
-                  valor: '$dias dias',
-                  aoTocar: () async {
-                    final escolha = await _escolher<int>(
-                      context,
-                      titulo: 'Período da média',
-                      atual: dias,
-                      opcoes: const [(30, 'Últimos 30 dias'), (60, 'Últimos 60 dias'), (90, 'Últimos 90 dias')],
-                    );
-                    if (escolha != null) await preferencias.definirPeriodoMedia(escolha);
-                  },
-                ),
-                if (temRecarga)
+              _Grupo(
+                children: [
                   _Item(
-                    icone: Icons.electrical_services,
-                    titulo: 'Tarifa de energia em casa',
-                    descricao: 'Preenche o preço das recargas em casa',
-                    valor: tarifa == null ? 'Não informada' : '${Formato.moedaPorKm(tarifa)}/kWh',
+                    icone: Icons.credit_card,
+                    titulo: 'Meus cartões',
+                    descricao: 'Banco, nome e fechamento da fatura',
+                    valor: cartoes.isEmpty ? null : '${cartoes.length}',
+                    aoTocar: () => context.push(Rotas.cartoes),
+                  ),
+                  _Item(
+                    icone: Icons.account_balance_wallet_outlined,
+                    titulo: 'Pagamento padrão',
+                    descricao: 'Já vem marcado no abastecimento',
+                    valor: _rotuloPagamento(pagamento, cartoes.map((c) => (c.id, c.nome)).toList()),
+                    aoTocar: () async {
+                      final escolha = await _escolher<String>(
+                        context,
+                        titulo: 'Pagamento padrão',
+                        atual: pagamento ?? '',
+                        opcoes: [
+                          ('', 'Último usado'),
+                          for (final c in cartoes) ('${FormaPagamento.credito.name}|${c.id}', 'Crédito · ${c.nome}'),
+                          for (final f in FormaPagamento.values.where((f) => f != FormaPagamento.credito))
+                            ('${f.name}|', f.rotulo),
+                        ],
+                      );
+                      if (escolha != null) await preferencias.definirPagamentoPadrao(escolha.isEmpty ? null : escolha);
+                    },
+                  ),
+                  _Item(
+                    icone: Icons.local_gas_station_outlined,
+                    titulo: 'Gasolina padrão',
+                    descricao: 'Já vem marcada no abastecimento e nos preços dos postos',
+                    valor: gasolina.rotulo,
+                    aoTocar: () async {
+                      final escolha = await _escolher<TipoGasolina>(
+                        context,
+                        titulo: 'Gasolina padrão',
+                        atual: gasolina,
+                        opcoes: const [
+                          (TipoGasolina.comum, 'Comum'),
+                          (TipoGasolina.aditivada, 'Aditivada'),
+                          (TipoGasolina.premium, 'Premium (Podium, Ipimax, V-Power...)'),
+                        ],
+                      );
+                      if (escolha != null) await preferencias.definirGasolinaPadrao(escolha);
+                    },
+                  ),
+                  _Item(
+                    icone: Icons.flag_outlined,
+                    titulo: 'Meta de gasto mensal',
+                    descricao: 'A barra do mês fica amarela em 80% e vermelha ao passar',
+                    valor: meta == null ? 'Sem meta' : Formato.moeda(meta),
                     aoTocar: () async {
                       final valor = await _pedirValor(
                         context,
-                        titulo: 'Tarifa de energia em casa',
-                        rotulo: 'Preço por kWh (R\$)',
-                        inicial: tarifa,
-                        casas: 3,
-                        permitirApagar: false,
+                        titulo: 'Meta de gasto mensal',
+                        rotulo: 'Valor por mês (R\$)',
+                        inicial: meta == null ? null : meta / 100,
+                        casas: 2,
                       );
-                      if (valor?.$1 != null) await preferencias.definirTarifaCasa(valor!.$1!);
+                      if (valor == null) return;
+                      await preferencias.definirMetaMensal(valor.$1 == null ? null : (valor.$1! * 100).round());
                     },
                   ),
-              ]),
-              const _Secao('Aplicativo'),
-              _Grupo(children: [
-                _Item(
-                  icone: Icons.dark_mode_outlined,
-                  titulo: 'Tema',
-                  valor: const {'escuro': 'Escuro', 'claro': 'Claro', 'sistema': 'Igual ao celular'}[tema],
-                  aoTocar: () async {
-                    final escolha = await _escolher<String>(
-                      context,
-                      titulo: 'Tema',
-                      atual: tema,
-                      opcoes: const [('escuro', 'Escuro'), ('claro', 'Claro'), ('sistema', 'Igual ao celular')],
-                    );
-                    if (escolha != null) await preferencias.definirTema(escolha);
-                  },
-                ),
-                _Item(
-                  icone: Icons.sync,
-                  titulo: 'Sincronização',
-                  descricao: switch (sincronizacao.situacao) {
-                    SituacaoSync.sincronizando => 'Sincronizando...',
-                    SituacaoSync.semConexao => 'Sem conexão. Os registros ficam guardados no aparelho',
-                    SituacaoSync.erro => 'Não foi possível sincronizar',
-                    SituacaoSync.ocioso => sincronizacao.ultimaEm == null
-                        ? 'Ainda não sincronizou'
-                        : 'Sincronizado às ${_hora(sincronizacao.ultimaEm!)}',
-                  },
-                  acao: TextButton(
-                    onPressed: sincronizacao.situacao == SituacaoSync.sincronizando
-                        ? null
-                        : () => ref.read(sincronizacaoProvider.notifier).sincronizar(),
-                    child: const Text('Agora'),
+                ],
+              ),
+              const _Secao('Consumo e recarga'),
+              _Grupo(
+                children: [
+                  _Item(
+                    icone: Icons.calendar_month_outlined,
+                    titulo: 'Período da média',
+                    descricao: 'Usado no card de consumo médio',
+                    valor: '$dias dias',
+                    aoTocar: () async {
+                      final escolha = await _escolher<int>(
+                        context,
+                        titulo: 'Período da média',
+                        atual: dias,
+                        opcoes: const [(30, 'Últimos 30 dias'), (60, 'Últimos 60 dias'), (90, 'Últimos 90 dias')],
+                      );
+                      if (escolha != null) await preferencias.definirPeriodoMedia(escolha);
+                    },
                   ),
-                ),
-                SwitchListTile(
-                  secondary: Icon(Icons.document_scanner_outlined, color: esquema.primary),
-                  title: const Text('Leitura de fotos por IA'),
-                  subtitle: const Text('Botões de foto da bomba e do hodômetro'),
-                  value: fotos,
-                  onChanged: preferencias.definirFotosIa,
-                ),
-              ]),
+                  if (temRecarga)
+                    _Item(
+                      icone: Icons.electrical_services,
+                      titulo: 'Tarifa de energia em casa',
+                      descricao: 'Preenche o preço das recargas em casa',
+                      valor: tarifa == null ? 'Não informada' : '${Formato.moedaPorKm(tarifa)}/kWh',
+                      aoTocar: () async {
+                        final valor = await _pedirValor(
+                          context,
+                          titulo: 'Tarifa de energia em casa',
+                          rotulo: 'Preço por kWh (R\$)',
+                          inicial: tarifa,
+                          casas: 3,
+                          permitirApagar: false,
+                        );
+                        if (valor?.$1 != null) await preferencias.definirTarifaCasa(valor!.$1!);
+                      },
+                    ),
+                ],
+              ),
+              const _Secao('Aplicativo'),
+              _Grupo(
+                children: [
+                  _Item(
+                    icone: Icons.dark_mode_outlined,
+                    titulo: 'Tema',
+                    valor: const {'escuro': 'Escuro', 'claro': 'Claro', 'sistema': 'Igual ao celular'}[tema],
+                    aoTocar: () async {
+                      final escolha = await _escolher<String>(
+                        context,
+                        titulo: 'Tema',
+                        atual: tema,
+                        opcoes: const [('escuro', 'Escuro'), ('claro', 'Claro'), ('sistema', 'Igual ao celular')],
+                      );
+                      if (escolha != null) await preferencias.definirTema(escolha);
+                    },
+                  ),
+                  _Item(
+                    icone: Icons.sync,
+                    titulo: 'Sincronização',
+                    descricao: switch (sincronizacao.situacao) {
+                      SituacaoSync.sincronizando => 'Sincronizando...',
+                      SituacaoSync.semConexao => 'Sem conexão. Os registros ficam guardados no aparelho',
+                      SituacaoSync.erro => 'Não foi possível sincronizar',
+                      SituacaoSync.ocioso =>
+                        sincronizacao.ultimaEm == null
+                            ? 'Ainda não sincronizou'
+                            : 'Sincronizado às ${_hora(sincronizacao.ultimaEm!)}',
+                    },
+                    acao: TextButton(
+                      onPressed: sincronizacao.situacao == SituacaoSync.sincronizando
+                          ? null
+                          : () => ref.read(sincronizacaoProvider.notifier).sincronizar(),
+                      child: const Text('Agora'),
+                    ),
+                  ),
+                  SwitchListTile(
+                    secondary: Icon(Icons.document_scanner_outlined, color: esquema.primary),
+                    title: const Text('Leitura de fotos por IA'),
+                    subtitle: const Text('Botões de foto da bomba e do hodômetro'),
+                    value: fotos,
+                    onChanged: preferencias.definirFotosIa,
+                  ),
+                ],
+              ),
               const _Secao('Sobre'),
-              _Grupo(children: [
-                const _Item(icone: Icons.info_outline, titulo: 'Versão', valor: _versao),
-                ListTile(
-                  leading: const Icon(Icons.logout, color: CoresBase.alerta),
-                  title: Text('Sair da conta', style: textos.bodyLarge?.copyWith(color: CoresBase.alerta)),
-                  onTap: () => ref.read(sessaoProvider.notifier).sair(),
-                ),
-              ]),
+              _Grupo(
+                children: [
+                  const _Item(icone: Icons.info_outline, titulo: 'Versão', valor: _versao),
+                  ListTile(
+                    leading: const Icon(Icons.logout, color: CoresBase.alerta),
+                    title: Text('Sair da conta', style: textos.bodyLarge?.copyWith(color: CoresBase.alerta)),
+                    onTap: () => ref.read(sessaoProvider.notifier).sair(),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -253,7 +266,10 @@ class AjustesView extends ConsumerWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-                child: Text(titulo, style: Theme.of(contexto).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
+                child: Text(
+                  titulo,
+                  style: Theme.of(contexto).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+                ),
               ),
               for (final (valor, rotulo) in opcoes)
                 ListTile(
@@ -303,13 +319,16 @@ class AjustesView extends ConsumerWidget {
                   children: [
                     Text(titulo, style: Theme.of(contexto).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 16),
-                    TextField(
-                      controller: controle,
-                      autofocus: true,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
-                      onSubmitted: (_) => salvar(),
-                      decoration: InputDecoration(labelText: rotulo, errorText: erro),
+                    CampoComRotulo(
+                      rotulo: rotulo,
+                      child: TextField(
+                        controller: controle,
+                        autofocus: true,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+                        onSubmitted: (_) => salvar(),
+                        decoration: InputDecoration(errorText: erro),
+                      ),
                     ),
                     const SizedBox(height: 20),
                     FilledButton(onPressed: salvar, child: const Text('Salvar')),
@@ -362,10 +381,7 @@ class _Grupo extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
-          for (final (indice, filho) in children.indexed) ...[
-            if (indice > 0) divisoria,
-            filho,
-          ],
+          for (final (indice, filho) in children.indexed) ...[if (indice > 0) divisoria, filho],
         ],
       ),
     );
@@ -391,7 +407,8 @@ class _Item extends StatelessWidget {
       title: Text(titulo),
       subtitle: descricao == null ? null : Text(descricao!),
       onTap: aoTocar,
-      trailing: acao ??
+      trailing:
+          acao ??
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using NossoCombustivel.Domain.Cartoes;
 using NossoCombustivel.Domain.Postos;
 using NossoCombustivel.Domain.Registros;
+using NossoCombustivel.Domain.Servicos;
 using NossoCombustivel.Domain.Veiculos;
 using NossoCombustivel.Infrastructure.Identidade;
 
@@ -124,5 +125,38 @@ public sealed class AreaBuscadaConfiguracao : IEntityTypeConfiguration<AreaBusca
         builder.ToTable("AreasBuscadas");
         builder.HasKey(a => a.Chave);
         builder.Property(a => a.Chave).HasMaxLength(80);
+    }
+}
+
+public sealed class ServicoConfiguracao : IEntityTypeConfiguration<Servico>
+{
+    public void Configure(EntityTypeBuilder<Servico> builder)
+    {
+        builder.ToTable("Servicos");
+        builder.HasKey(s => s.Id);
+        builder.Property(s => s.Id).ValueGeneratedNever();
+        builder.Property(s => s.Tipo).HasConversion<string>().HasMaxLength(20);
+        builder.Property(s => s.Categorias).HasMaxLength(400).IsRequired();
+        builder.Property(s => s.Detalhes).HasMaxLength(8000);
+        builder.Property(s => s.ValorTotal).HasPrecision(10, 2);
+        builder.Property(s => s.ValorPecas).HasPrecision(10, 2);
+        builder.Property(s => s.ValorMaoDeObra).HasPrecision(10, 2);
+        builder.Property(s => s.LugarNome).HasMaxLength(100);
+        builder.Property(s => s.FormaPagamento).HasConversion<string>().HasMaxLength(10);
+        builder.Property(s => s.Observacao).HasMaxLength(500);
+        builder.Ignore(s => s.ListaCategorias);
+        builder.HasOne<Veiculo>().WithMany().HasForeignKey(s => s.VeiculoId).OnDelete(DeleteBehavior.Cascade);
+        builder.HasIndex(s => new { s.VeiculoId, s.SincronizadoEm });
+    }
+}
+
+public sealed class IntervaloManutencaoConfiguracao : IEntityTypeConfiguration<IntervaloManutencao>
+{
+    public void Configure(EntityTypeBuilder<IntervaloManutencao> builder)
+    {
+        builder.ToTable("IntervalosManutencao");
+        builder.HasKey(i => i.Chave);
+        builder.Property(i => i.Chave).HasMaxLength(400);
+        builder.Property(i => i.Observacao).HasMaxLength(200);
     }
 }

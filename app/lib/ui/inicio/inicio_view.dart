@@ -95,7 +95,7 @@ class _Painel extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(8),
-                      onTap: () => context.go(Rotas.carros),
+                      onTap: () => context.push(Rotas.carros),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 6),
                         child: Row(
@@ -365,7 +365,10 @@ class _MesAtual extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _ValorDoMes(centavos: estado.gastoMesCentavos),
+        _ValorDoMes(
+          centavos: estado.gastoMesCentavos,
+          etiqueta: estado.manutencaoMesCentavos > 0 ? '${Formato.moeda(estado.manutencaoMesCentavos)} manutenção' : null,
+        ),
         const SizedBox(height: 10),
         ClipRRect(
           borderRadius: BorderRadius.circular(3),

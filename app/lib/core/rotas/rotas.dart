@@ -10,8 +10,11 @@ import '../../ui/cartoes/cartoes_view.dart';
 import '../../ui/carros/carros_view.dart';
 import '../../ui/carros/editar_veiculo_view.dart';
 import '../../ui/conta/conta_view.dart';
+import '../../ui/garagem/garagem_view.dart';
 import '../../ui/historico/historico_view.dart';
 import '../../ui/inicio/inicio_view.dart';
+import '../../ui/manutencao/manutencao_view.dart';
+import '../../ui/manutencao/nova_manutencao_view.dart';
 import '../../ui/postos/postos_view.dart';
 import '../../ui/recarga/nova_recarga_view.dart';
 import '../../ui/relatorios/relatorios_view.dart';
@@ -30,6 +33,10 @@ abstract final class Rotas {
   static const novaRecarga = '/recarga/nova';
   static const cartoes = '/cartoes';
   static const postos = '/postos';
+  static const lugares = '/lugares';
+  static const garagem = '/garagem';
+  static const manutencao = '/manutencao';
+  static const novaManutencao = '/manutencao/nova';
   static const ajustes = '/ajustes';
 
   static String editarVeiculo(String id) => '/veiculo/$id/editar';
@@ -77,7 +84,7 @@ final rotasProvider = Provider<GoRouter>((ref) {
             GoRoute(path: Rotas.relatorios, builder: (_, _) => const RelatoriosView()),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: Rotas.carros, builder: (_, _) => const CarrosView()),
+            GoRoute(path: Rotas.garagem, builder: (_, _) => const GaragemView()),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: Rotas.ajustes, builder: (_, _) => const AjustesView()),
@@ -89,6 +96,14 @@ final rotasProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Rotas.novaRecarga, builder: (_, _) => const NovaRecargaView()),
       GoRoute(path: Rotas.cartoes, builder: (_, _) => const CartoesView()),
       GoRoute(path: Rotas.postos, builder: (_, _) => const PostosView()),
+      GoRoute(path: Rotas.lugares, builder: (_, _) => const PostosView(todosOsTipos: true)),
+      GoRoute(path: Rotas.carros, builder: (_, _) => const CarrosView()),
+      GoRoute(path: Rotas.manutencao, builder: (_, _) => const ManutencaoView()),
+      GoRoute(path: Rotas.novaManutencao, builder: (_, _) => const NovaManutencaoView()),
+      GoRoute(
+        path: '/manutencao/:id',
+        builder: (_, state) => NovaManutencaoView(servicoId: state.pathParameters['id']),
+      ),
       GoRoute(
         path: '/veiculo/:id/editar',
         builder: (_, state) => EditarVeiculoView(veiculoId: state.pathParameters['id']!),

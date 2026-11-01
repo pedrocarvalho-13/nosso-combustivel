@@ -78,6 +78,24 @@ class Cartoes extends Table with Sincronizavel {
   IntColumn get diaFechamento => integer()();
 }
 
+@DataClassName('ServicoLinha')
+class Servicos extends Table with Sincronizavel {
+  TextColumn get veiculoId => text().references(Veiculos, #id)();
+  TextColumn get tipo => text()();
+  DateTimeColumn get data => dateTime()();
+  IntColumn get odometro => integer().nullable()();
+  TextColumn get categorias => text()();
+  TextColumn get detalhes => text().nullable()();
+  IntColumn get valorCentavos => integer()();
+  IntColumn get pecasCentavos => integer().nullable()();
+  IntColumn get maoDeObraCentavos => integer().nullable()();
+  TextColumn get lugarId => text().nullable()();
+  TextColumn get lugarNome => text().nullable()();
+  TextColumn get formaPagamento => textEnum<FormaPagamento>().nullable()();
+  TextColumn get cartaoId => text().nullable()();
+  TextColumn get observacao => text().nullable()();
+}
+
 @DataClassName('PreferenciaLinha')
 class Preferencias extends Table {
   TextColumn get chave => text()();
@@ -87,7 +105,7 @@ class Preferencias extends Table {
   Set<Column> get primaryKey => {chave};
 }
 
-@DriftDatabase(tables: [Veiculos, Abastecimentos, Recargas, Cartoes, Preferencias])
+@DriftDatabase(tables: [Veiculos, Abastecimentos, Recargas, Cartoes, Servicos, Preferencias])
 class BancoLocal extends _$BancoLocal {
   BancoLocal([QueryExecutor? executor]) : super(executor ?? _abrir());
 
@@ -116,11 +134,16 @@ class BancoLocal extends _$BancoLocal {
     await _adicionarSeFaltar(migrador, recargas, recargas.contaNaMedia);
     await _adicionarSeFaltar(migrador, abastecimentos, abastecimentos.postoId);
     await _adicionarSeFaltar(migrador, abastecimentos, abastecimentos.tipoGasolina);
+    await _criarSeFaltar(migrador, cartoes);
+    await _criarSeFaltar(migrador, servicos);
+  }
+
+  Future<void> _criarSeFaltar(Migrator migrador, TableInfo tabela) async {
     final tabelas = await customSelect(
       "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
-      variables: [Variable.withString(cartoes.actualTableName)],
+      variables: [Variable.withString(tabela.actualTableName)],
     ).get();
-    if (tabelas.isEmpty) await migrador.createTable(cartoes);
+    if (tabelas.isEmpty) await migrador.createTable(tabela);
   }
 
   Future<void> _adicionarSeFaltar(Migrator migrador, TableInfo tabela, GeneratedColumn coluna) async {

@@ -3,9 +3,14 @@ import 'package:geolocator/geolocator.dart';
 
 import '../../core/formato.dart';
 import '../../data/postos/cliente_postos.dart';
+import '../comum/campo_com_rotulo.dart';
 
-String distanciaLegivel(int metros) =>
-    metros < 1000 ? '$metros m' : '${(metros / 1000).toStringAsFixed(1).replaceAll('.', ',')} km';
+String distanciaLegivel(int metros) {
+  if (metros < 1000) return '$metros m';
+  if (metros % 1000 == 0) return '${metros ~/ 1000} km';
+  if (metros >= 10000) return '${(metros / 1000).round()} km';
+  return '${(metros / 1000).toStringAsFixed(1).replaceAll('.', ',')} km';
+}
 
 String precoLegivel(double preco) => 'R\$ ${Formato.paraCampo(preco, casas: 2)}';
 
@@ -19,18 +24,18 @@ String idadeDoPreco(DateTime data) {
 }
 
 IconData iconeDoLugar(TipoPosto tipo) => switch (tipo) {
-      TipoPosto.combustivel => Icons.local_gas_station_outlined,
-      TipoPosto.eletroposto => Icons.ev_station_outlined,
-      TipoPosto.oficina => Icons.build_outlined,
-      TipoPosto.estetica => Icons.local_car_wash_outlined,
-    };
+  TipoPosto.combustivel => Icons.local_gas_station_outlined,
+  TipoPosto.eletroposto => Icons.ev_station_outlined,
+  TipoPosto.oficina => Icons.build_outlined,
+  TipoPosto.estetica => Icons.local_car_wash_outlined,
+};
 
 String nomeDoTipo(TipoPosto tipo, {bool plural = false}) => switch (tipo) {
-      TipoPosto.combustivel => plural ? 'Postos' : 'posto',
-      TipoPosto.eletroposto => plural ? 'Eletropostos' : 'eletroposto',
-      TipoPosto.oficina => plural ? 'Oficinas' : 'oficina',
-      TipoPosto.estetica => plural ? 'Estéticas' : 'estética',
-    };
+  TipoPosto.combustivel => plural ? 'Postos' : 'posto',
+  TipoPosto.eletroposto => plural ? 'Eletropostos' : 'eletroposto',
+  TipoPosto.oficina => plural ? 'Oficinas' : 'oficina',
+  TipoPosto.estetica => plural ? 'Estéticas' : 'estética',
+};
 
 Future<Position> localizarUsuario() async {
   var permissao = await Geolocator.checkPermission();
@@ -103,20 +108,27 @@ class _NovoLugarState extends State<_NovoLugar> {
               style: textos.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: _nome,
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
-              decoration: InputDecoration(labelText: 'Nome do $nome', errorText: _erro),
+            CampoComRotulo(
+              rotulo: 'Nome do $nome',
+              child: TextField(
+                controller: _nome,
+                autofocus: true,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(errorText: _erro),
+              ),
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: _bandeira,
-              textCapitalization: TextCapitalization.words,
-              onSubmitted: (_) => _confirmar(),
-              decoration: InputDecoration(
-                labelText: widget.tipo == TipoPosto.combustivel ? 'Bandeira (opcional)' : 'Rede (opcional)',
-                hintText: widget.tipo == TipoPosto.eletroposto ? 'Shell Recharge, Zletric...' : 'Shell, Ipiranga, BR...',
+            CampoComRotulo(
+              rotulo: widget.tipo == TipoPosto.combustivel ? 'Bandeira (opcional)' : 'Rede (opcional)',
+              child: TextField(
+                controller: _bandeira,
+                textCapitalization: TextCapitalization.words,
+                onSubmitted: (_) => _confirmar(),
+                decoration: InputDecoration(
+                  hintText: widget.tipo == TipoPosto.eletroposto
+                      ? 'Shell Recharge, Zletric...'
+                      : 'Shell, Ipiranga, BR...',
+                ),
               ),
             ),
             const SizedBox(height: 20),

@@ -12,7 +12,9 @@ import 'lista_postos_perto.dart';
 import 'lugares_view.dart';
 
 class PostosView extends ConsumerWidget {
-  const PostosView({super.key});
+  const PostosView({super.key, this.todosOsTipos = false});
+
+  final bool todosOsTipos;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,6 +24,7 @@ class PostosView extends ConsumerWidget {
       tipoInicial: abastece ? TipoPosto.combustivel : TipoPosto.eletroposto,
       combustiveis: veiculo?.combustiveis ?? const <Combustivel>[],
       tipoGasolinaInicial: ref.watch(gasolinaPadraoProvider).value ?? TipoGasolina.comum,
+      tiposPermitidos: todosOsTipos ? TipoPosto.values : const [TipoPosto.combustivel, TipoPosto.eletroposto],
       aoIrAte: (posto) => abrirRota(context, posto),
     );
   }

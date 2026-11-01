@@ -1,5 +1,6 @@
 using NossoCombustivel.Domain.Cartoes;
 using NossoCombustivel.Domain.Registros;
+using NossoCombustivel.Domain.Servicos;
 using NossoCombustivel.Domain.Veiculos;
 
 namespace NossoCombustivel.Application.Sincronizacao;
@@ -67,6 +68,26 @@ public sealed record CartaoSync(
     DateTimeOffset? ExcluidoEm,
     string? Banco = null);
 
+public sealed record ServicoSync(
+    Guid Id,
+    Guid VeiculoId,
+    TipoServico Tipo,
+    DateTimeOffset Data,
+    int? Odometro,
+    IReadOnlyList<string> Categorias,
+    string? Detalhes,
+    decimal ValorTotal,
+    decimal? ValorPecas,
+    decimal? ValorMaoDeObra,
+    Guid? LugarId,
+    string? LugarNome,
+    FormaPagamento? FormaPagamento,
+    Guid? CartaoId,
+    string? Observacao,
+    DateTimeOffset CriadoEm,
+    DateTimeOffset AtualizadoEm,
+    DateTimeOffset? ExcluidoEm);
+
 public sealed record PostoSync(Guid Id, string Nome, string? Bandeira, string? Endereco, double Latitude, double Longitude);
 
 public sealed record LoteSync(
@@ -74,7 +95,8 @@ public sealed record LoteSync(
     IReadOnlyList<AbastecimentoSync> Abastecimentos,
     IReadOnlyList<RecargaSync> Recargas,
     IReadOnlyList<CartaoSync>? Cartoes = null,
-    IReadOnlyList<PostoSync>? Postos = null);
+    IReadOnlyList<PostoSync>? Postos = null,
+    IReadOnlyList<ServicoSync>? Servicos = null);
 
 public sealed record Rejeitado(Guid Id, string Motivo);
 
@@ -93,6 +115,9 @@ public interface IRepositorioSincronizacao
     Task<List<Recarga>> RecargasAlteradasAsync(IReadOnlyCollection<Guid> veiculoIds, DateTimeOffset? desde, CancellationToken cancelamento);
     Task<List<Cartao>> ObterCartoesAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancelamento);
     Task<List<Cartao>> CartoesAlteradosAsync(Guid usuarioId, DateTimeOffset? desde, CancellationToken cancelamento);
+    Task<List<Servico>> ObterServicosAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancelamento);
+    Task<List<Servico>> ServicosAlteradosAsync(IReadOnlyCollection<Guid> veiculoIds, DateTimeOffset? desde, CancellationToken cancelamento);
+    void Adicionar(Servico servico);
     void Adicionar(Cartao cartao);
     void Adicionar(Veiculo veiculo);
     void Adicionar(RegistroEnergia registro);

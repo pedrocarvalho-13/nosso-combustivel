@@ -38,6 +38,16 @@ class LeituraFoto {
   final Combustivel? combustivel;
 }
 
+class IntervaloSugerido {
+  const IntervaloSugerido({this.km, this.meses, this.kmSevero, this.mesesSevero, this.observacao});
+
+  final int? km;
+  final int? meses;
+  final int? kmSevero;
+  final int? mesesSevero;
+  final String? observacao;
+}
+
 class ErroIa implements Exception {
   const ErroIa(this.mensagem);
 
@@ -71,6 +81,35 @@ class ClienteIa {
     return CapacidadeSugerida(
       tanqueL: _numero(dados['capacidadeTanqueL']),
       bateriaKwh: _numero(dados['capacidadeBateriaKwh']),
+    );
+  }
+
+  Future<IntervaloSugerido> estimarIntervalo({
+    required TipoVeiculo tipoVeiculo,
+    required String marca,
+    required String modelo,
+    int? ano,
+    String? codigoFipe,
+    required TipoEnergia tipoEnergia,
+    required String servico,
+    String? detalhe,
+  }) async {
+    final dados = await _enviar('/ia/intervalo', {
+      'tipoVeiculo': tipoVeiculo.name,
+      'marca': marca,
+      'modelo': modelo,
+      'ano': ano,
+      'codigoFipe': codigoFipe,
+      'tipoEnergia': tipoEnergia.name,
+      'servico': servico,
+      'detalhe': detalhe,
+    });
+    return IntervaloSugerido(
+      km: (dados['km'] as num?)?.toInt(),
+      meses: (dados['meses'] as num?)?.toInt(),
+      kmSevero: (dados['kmSevero'] as num?)?.toInt(),
+      mesesSevero: (dados['mesesSevero'] as num?)?.toInt(),
+      observacao: dados['observacao'] as String?,
     );
   }
 

@@ -25,6 +25,8 @@ mixin SaidaComRascunho<T extends ConsumerStatefulWidget> on ConsumerState<T> {
   List<String> camposPreenchidos();
   void aplicarRascunho(Map<String, dynamic> dados);
 
+  bool tratarVoltar() => false;
+
   var _liberado = false;
   String? _fotoDaEdicao;
   String? _rascunhoVerificadoPara;
@@ -90,6 +92,7 @@ mixin SaidaComRascunho<T extends ConsumerStatefulWidget> on ConsumerState<T> {
       );
 
   Future<void> _aoTentarSair() async {
+    if (tratarVoltar()) return;
     if (!_temAlteracoes) return sairLiberado();
     final acao = await showModalBottomSheet<_AcaoSaida>(
       context: context,

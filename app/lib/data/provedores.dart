@@ -13,6 +13,8 @@ import 'repositorios/registro_repositorio.dart';
 import 'repositorios/veiculo_repositorio.dart';
 import 'sessao/sessao_controller.dart';
 import '../domain/tipo_gasolina.dart';
+import 'repositorios/servico_repositorio.dart';
+import '../domain/servico.dart';
 
 final relogioProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
@@ -31,6 +33,16 @@ final veiculoRepositorioProvider = Provider<VeiculoRepositorio>(
 final registroRepositorioProvider = Provider<RegistroRepositorio>(
   (ref) => RegistroRepositorio(ref.watch(bancoLocalProvider), ref.watch(relogioProvider)),
 );
+
+final servicoRepositorioProvider = Provider<ServicoRepositorio>(
+  (ref) => ServicoRepositorio(ref.watch(bancoLocalProvider), ref.watch(relogioProvider)),
+);
+
+final manutencoesDoAtivoProvider = StreamProvider<List<Servico>>((ref) {
+  final veiculo = ref.watch(veiculoAtivoProvider).value;
+  if (veiculo == null) return Stream.value(const []);
+  return ref.watch(servicoRepositorioProvider).observarDoVeiculo(veiculo.id, TipoServico.manutencao);
+});
 
 final cartaoRepositorioProvider = Provider<CartaoRepositorio>(
   (ref) => CartaoRepositorio(ref.watch(bancoLocalProvider), ref.watch(relogioProvider)),

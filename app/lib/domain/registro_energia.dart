@@ -12,7 +12,14 @@ enum LocalRecarga {
   final String rotulo;
 }
 
-sealed class RegistroEnergia {
+abstract interface class GastoComPagamento {
+  DateTime get data;
+  int get valorCentavos;
+  FormaPagamento? get formaPagamento;
+  String? get cartaoId;
+}
+
+sealed class RegistroEnergia implements GastoComPagamento {
   const RegistroEnergia({
     required this.id,
     required this.veiculoId,
@@ -27,11 +34,15 @@ sealed class RegistroEnergia {
 
   final String id;
   final String veiculoId;
+  @override
   final DateTime data;
   final int odometro;
+  @override
   final int valorCentavos;
   final bool completo;
+  @override
   final FormaPagamento? formaPagamento;
+  @override
   final String? cartaoId;
   final bool contaNaMedia;
 

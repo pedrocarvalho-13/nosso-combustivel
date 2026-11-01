@@ -4,7 +4,7 @@ using NossoCombustivel.Application.Comum;
 
 namespace NossoCombustivel.Application.Ia;
 
-public sealed class ServicoIa(IAssistenteIa assistente, IRepositorioCapacidades capacidades)
+public sealed class ServicoIa(IAssistenteIa assistente, IRepositorioCapacidades capacidades, IRepositorioIntervalos intervalos)
 {
     private const string MensagemOcupada = "A IA do Google está ocupada agora. Tente de novo em alguns instantes.";
     public const int TamanhoMaximoImagem = 4 * 1024 * 1024;
@@ -71,6 +71,48 @@ public sealed class ServicoIa(IAssistenteIa assistente, IRepositorioCapacidades 
         return vazia
             ? Resultado<LeituraFoto>.Falha(TipoErro.NaoEncontrado, "Não consegui ler valores nessa foto. Tente outra mais nítida.")
             : Resultado<LeituraFoto>.Ok(leitura!);
+    }
+
+    public async Task<Resultado<IntervaloSugerido>> EstimarIntervaloAsync(
+        VeiculoConsultado veiculo, string? codigoFipe, string servico, string? detalhe, CancellationToken cancelamento)
+    {
+        if (string.IsNullOrWhiteSpace(veiculo.Marca) || string.IsNullOrWhiteSpace(veiculo.Modelo))
+            return Resultado<IntervaloSugerido>.Falha(TipoErro.Validacao, "Informe a marca e o modelo.");
+        if (string.IsNullOrWhiteSpace(servico) || servico.Length > 60 || detalhe?.Length > 60)
+            return Resultado<IntervaloSugerido>.Falha(TipoErro.Validacao, "Serviço inválido.");
+
+        var chave = $"{Chave(veiculo, codigoFipe)}:{Normalizar(servico)}:{Normalizar(detalhe ?? "-")}";
+        var guardado = await intervalos.ObterAsync(chave, cancelamento);
+        if (guardado is not null) return Resultado<IntervaloSugerido>.Ok(guardado);
+
+        if (!assistente.Disponivel)
+            return Resultado<IntervaloSugerido>.Falha(TipoErro.Indisponivel, "A IA não está configurada.");
+
+        IntervaloSugerido? estimado;
+        try
+        {
+            estimado = await assistente.EstimarIntervaloAsync(veiculo, servico.Trim(), detalhe?.Trim(), cancelamento);
+        }
+        catch (IaIndisponivelException)
+        {
+            return Resultado<IntervaloSugerido>.Falha(TipoErro.Indisponivel, MensagemOcupada);
+        }
+
+        static int? Km(int? valor) => valor is >= 500 and <= 300_000 ? valor : null;
+        static int? Meses(int? valor) => valor is >= 1 and <= 120 ? valor : null;
+        var limpo = estimado is null
+            ? null
+            : new IntervaloSugerido(
+                Km(estimado.Km),
+                Meses(estimado.Meses),
+                Km(estimado.KmSevero),
+                Meses(estimado.MesesSevero),
+                string.IsNullOrWhiteSpace(estimado.Observacao) ? null : estimado.Observacao.Trim()[..Math.Min(estimado.Observacao.Trim().Length, 200)]);
+        if (limpo is null || (limpo.Km is null && limpo.Meses is null))
+            return Resultado<IntervaloSugerido>.Falha(TipoErro.NaoEncontrado, "A IA não soube o intervalo para este veículo.");
+
+        await intervalos.SalvarAsync(chave, limpo, cancelamento);
+        return Resultado<IntervaloSugerido>.Ok(limpo);
     }
 
     public static string Chave(VeiculoConsultado veiculo, string? codigoFipe)

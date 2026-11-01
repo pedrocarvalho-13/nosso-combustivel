@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using NossoCombustivel.Api.Endpoints;
 using NossoCombustivel.Application.Sincronizacao;
 using NossoCombustivel.Domain.Registros;
+using NossoCombustivel.Domain.Servicos;
 using NossoCombustivel.Domain.Veiculos;
 
 namespace NossoCombustivel.Api.Tests;
@@ -185,5 +186,38 @@ public class SincronizacaoTests(FabricaApi fabrica) : IClassFixture<FabricaApi>
         var envio = await EnviarAsync(cliente, new LoteSync([], [], [], [cartao]));
 
         Assert.Equal(cartao.Id, envio.Rejeitados.Single().Id);
+    }
+
+    [Fact]
+    public async Task Manutencao_sobe_e_desce_com_categorias_detalhes_e_lugar()
+    {
+        var cliente = await ClienteLogadoAsync();
+        var carroId = Guid.CreateVersion7();
+        var servico = new ServicoSync(Guid.CreateVersion7(), carroId, TipoServico.Manutencao, Base, 32700,
+            ["oleo", "filtros"], "{\"oleo\":{\"tipo\":\"Sintetico\"}}", 280m, 230m, 50m, null, "Auto Center Atalaia",
+            FormaPagamento.Pix, null, "trocou tudo", Base, Base, null);
+
+        var envio = await EnviarAsync(cliente, new LoteSync([Carro(carroId)], [], [], Servicos: [servico]));
+        var busca = await BuscarAsync(cliente);
+
+        Assert.Empty(envio.Rejeitados);
+        var recebido = busca.Alteracoes.Servicos!.Single();
+        Assert.Equal(["oleo", "filtros"], recebido.Categorias);
+        Assert.Equal(280m, recebido.ValorTotal);
+        Assert.Equal("Auto Center Atalaia", recebido.LugarNome);
+        Assert.Contains("Sintetico", recebido.Detalhes);
+    }
+
+    [Fact]
+    public async Task Manutencao_sem_servico_marcado_e_recusada()
+    {
+        var cliente = await ClienteLogadoAsync();
+        var carroId = Guid.CreateVersion7();
+        var servico = new ServicoSync(Guid.CreateVersion7(), carroId, TipoServico.Manutencao, Base, null,
+            [], null, 50m, null, null, null, null, null, null, null, Base, Base, null);
+
+        var envio = await EnviarAsync(cliente, new LoteSync([Carro(carroId)], [], [], Servicos: [servico]));
+
+        Assert.Equal("Escolha pelo menos um serviço.", envio.Rejeitados.Single().Motivo);
     }
 }

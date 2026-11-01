@@ -49,6 +49,7 @@ public static class DependencyInjection
         services.AddScoped<IRepositorioSessoes, RepositorioSessoes>();
         services.AddScoped<IRepositorioSincronizacao, RepositorioSincronizacao>();
         services.AddScoped<IRepositorioCapacidades, RepositorioCapacidades>();
+        services.AddScoped<IRepositorioIntervalos, RepositorioIntervalos>();
         services.AddScoped<IRepositorioPostos, RepositorioPostos>();
 
         services.Configure<OpcoesGemini>(configuration.GetSection(OpcoesGemini.Secao));

@@ -19,6 +19,15 @@ public sealed class AssistenteFalso : IAssistenteIa
     public bool Ocupada { get; set; }
     public CapacidadeEstimada? Capacidade { get; set; } = new(55m, null);
     public LeituraFoto? Leitura { get; set; } = new(40.5m, 6.19m, null, null, 250.70m, null, Combustivel.Gasolina);
+    public int ChamadasIntervalo { get; private set; }
+    public IntervaloSugerido? Intervalo { get; set; } = new(7500, 12, 5000, 6, "Óleo semissintético do Celta");
+
+    public Task<IntervaloSugerido?> EstimarIntervaloAsync(
+        VeiculoConsultado veiculo, string servico, string? detalhe, CancellationToken cancelamento)
+    {
+        ChamadasIntervalo++;
+        return Task.FromResult(Intervalo);
+    }
 
     public Task<CapacidadeEstimada?> EstimarCapacidadeAsync(VeiculoConsultado veiculo, CancellationToken cancelamento)
     {
@@ -153,5 +162,23 @@ public class IaTests(FabricaApiComIa fabrica) : IClassFixture<FabricaApiComIa>
         {
             fabrica.Assistente.Ocupada = false;
         }
+    }
+
+    [Fact]
+    public async Task Intervalo_de_manutencao_vem_da_ia_uma_vez_e_depois_do_banco()
+    {
+        var cliente = await ClienteLogadoAsync();
+        var antes = fabrica.Assistente.ChamadasIntervalo;
+        var requisicao = new IntervaloRequisicao(TipoVeiculo.Carro, "GM - Chevrolet", "Celta 1.0", 2010, "004001-7",
+            TipoEnergia.Combustao, "Troca de óleo", "Semissintético");
+
+        var primeira = await cliente.PostAsJsonAsync("/ia/intervalo", requisicao, Json);
+        var segunda = await cliente.PostAsJsonAsync("/ia/intervalo", requisicao, Json);
+
+        Assert.Equal(HttpStatusCode.OK, segunda.StatusCode);
+        var corpo = await segunda.Content.ReadFromJsonAsync<IntervaloSugerido>(Json);
+        Assert.Equal((7500, 12, 5000, 6), (corpo!.Km, corpo.Meses, corpo.KmSevero, corpo.MesesSevero));
+        Assert.Equal(HttpStatusCode.OK, primeira.StatusCode);
+        Assert.Equal(antes + 1, fabrica.Assistente.ChamadasIntervalo);
     }
 }

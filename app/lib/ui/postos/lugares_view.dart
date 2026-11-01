@@ -36,7 +36,7 @@ class LugaresView extends ConsumerStatefulWidget {
 }
 
 class _LugaresViewState extends ConsumerState<LugaresView> {
-  static const _raios = [1500, 3000, 5000];
+  static const _raios = [1500, 3000, 5000, 8000, 10000, 12000];
 
   final _mapa = MapController();
   final _cartoes = PageController(viewportFraction: 0.86);
@@ -69,7 +69,9 @@ class _LugaresViewState extends ConsumerState<LugaresView> {
   double get _zoom => switch (_raio) {
     <= 1500 => 15,
     <= 3000 => 14,
-    _ => 13,
+    <= 5000 => 13,
+    <= 8000 => 12.3,
+    _ => 11.7,
   };
 
   Future<void> _buscar() async {
@@ -212,7 +214,7 @@ class _LugaresViewState extends ConsumerState<LugaresView> {
                           ButtonSegment(
                             value: tipo,
                             label: Text(nomeDoTipo(tipo, plural: true)),
-                            icon: Icon(iconeDoLugar(tipo)),
+                            icon: widget.tiposPermitidos.length > 2 ? null : Icon(iconeDoLugar(tipo)),
                           ),
                       ],
                       selected: {_tipo},

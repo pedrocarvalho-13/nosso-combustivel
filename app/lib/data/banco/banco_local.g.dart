@@ -3633,6 +3633,1101 @@ class CartoesCompanion extends UpdateCompanion<CartaoLinha> {
   }
 }
 
+class $ServicosTable extends Servicos
+    with TableInfo<$ServicosTable, ServicoLinha> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ServicosTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _criadoEmMeta = const VerificationMeta(
+    'criadoEm',
+  );
+  @override
+  late final GeneratedColumn<DateTime> criadoEm = GeneratedColumn<DateTime>(
+    'criado_em',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _atualizadoEmMeta = const VerificationMeta(
+    'atualizadoEm',
+  );
+  @override
+  late final GeneratedColumn<DateTime> atualizadoEm = GeneratedColumn<DateTime>(
+    'atualizado_em',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _excluidoEmMeta = const VerificationMeta(
+    'excluidoEm',
+  );
+  @override
+  late final GeneratedColumn<DateTime> excluidoEm = GeneratedColumn<DateTime>(
+    'excluido_em',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _pendenteMeta = const VerificationMeta(
+    'pendente',
+  );
+  @override
+  late final GeneratedColumn<bool> pendente = GeneratedColumn<bool>(
+    'pendente',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("pendente" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _veiculoIdMeta = const VerificationMeta(
+    'veiculoId',
+  );
+  @override
+  late final GeneratedColumn<String> veiculoId = GeneratedColumn<String>(
+    'veiculo_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES veiculos (id)',
+    ),
+  );
+  static const VerificationMeta _tipoMeta = const VerificationMeta('tipo');
+  @override
+  late final GeneratedColumn<String> tipo = GeneratedColumn<String>(
+    'tipo',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<DateTime> data = GeneratedColumn<DateTime>(
+    'data',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _odometroMeta = const VerificationMeta(
+    'odometro',
+  );
+  @override
+  late final GeneratedColumn<int> odometro = GeneratedColumn<int>(
+    'odometro',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _categoriasMeta = const VerificationMeta(
+    'categorias',
+  );
+  @override
+  late final GeneratedColumn<String> categorias = GeneratedColumn<String>(
+    'categorias',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _detalhesMeta = const VerificationMeta(
+    'detalhes',
+  );
+  @override
+  late final GeneratedColumn<String> detalhes = GeneratedColumn<String>(
+    'detalhes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _valorCentavosMeta = const VerificationMeta(
+    'valorCentavos',
+  );
+  @override
+  late final GeneratedColumn<int> valorCentavos = GeneratedColumn<int>(
+    'valor_centavos',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pecasCentavosMeta = const VerificationMeta(
+    'pecasCentavos',
+  );
+  @override
+  late final GeneratedColumn<int> pecasCentavos = GeneratedColumn<int>(
+    'pecas_centavos',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _maoDeObraCentavosMeta = const VerificationMeta(
+    'maoDeObraCentavos',
+  );
+  @override
+  late final GeneratedColumn<int> maoDeObraCentavos = GeneratedColumn<int>(
+    'mao_de_obra_centavos',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lugarIdMeta = const VerificationMeta(
+    'lugarId',
+  );
+  @override
+  late final GeneratedColumn<String> lugarId = GeneratedColumn<String>(
+    'lugar_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lugarNomeMeta = const VerificationMeta(
+    'lugarNome',
+  );
+  @override
+  late final GeneratedColumn<String> lugarNome = GeneratedColumn<String>(
+    'lugar_nome',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<FormaPagamento?, String>
+  formaPagamento = GeneratedColumn<String>(
+    'forma_pagamento',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<FormaPagamento?>($ServicosTable.$converterformaPagamenton);
+  static const VerificationMeta _cartaoIdMeta = const VerificationMeta(
+    'cartaoId',
+  );
+  @override
+  late final GeneratedColumn<String> cartaoId = GeneratedColumn<String>(
+    'cartao_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _observacaoMeta = const VerificationMeta(
+    'observacao',
+  );
+  @override
+  late final GeneratedColumn<String> observacao = GeneratedColumn<String>(
+    'observacao',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    criadoEm,
+    atualizadoEm,
+    excluidoEm,
+    pendente,
+    veiculoId,
+    tipo,
+    data,
+    odometro,
+    categorias,
+    detalhes,
+    valorCentavos,
+    pecasCentavos,
+    maoDeObraCentavos,
+    lugarId,
+    lugarNome,
+    formaPagamento,
+    cartaoId,
+    observacao,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'servicos';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ServicoLinha> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('criado_em')) {
+      context.handle(
+        _criadoEmMeta,
+        criadoEm.isAcceptableOrUnknown(data['criado_em']!, _criadoEmMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_criadoEmMeta);
+    }
+    if (data.containsKey('atualizado_em')) {
+      context.handle(
+        _atualizadoEmMeta,
+        atualizadoEm.isAcceptableOrUnknown(
+          data['atualizado_em']!,
+          _atualizadoEmMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_atualizadoEmMeta);
+    }
+    if (data.containsKey('excluido_em')) {
+      context.handle(
+        _excluidoEmMeta,
+        excluidoEm.isAcceptableOrUnknown(data['excluido_em']!, _excluidoEmMeta),
+      );
+    }
+    if (data.containsKey('pendente')) {
+      context.handle(
+        _pendenteMeta,
+        pendente.isAcceptableOrUnknown(data['pendente']!, _pendenteMeta),
+      );
+    }
+    if (data.containsKey('veiculo_id')) {
+      context.handle(
+        _veiculoIdMeta,
+        veiculoId.isAcceptableOrUnknown(data['veiculo_id']!, _veiculoIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_veiculoIdMeta);
+    }
+    if (data.containsKey('tipo')) {
+      context.handle(
+        _tipoMeta,
+        tipo.isAcceptableOrUnknown(data['tipo']!, _tipoMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tipoMeta);
+    }
+    if (data.containsKey('data')) {
+      context.handle(
+        _dataMeta,
+        this.data.isAcceptableOrUnknown(data['data']!, _dataMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dataMeta);
+    }
+    if (data.containsKey('odometro')) {
+      context.handle(
+        _odometroMeta,
+        odometro.isAcceptableOrUnknown(data['odometro']!, _odometroMeta),
+      );
+    }
+    if (data.containsKey('categorias')) {
+      context.handle(
+        _categoriasMeta,
+        categorias.isAcceptableOrUnknown(data['categorias']!, _categoriasMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categoriasMeta);
+    }
+    if (data.containsKey('detalhes')) {
+      context.handle(
+        _detalhesMeta,
+        detalhes.isAcceptableOrUnknown(data['detalhes']!, _detalhesMeta),
+      );
+    }
+    if (data.containsKey('valor_centavos')) {
+      context.handle(
+        _valorCentavosMeta,
+        valorCentavos.isAcceptableOrUnknown(
+          data['valor_centavos']!,
+          _valorCentavosMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_valorCentavosMeta);
+    }
+    if (data.containsKey('pecas_centavos')) {
+      context.handle(
+        _pecasCentavosMeta,
+        pecasCentavos.isAcceptableOrUnknown(
+          data['pecas_centavos']!,
+          _pecasCentavosMeta,
+        ),
+      );
+    }
+    if (data.containsKey('mao_de_obra_centavos')) {
+      context.handle(
+        _maoDeObraCentavosMeta,
+        maoDeObraCentavos.isAcceptableOrUnknown(
+          data['mao_de_obra_centavos']!,
+          _maoDeObraCentavosMeta,
+        ),
+      );
+    }
+    if (data.containsKey('lugar_id')) {
+      context.handle(
+        _lugarIdMeta,
+        lugarId.isAcceptableOrUnknown(data['lugar_id']!, _lugarIdMeta),
+      );
+    }
+    if (data.containsKey('lugar_nome')) {
+      context.handle(
+        _lugarNomeMeta,
+        lugarNome.isAcceptableOrUnknown(data['lugar_nome']!, _lugarNomeMeta),
+      );
+    }
+    if (data.containsKey('cartao_id')) {
+      context.handle(
+        _cartaoIdMeta,
+        cartaoId.isAcceptableOrUnknown(data['cartao_id']!, _cartaoIdMeta),
+      );
+    }
+    if (data.containsKey('observacao')) {
+      context.handle(
+        _observacaoMeta,
+        observacao.isAcceptableOrUnknown(data['observacao']!, _observacaoMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ServicoLinha map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ServicoLinha(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      criadoEm: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}criado_em'],
+      )!,
+      atualizadoEm: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}atualizado_em'],
+      )!,
+      excluidoEm: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}excluido_em'],
+      ),
+      pendente: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}pendente'],
+      )!,
+      veiculoId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}veiculo_id'],
+      )!,
+      tipo: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tipo'],
+      )!,
+      data: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}data'],
+      )!,
+      odometro: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}odometro'],
+      ),
+      categorias: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}categorias'],
+      )!,
+      detalhes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}detalhes'],
+      ),
+      valorCentavos: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}valor_centavos'],
+      )!,
+      pecasCentavos: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}pecas_centavos'],
+      ),
+      maoDeObraCentavos: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}mao_de_obra_centavos'],
+      ),
+      lugarId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}lugar_id'],
+      ),
+      lugarNome: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}lugar_nome'],
+      ),
+      formaPagamento: $ServicosTable.$converterformaPagamenton.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}forma_pagamento'],
+        ),
+      ),
+      cartaoId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cartao_id'],
+      ),
+      observacao: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}observacao'],
+      ),
+    );
+  }
+
+  @override
+  $ServicosTable createAlias(String alias) {
+    return $ServicosTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<FormaPagamento, String, String>
+  $converterformaPagamento = const EnumNameConverter<FormaPagamento>(
+    FormaPagamento.values,
+  );
+  static JsonTypeConverter2<FormaPagamento?, String?, String?>
+  $converterformaPagamenton = JsonTypeConverter2.asNullable(
+    $converterformaPagamento,
+  );
+}
+
+class ServicoLinha extends DataClass implements Insertable<ServicoLinha> {
+  final String id;
+  final DateTime criadoEm;
+  final DateTime atualizadoEm;
+  final DateTime? excluidoEm;
+  final bool pendente;
+  final String veiculoId;
+  final String tipo;
+  final DateTime data;
+  final int? odometro;
+  final String categorias;
+  final String? detalhes;
+  final int valorCentavos;
+  final int? pecasCentavos;
+  final int? maoDeObraCentavos;
+  final String? lugarId;
+  final String? lugarNome;
+  final FormaPagamento? formaPagamento;
+  final String? cartaoId;
+  final String? observacao;
+  const ServicoLinha({
+    required this.id,
+    required this.criadoEm,
+    required this.atualizadoEm,
+    this.excluidoEm,
+    required this.pendente,
+    required this.veiculoId,
+    required this.tipo,
+    required this.data,
+    this.odometro,
+    required this.categorias,
+    this.detalhes,
+    required this.valorCentavos,
+    this.pecasCentavos,
+    this.maoDeObraCentavos,
+    this.lugarId,
+    this.lugarNome,
+    this.formaPagamento,
+    this.cartaoId,
+    this.observacao,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['criado_em'] = Variable<DateTime>(criadoEm);
+    map['atualizado_em'] = Variable<DateTime>(atualizadoEm);
+    if (!nullToAbsent || excluidoEm != null) {
+      map['excluido_em'] = Variable<DateTime>(excluidoEm);
+    }
+    map['pendente'] = Variable<bool>(pendente);
+    map['veiculo_id'] = Variable<String>(veiculoId);
+    map['tipo'] = Variable<String>(tipo);
+    map['data'] = Variable<DateTime>(data);
+    if (!nullToAbsent || odometro != null) {
+      map['odometro'] = Variable<int>(odometro);
+    }
+    map['categorias'] = Variable<String>(categorias);
+    if (!nullToAbsent || detalhes != null) {
+      map['detalhes'] = Variable<String>(detalhes);
+    }
+    map['valor_centavos'] = Variable<int>(valorCentavos);
+    if (!nullToAbsent || pecasCentavos != null) {
+      map['pecas_centavos'] = Variable<int>(pecasCentavos);
+    }
+    if (!nullToAbsent || maoDeObraCentavos != null) {
+      map['mao_de_obra_centavos'] = Variable<int>(maoDeObraCentavos);
+    }
+    if (!nullToAbsent || lugarId != null) {
+      map['lugar_id'] = Variable<String>(lugarId);
+    }
+    if (!nullToAbsent || lugarNome != null) {
+      map['lugar_nome'] = Variable<String>(lugarNome);
+    }
+    if (!nullToAbsent || formaPagamento != null) {
+      map['forma_pagamento'] = Variable<String>(
+        $ServicosTable.$converterformaPagamenton.toSql(formaPagamento),
+      );
+    }
+    if (!nullToAbsent || cartaoId != null) {
+      map['cartao_id'] = Variable<String>(cartaoId);
+    }
+    if (!nullToAbsent || observacao != null) {
+      map['observacao'] = Variable<String>(observacao);
+    }
+    return map;
+  }
+
+  ServicosCompanion toCompanion(bool nullToAbsent) {
+    return ServicosCompanion(
+      id: Value(id),
+      criadoEm: Value(criadoEm),
+      atualizadoEm: Value(atualizadoEm),
+      excluidoEm: excluidoEm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(excluidoEm),
+      pendente: Value(pendente),
+      veiculoId: Value(veiculoId),
+      tipo: Value(tipo),
+      data: Value(data),
+      odometro: odometro == null && nullToAbsent
+          ? const Value.absent()
+          : Value(odometro),
+      categorias: Value(categorias),
+      detalhes: detalhes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(detalhes),
+      valorCentavos: Value(valorCentavos),
+      pecasCentavos: pecasCentavos == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pecasCentavos),
+      maoDeObraCentavos: maoDeObraCentavos == null && nullToAbsent
+          ? const Value.absent()
+          : Value(maoDeObraCentavos),
+      lugarId: lugarId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lugarId),
+      lugarNome: lugarNome == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lugarNome),
+      formaPagamento: formaPagamento == null && nullToAbsent
+          ? const Value.absent()
+          : Value(formaPagamento),
+      cartaoId: cartaoId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cartaoId),
+      observacao: observacao == null && nullToAbsent
+          ? const Value.absent()
+          : Value(observacao),
+    );
+  }
+
+  factory ServicoLinha.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ServicoLinha(
+      id: serializer.fromJson<String>(json['id']),
+      criadoEm: serializer.fromJson<DateTime>(json['criadoEm']),
+      atualizadoEm: serializer.fromJson<DateTime>(json['atualizadoEm']),
+      excluidoEm: serializer.fromJson<DateTime?>(json['excluidoEm']),
+      pendente: serializer.fromJson<bool>(json['pendente']),
+      veiculoId: serializer.fromJson<String>(json['veiculoId']),
+      tipo: serializer.fromJson<String>(json['tipo']),
+      data: serializer.fromJson<DateTime>(json['data']),
+      odometro: serializer.fromJson<int?>(json['odometro']),
+      categorias: serializer.fromJson<String>(json['categorias']),
+      detalhes: serializer.fromJson<String?>(json['detalhes']),
+      valorCentavos: serializer.fromJson<int>(json['valorCentavos']),
+      pecasCentavos: serializer.fromJson<int?>(json['pecasCentavos']),
+      maoDeObraCentavos: serializer.fromJson<int?>(json['maoDeObraCentavos']),
+      lugarId: serializer.fromJson<String?>(json['lugarId']),
+      lugarNome: serializer.fromJson<String?>(json['lugarNome']),
+      formaPagamento: $ServicosTable.$converterformaPagamenton.fromJson(
+        serializer.fromJson<String?>(json['formaPagamento']),
+      ),
+      cartaoId: serializer.fromJson<String?>(json['cartaoId']),
+      observacao: serializer.fromJson<String?>(json['observacao']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'criadoEm': serializer.toJson<DateTime>(criadoEm),
+      'atualizadoEm': serializer.toJson<DateTime>(atualizadoEm),
+      'excluidoEm': serializer.toJson<DateTime?>(excluidoEm),
+      'pendente': serializer.toJson<bool>(pendente),
+      'veiculoId': serializer.toJson<String>(veiculoId),
+      'tipo': serializer.toJson<String>(tipo),
+      'data': serializer.toJson<DateTime>(data),
+      'odometro': serializer.toJson<int?>(odometro),
+      'categorias': serializer.toJson<String>(categorias),
+      'detalhes': serializer.toJson<String?>(detalhes),
+      'valorCentavos': serializer.toJson<int>(valorCentavos),
+      'pecasCentavos': serializer.toJson<int?>(pecasCentavos),
+      'maoDeObraCentavos': serializer.toJson<int?>(maoDeObraCentavos),
+      'lugarId': serializer.toJson<String?>(lugarId),
+      'lugarNome': serializer.toJson<String?>(lugarNome),
+      'formaPagamento': serializer.toJson<String?>(
+        $ServicosTable.$converterformaPagamenton.toJson(formaPagamento),
+      ),
+      'cartaoId': serializer.toJson<String?>(cartaoId),
+      'observacao': serializer.toJson<String?>(observacao),
+    };
+  }
+
+  ServicoLinha copyWith({
+    String? id,
+    DateTime? criadoEm,
+    DateTime? atualizadoEm,
+    Value<DateTime?> excluidoEm = const Value.absent(),
+    bool? pendente,
+    String? veiculoId,
+    String? tipo,
+    DateTime? data,
+    Value<int?> odometro = const Value.absent(),
+    String? categorias,
+    Value<String?> detalhes = const Value.absent(),
+    int? valorCentavos,
+    Value<int?> pecasCentavos = const Value.absent(),
+    Value<int?> maoDeObraCentavos = const Value.absent(),
+    Value<String?> lugarId = const Value.absent(),
+    Value<String?> lugarNome = const Value.absent(),
+    Value<FormaPagamento?> formaPagamento = const Value.absent(),
+    Value<String?> cartaoId = const Value.absent(),
+    Value<String?> observacao = const Value.absent(),
+  }) => ServicoLinha(
+    id: id ?? this.id,
+    criadoEm: criadoEm ?? this.criadoEm,
+    atualizadoEm: atualizadoEm ?? this.atualizadoEm,
+    excluidoEm: excluidoEm.present ? excluidoEm.value : this.excluidoEm,
+    pendente: pendente ?? this.pendente,
+    veiculoId: veiculoId ?? this.veiculoId,
+    tipo: tipo ?? this.tipo,
+    data: data ?? this.data,
+    odometro: odometro.present ? odometro.value : this.odometro,
+    categorias: categorias ?? this.categorias,
+    detalhes: detalhes.present ? detalhes.value : this.detalhes,
+    valorCentavos: valorCentavos ?? this.valorCentavos,
+    pecasCentavos: pecasCentavos.present
+        ? pecasCentavos.value
+        : this.pecasCentavos,
+    maoDeObraCentavos: maoDeObraCentavos.present
+        ? maoDeObraCentavos.value
+        : this.maoDeObraCentavos,
+    lugarId: lugarId.present ? lugarId.value : this.lugarId,
+    lugarNome: lugarNome.present ? lugarNome.value : this.lugarNome,
+    formaPagamento: formaPagamento.present
+        ? formaPagamento.value
+        : this.formaPagamento,
+    cartaoId: cartaoId.present ? cartaoId.value : this.cartaoId,
+    observacao: observacao.present ? observacao.value : this.observacao,
+  );
+  ServicoLinha copyWithCompanion(ServicosCompanion data) {
+    return ServicoLinha(
+      id: data.id.present ? data.id.value : this.id,
+      criadoEm: data.criadoEm.present ? data.criadoEm.value : this.criadoEm,
+      atualizadoEm: data.atualizadoEm.present
+          ? data.atualizadoEm.value
+          : this.atualizadoEm,
+      excluidoEm: data.excluidoEm.present
+          ? data.excluidoEm.value
+          : this.excluidoEm,
+      pendente: data.pendente.present ? data.pendente.value : this.pendente,
+      veiculoId: data.veiculoId.present ? data.veiculoId.value : this.veiculoId,
+      tipo: data.tipo.present ? data.tipo.value : this.tipo,
+      data: data.data.present ? data.data.value : this.data,
+      odometro: data.odometro.present ? data.odometro.value : this.odometro,
+      categorias: data.categorias.present
+          ? data.categorias.value
+          : this.categorias,
+      detalhes: data.detalhes.present ? data.detalhes.value : this.detalhes,
+      valorCentavos: data.valorCentavos.present
+          ? data.valorCentavos.value
+          : this.valorCentavos,
+      pecasCentavos: data.pecasCentavos.present
+          ? data.pecasCentavos.value
+          : this.pecasCentavos,
+      maoDeObraCentavos: data.maoDeObraCentavos.present
+          ? data.maoDeObraCentavos.value
+          : this.maoDeObraCentavos,
+      lugarId: data.lugarId.present ? data.lugarId.value : this.lugarId,
+      lugarNome: data.lugarNome.present ? data.lugarNome.value : this.lugarNome,
+      formaPagamento: data.formaPagamento.present
+          ? data.formaPagamento.value
+          : this.formaPagamento,
+      cartaoId: data.cartaoId.present ? data.cartaoId.value : this.cartaoId,
+      observacao: data.observacao.present
+          ? data.observacao.value
+          : this.observacao,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ServicoLinha(')
+          ..write('id: $id, ')
+          ..write('criadoEm: $criadoEm, ')
+          ..write('atualizadoEm: $atualizadoEm, ')
+          ..write('excluidoEm: $excluidoEm, ')
+          ..write('pendente: $pendente, ')
+          ..write('veiculoId: $veiculoId, ')
+          ..write('tipo: $tipo, ')
+          ..write('data: $data, ')
+          ..write('odometro: $odometro, ')
+          ..write('categorias: $categorias, ')
+          ..write('detalhes: $detalhes, ')
+          ..write('valorCentavos: $valorCentavos, ')
+          ..write('pecasCentavos: $pecasCentavos, ')
+          ..write('maoDeObraCentavos: $maoDeObraCentavos, ')
+          ..write('lugarId: $lugarId, ')
+          ..write('lugarNome: $lugarNome, ')
+          ..write('formaPagamento: $formaPagamento, ')
+          ..write('cartaoId: $cartaoId, ')
+          ..write('observacao: $observacao')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    criadoEm,
+    atualizadoEm,
+    excluidoEm,
+    pendente,
+    veiculoId,
+    tipo,
+    data,
+    odometro,
+    categorias,
+    detalhes,
+    valorCentavos,
+    pecasCentavos,
+    maoDeObraCentavos,
+    lugarId,
+    lugarNome,
+    formaPagamento,
+    cartaoId,
+    observacao,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ServicoLinha &&
+          other.id == this.id &&
+          other.criadoEm == this.criadoEm &&
+          other.atualizadoEm == this.atualizadoEm &&
+          other.excluidoEm == this.excluidoEm &&
+          other.pendente == this.pendente &&
+          other.veiculoId == this.veiculoId &&
+          other.tipo == this.tipo &&
+          other.data == this.data &&
+          other.odometro == this.odometro &&
+          other.categorias == this.categorias &&
+          other.detalhes == this.detalhes &&
+          other.valorCentavos == this.valorCentavos &&
+          other.pecasCentavos == this.pecasCentavos &&
+          other.maoDeObraCentavos == this.maoDeObraCentavos &&
+          other.lugarId == this.lugarId &&
+          other.lugarNome == this.lugarNome &&
+          other.formaPagamento == this.formaPagamento &&
+          other.cartaoId == this.cartaoId &&
+          other.observacao == this.observacao);
+}
+
+class ServicosCompanion extends UpdateCompanion<ServicoLinha> {
+  final Value<String> id;
+  final Value<DateTime> criadoEm;
+  final Value<DateTime> atualizadoEm;
+  final Value<DateTime?> excluidoEm;
+  final Value<bool> pendente;
+  final Value<String> veiculoId;
+  final Value<String> tipo;
+  final Value<DateTime> data;
+  final Value<int?> odometro;
+  final Value<String> categorias;
+  final Value<String?> detalhes;
+  final Value<int> valorCentavos;
+  final Value<int?> pecasCentavos;
+  final Value<int?> maoDeObraCentavos;
+  final Value<String?> lugarId;
+  final Value<String?> lugarNome;
+  final Value<FormaPagamento?> formaPagamento;
+  final Value<String?> cartaoId;
+  final Value<String?> observacao;
+  final Value<int> rowid;
+  const ServicosCompanion({
+    this.id = const Value.absent(),
+    this.criadoEm = const Value.absent(),
+    this.atualizadoEm = const Value.absent(),
+    this.excluidoEm = const Value.absent(),
+    this.pendente = const Value.absent(),
+    this.veiculoId = const Value.absent(),
+    this.tipo = const Value.absent(),
+    this.data = const Value.absent(),
+    this.odometro = const Value.absent(),
+    this.categorias = const Value.absent(),
+    this.detalhes = const Value.absent(),
+    this.valorCentavos = const Value.absent(),
+    this.pecasCentavos = const Value.absent(),
+    this.maoDeObraCentavos = const Value.absent(),
+    this.lugarId = const Value.absent(),
+    this.lugarNome = const Value.absent(),
+    this.formaPagamento = const Value.absent(),
+    this.cartaoId = const Value.absent(),
+    this.observacao = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ServicosCompanion.insert({
+    required String id,
+    required DateTime criadoEm,
+    required DateTime atualizadoEm,
+    this.excluidoEm = const Value.absent(),
+    this.pendente = const Value.absent(),
+    required String veiculoId,
+    required String tipo,
+    required DateTime data,
+    this.odometro = const Value.absent(),
+    required String categorias,
+    this.detalhes = const Value.absent(),
+    required int valorCentavos,
+    this.pecasCentavos = const Value.absent(),
+    this.maoDeObraCentavos = const Value.absent(),
+    this.lugarId = const Value.absent(),
+    this.lugarNome = const Value.absent(),
+    this.formaPagamento = const Value.absent(),
+    this.cartaoId = const Value.absent(),
+    this.observacao = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       criadoEm = Value(criadoEm),
+       atualizadoEm = Value(atualizadoEm),
+       veiculoId = Value(veiculoId),
+       tipo = Value(tipo),
+       data = Value(data),
+       categorias = Value(categorias),
+       valorCentavos = Value(valorCentavos);
+  static Insertable<ServicoLinha> custom({
+    Expression<String>? id,
+    Expression<DateTime>? criadoEm,
+    Expression<DateTime>? atualizadoEm,
+    Expression<DateTime>? excluidoEm,
+    Expression<bool>? pendente,
+    Expression<String>? veiculoId,
+    Expression<String>? tipo,
+    Expression<DateTime>? data,
+    Expression<int>? odometro,
+    Expression<String>? categorias,
+    Expression<String>? detalhes,
+    Expression<int>? valorCentavos,
+    Expression<int>? pecasCentavos,
+    Expression<int>? maoDeObraCentavos,
+    Expression<String>? lugarId,
+    Expression<String>? lugarNome,
+    Expression<String>? formaPagamento,
+    Expression<String>? cartaoId,
+    Expression<String>? observacao,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (criadoEm != null) 'criado_em': criadoEm,
+      if (atualizadoEm != null) 'atualizado_em': atualizadoEm,
+      if (excluidoEm != null) 'excluido_em': excluidoEm,
+      if (pendente != null) 'pendente': pendente,
+      if (veiculoId != null) 'veiculo_id': veiculoId,
+      if (tipo != null) 'tipo': tipo,
+      if (data != null) 'data': data,
+      if (odometro != null) 'odometro': odometro,
+      if (categorias != null) 'categorias': categorias,
+      if (detalhes != null) 'detalhes': detalhes,
+      if (valorCentavos != null) 'valor_centavos': valorCentavos,
+      if (pecasCentavos != null) 'pecas_centavos': pecasCentavos,
+      if (maoDeObraCentavos != null) 'mao_de_obra_centavos': maoDeObraCentavos,
+      if (lugarId != null) 'lugar_id': lugarId,
+      if (lugarNome != null) 'lugar_nome': lugarNome,
+      if (formaPagamento != null) 'forma_pagamento': formaPagamento,
+      if (cartaoId != null) 'cartao_id': cartaoId,
+      if (observacao != null) 'observacao': observacao,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ServicosCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? criadoEm,
+    Value<DateTime>? atualizadoEm,
+    Value<DateTime?>? excluidoEm,
+    Value<bool>? pendente,
+    Value<String>? veiculoId,
+    Value<String>? tipo,
+    Value<DateTime>? data,
+    Value<int?>? odometro,
+    Value<String>? categorias,
+    Value<String?>? detalhes,
+    Value<int>? valorCentavos,
+    Value<int?>? pecasCentavos,
+    Value<int?>? maoDeObraCentavos,
+    Value<String?>? lugarId,
+    Value<String?>? lugarNome,
+    Value<FormaPagamento?>? formaPagamento,
+    Value<String?>? cartaoId,
+    Value<String?>? observacao,
+    Value<int>? rowid,
+  }) {
+    return ServicosCompanion(
+      id: id ?? this.id,
+      criadoEm: criadoEm ?? this.criadoEm,
+      atualizadoEm: atualizadoEm ?? this.atualizadoEm,
+      excluidoEm: excluidoEm ?? this.excluidoEm,
+      pendente: pendente ?? this.pendente,
+      veiculoId: veiculoId ?? this.veiculoId,
+      tipo: tipo ?? this.tipo,
+      data: data ?? this.data,
+      odometro: odometro ?? this.odometro,
+      categorias: categorias ?? this.categorias,
+      detalhes: detalhes ?? this.detalhes,
+      valorCentavos: valorCentavos ?? this.valorCentavos,
+      pecasCentavos: pecasCentavos ?? this.pecasCentavos,
+      maoDeObraCentavos: maoDeObraCentavos ?? this.maoDeObraCentavos,
+      lugarId: lugarId ?? this.lugarId,
+      lugarNome: lugarNome ?? this.lugarNome,
+      formaPagamento: formaPagamento ?? this.formaPagamento,
+      cartaoId: cartaoId ?? this.cartaoId,
+      observacao: observacao ?? this.observacao,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (criadoEm.present) {
+      map['criado_em'] = Variable<DateTime>(criadoEm.value);
+    }
+    if (atualizadoEm.present) {
+      map['atualizado_em'] = Variable<DateTime>(atualizadoEm.value);
+    }
+    if (excluidoEm.present) {
+      map['excluido_em'] = Variable<DateTime>(excluidoEm.value);
+    }
+    if (pendente.present) {
+      map['pendente'] = Variable<bool>(pendente.value);
+    }
+    if (veiculoId.present) {
+      map['veiculo_id'] = Variable<String>(veiculoId.value);
+    }
+    if (tipo.present) {
+      map['tipo'] = Variable<String>(tipo.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<DateTime>(data.value);
+    }
+    if (odometro.present) {
+      map['odometro'] = Variable<int>(odometro.value);
+    }
+    if (categorias.present) {
+      map['categorias'] = Variable<String>(categorias.value);
+    }
+    if (detalhes.present) {
+      map['detalhes'] = Variable<String>(detalhes.value);
+    }
+    if (valorCentavos.present) {
+      map['valor_centavos'] = Variable<int>(valorCentavos.value);
+    }
+    if (pecasCentavos.present) {
+      map['pecas_centavos'] = Variable<int>(pecasCentavos.value);
+    }
+    if (maoDeObraCentavos.present) {
+      map['mao_de_obra_centavos'] = Variable<int>(maoDeObraCentavos.value);
+    }
+    if (lugarId.present) {
+      map['lugar_id'] = Variable<String>(lugarId.value);
+    }
+    if (lugarNome.present) {
+      map['lugar_nome'] = Variable<String>(lugarNome.value);
+    }
+    if (formaPagamento.present) {
+      map['forma_pagamento'] = Variable<String>(
+        $ServicosTable.$converterformaPagamenton.toSql(formaPagamento.value),
+      );
+    }
+    if (cartaoId.present) {
+      map['cartao_id'] = Variable<String>(cartaoId.value);
+    }
+    if (observacao.present) {
+      map['observacao'] = Variable<String>(observacao.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ServicosCompanion(')
+          ..write('id: $id, ')
+          ..write('criadoEm: $criadoEm, ')
+          ..write('atualizadoEm: $atualizadoEm, ')
+          ..write('excluidoEm: $excluidoEm, ')
+          ..write('pendente: $pendente, ')
+          ..write('veiculoId: $veiculoId, ')
+          ..write('tipo: $tipo, ')
+          ..write('data: $data, ')
+          ..write('odometro: $odometro, ')
+          ..write('categorias: $categorias, ')
+          ..write('detalhes: $detalhes, ')
+          ..write('valorCentavos: $valorCentavos, ')
+          ..write('pecasCentavos: $pecasCentavos, ')
+          ..write('maoDeObraCentavos: $maoDeObraCentavos, ')
+          ..write('lugarId: $lugarId, ')
+          ..write('lugarNome: $lugarNome, ')
+          ..write('formaPagamento: $formaPagamento, ')
+          ..write('cartaoId: $cartaoId, ')
+          ..write('observacao: $observacao, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $PreferenciasTable extends Preferencias
     with TableInfo<$PreferenciasTable, PreferenciaLinha> {
   @override
@@ -3849,6 +4944,7 @@ abstract class _$BancoLocal extends GeneratedDatabase {
   late final $AbastecimentosTable abastecimentos = $AbastecimentosTable(this);
   late final $RecargasTable recargas = $RecargasTable(this);
   late final $CartoesTable cartoes = $CartoesTable(this);
+  late final $ServicosTable servicos = $ServicosTable(this);
   late final $PreferenciasTable preferencias = $PreferenciasTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -3859,6 +4955,7 @@ abstract class _$BancoLocal extends GeneratedDatabase {
     abastecimentos,
     recargas,
     cartoes,
+    servicos,
     preferencias,
   ];
 }
@@ -3941,6 +5038,24 @@ final class $$VeiculosTableReferences
     ).filter((f) => f.veiculoId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_recargasRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$ServicosTable, List<ServicoLinha>>
+  _servicosRefsTable(_$BancoLocal db) => MultiTypedResultKey.fromTable(
+    db.servicos,
+    aliasName: 'veiculos__id__servicos__veiculo_id',
+  );
+
+  $$ServicosTableProcessedTableManager get servicosRefs {
+    final manager = $$ServicosTableTableManager(
+      $_db,
+      $_db.servicos,
+    ).filter((f) => f.veiculoId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_servicosRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -4084,6 +5199,31 @@ class $$VeiculosTableFilterComposer
           }) => $$RecargasTableFilterComposer(
             $db: $db,
             $table: $db.recargas,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> servicosRefs(
+    Expression<bool> Function($$ServicosTableFilterComposer f) f,
+  ) {
+    final $$ServicosTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.servicos,
+      getReferencedColumn: (t) => t.veiculoId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ServicosTableFilterComposer(
+            $db: $db,
+            $table: $db.servicos,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -4318,6 +5458,31 @@ class $$VeiculosTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> servicosRefs<T extends Object>(
+    Expression<T> Function($$ServicosTableAnnotationComposer a) f,
+  ) {
+    final $$ServicosTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.servicos,
+      getReferencedColumn: (t) => t.veiculoId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ServicosTableAnnotationComposer(
+            $db: $db,
+            $table: $db.servicos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$VeiculosTableTableManager
@@ -4333,7 +5498,11 @@ class $$VeiculosTableTableManager
           $$VeiculosTableUpdateCompanionBuilder,
           (VeiculoLinha, $$VeiculosTableReferences),
           VeiculoLinha,
-          PrefetchHooks Function({bool abastecimentosRefs, bool recargasRefs})
+          PrefetchHooks Function({
+            bool abastecimentosRefs,
+            bool recargasRefs,
+            bool servicosRefs,
+          })
         > {
   $$VeiculosTableTableManager(_$BancoLocal db, $VeiculosTable table)
     : super(
@@ -4435,12 +5604,17 @@ class $$VeiculosTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({abastecimentosRefs = false, recargasRefs = false}) {
+              ({
+                abastecimentosRefs = false,
+                recargasRefs = false,
+                servicosRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (abastecimentosRefs) db.abastecimentos,
                     if (recargasRefs) db.recargas,
+                    if (servicosRefs) db.servicos,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -4487,6 +5661,27 @@ class $$VeiculosTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (servicosRefs)
+                        await $_getPrefetchedData<
+                          VeiculoLinha,
+                          $VeiculosTable,
+                          ServicoLinha
+                        >(
+                          currentTable: table,
+                          referencedTable: $$VeiculosTableReferences
+                              ._servicosRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$VeiculosTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).servicosRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.veiculoId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -4507,7 +5702,11 @@ typedef $$VeiculosTableProcessedTableManager =
       $$VeiculosTableUpdateCompanionBuilder,
       (VeiculoLinha, $$VeiculosTableReferences),
       VeiculoLinha,
-      PrefetchHooks Function({bool abastecimentosRefs, bool recargasRefs})
+      PrefetchHooks Function({
+        bool abastecimentosRefs,
+        bool recargasRefs,
+        bool servicosRefs,
+      })
     >;
 typedef $$AbastecimentosTableCreateCompanionBuilder =
     AbastecimentosCompanion Function({
@@ -5944,6 +7143,607 @@ typedef $$CartoesTableProcessedTableManager =
       CartaoLinha,
       PrefetchHooks Function()
     >;
+typedef $$ServicosTableCreateCompanionBuilder =
+    ServicosCompanion Function({
+      required String id,
+      required DateTime criadoEm,
+      required DateTime atualizadoEm,
+      Value<DateTime?> excluidoEm,
+      Value<bool> pendente,
+      required String veiculoId,
+      required String tipo,
+      required DateTime data,
+      Value<int?> odometro,
+      required String categorias,
+      Value<String?> detalhes,
+      required int valorCentavos,
+      Value<int?> pecasCentavos,
+      Value<int?> maoDeObraCentavos,
+      Value<String?> lugarId,
+      Value<String?> lugarNome,
+      Value<FormaPagamento?> formaPagamento,
+      Value<String?> cartaoId,
+      Value<String?> observacao,
+      Value<int> rowid,
+    });
+typedef $$ServicosTableUpdateCompanionBuilder =
+    ServicosCompanion Function({
+      Value<String> id,
+      Value<DateTime> criadoEm,
+      Value<DateTime> atualizadoEm,
+      Value<DateTime?> excluidoEm,
+      Value<bool> pendente,
+      Value<String> veiculoId,
+      Value<String> tipo,
+      Value<DateTime> data,
+      Value<int?> odometro,
+      Value<String> categorias,
+      Value<String?> detalhes,
+      Value<int> valorCentavos,
+      Value<int?> pecasCentavos,
+      Value<int?> maoDeObraCentavos,
+      Value<String?> lugarId,
+      Value<String?> lugarNome,
+      Value<FormaPagamento?> formaPagamento,
+      Value<String?> cartaoId,
+      Value<String?> observacao,
+      Value<int> rowid,
+    });
+
+final class $$ServicosTableReferences
+    extends BaseReferences<_$BancoLocal, $ServicosTable, ServicoLinha> {
+  $$ServicosTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $VeiculosTable _veiculoIdTable(_$BancoLocal db) =>
+      db.veiculos.createAlias('servicos__veiculo_id__veiculos__id');
+
+  $$VeiculosTableProcessedTableManager get veiculoId {
+    final $_column = $_itemColumn<String>('veiculo_id')!;
+
+    final manager = $$VeiculosTableTableManager(
+      $_db,
+      $_db.veiculos,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_veiculoIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ServicosTableFilterComposer
+    extends Composer<_$BancoLocal, $ServicosTable> {
+  $$ServicosTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get criadoEm => $composableBuilder(
+    column: $table.criadoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get atualizadoEm => $composableBuilder(
+    column: $table.atualizadoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get excluidoEm => $composableBuilder(
+    column: $table.excluidoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get pendente => $composableBuilder(
+    column: $table.pendente,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tipo => $composableBuilder(
+    column: $table.tipo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get data => $composableBuilder(
+    column: $table.data,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get odometro => $composableBuilder(
+    column: $table.odometro,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get categorias => $composableBuilder(
+    column: $table.categorias,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get detalhes => $composableBuilder(
+    column: $table.detalhes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get valorCentavos => $composableBuilder(
+    column: $table.valorCentavos,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pecasCentavos => $composableBuilder(
+    column: $table.pecasCentavos,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get maoDeObraCentavos => $composableBuilder(
+    column: $table.maoDeObraCentavos,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lugarId => $composableBuilder(
+    column: $table.lugarId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lugarNome => $composableBuilder(
+    column: $table.lugarNome,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<FormaPagamento?, FormaPagamento, String>
+  get formaPagamento => $composableBuilder(
+    column: $table.formaPagamento,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get cartaoId => $composableBuilder(
+    column: $table.cartaoId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get observacao => $composableBuilder(
+    column: $table.observacao,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$VeiculosTableFilterComposer get veiculoId {
+    final $$VeiculosTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.veiculoId,
+      referencedTable: $db.veiculos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VeiculosTableFilterComposer(
+            $db: $db,
+            $table: $db.veiculos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ServicosTableOrderingComposer
+    extends Composer<_$BancoLocal, $ServicosTable> {
+  $$ServicosTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get criadoEm => $composableBuilder(
+    column: $table.criadoEm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get atualizadoEm => $composableBuilder(
+    column: $table.atualizadoEm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get excluidoEm => $composableBuilder(
+    column: $table.excluidoEm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get pendente => $composableBuilder(
+    column: $table.pendente,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tipo => $composableBuilder(
+    column: $table.tipo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get data => $composableBuilder(
+    column: $table.data,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get odometro => $composableBuilder(
+    column: $table.odometro,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get categorias => $composableBuilder(
+    column: $table.categorias,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get detalhes => $composableBuilder(
+    column: $table.detalhes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get valorCentavos => $composableBuilder(
+    column: $table.valorCentavos,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pecasCentavos => $composableBuilder(
+    column: $table.pecasCentavos,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get maoDeObraCentavos => $composableBuilder(
+    column: $table.maoDeObraCentavos,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lugarId => $composableBuilder(
+    column: $table.lugarId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lugarNome => $composableBuilder(
+    column: $table.lugarNome,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get formaPagamento => $composableBuilder(
+    column: $table.formaPagamento,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cartaoId => $composableBuilder(
+    column: $table.cartaoId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get observacao => $composableBuilder(
+    column: $table.observacao,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$VeiculosTableOrderingComposer get veiculoId {
+    final $$VeiculosTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.veiculoId,
+      referencedTable: $db.veiculos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VeiculosTableOrderingComposer(
+            $db: $db,
+            $table: $db.veiculos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ServicosTableAnnotationComposer
+    extends Composer<_$BancoLocal, $ServicosTable> {
+  $$ServicosTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get criadoEm =>
+      $composableBuilder(column: $table.criadoEm, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get atualizadoEm => $composableBuilder(
+    column: $table.atualizadoEm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get excluidoEm => $composableBuilder(
+    column: $table.excluidoEm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get pendente =>
+      $composableBuilder(column: $table.pendente, builder: (column) => column);
+
+  GeneratedColumn<String> get tipo =>
+      $composableBuilder(column: $table.tipo, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => column);
+
+  GeneratedColumn<int> get odometro =>
+      $composableBuilder(column: $table.odometro, builder: (column) => column);
+
+  GeneratedColumn<String> get categorias => $composableBuilder(
+    column: $table.categorias,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get detalhes =>
+      $composableBuilder(column: $table.detalhes, builder: (column) => column);
+
+  GeneratedColumn<int> get valorCentavos => $composableBuilder(
+    column: $table.valorCentavos,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get pecasCentavos => $composableBuilder(
+    column: $table.pecasCentavos,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get maoDeObraCentavos => $composableBuilder(
+    column: $table.maoDeObraCentavos,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lugarId =>
+      $composableBuilder(column: $table.lugarId, builder: (column) => column);
+
+  GeneratedColumn<String> get lugarNome =>
+      $composableBuilder(column: $table.lugarNome, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<FormaPagamento?, String>
+  get formaPagamento => $composableBuilder(
+    column: $table.formaPagamento,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get cartaoId =>
+      $composableBuilder(column: $table.cartaoId, builder: (column) => column);
+
+  GeneratedColumn<String> get observacao => $composableBuilder(
+    column: $table.observacao,
+    builder: (column) => column,
+  );
+
+  $$VeiculosTableAnnotationComposer get veiculoId {
+    final $$VeiculosTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.veiculoId,
+      referencedTable: $db.veiculos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VeiculosTableAnnotationComposer(
+            $db: $db,
+            $table: $db.veiculos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ServicosTableTableManager
+    extends
+        RootTableManager<
+          _$BancoLocal,
+          $ServicosTable,
+          ServicoLinha,
+          $$ServicosTableFilterComposer,
+          $$ServicosTableOrderingComposer,
+          $$ServicosTableAnnotationComposer,
+          $$ServicosTableCreateCompanionBuilder,
+          $$ServicosTableUpdateCompanionBuilder,
+          (ServicoLinha, $$ServicosTableReferences),
+          ServicoLinha,
+          PrefetchHooks Function({bool veiculoId})
+        > {
+  $$ServicosTableTableManager(_$BancoLocal db, $ServicosTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ServicosTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ServicosTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ServicosTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> criadoEm = const Value.absent(),
+                Value<DateTime> atualizadoEm = const Value.absent(),
+                Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<bool> pendente = const Value.absent(),
+                Value<String> veiculoId = const Value.absent(),
+                Value<String> tipo = const Value.absent(),
+                Value<DateTime> data = const Value.absent(),
+                Value<int?> odometro = const Value.absent(),
+                Value<String> categorias = const Value.absent(),
+                Value<String?> detalhes = const Value.absent(),
+                Value<int> valorCentavos = const Value.absent(),
+                Value<int?> pecasCentavos = const Value.absent(),
+                Value<int?> maoDeObraCentavos = const Value.absent(),
+                Value<String?> lugarId = const Value.absent(),
+                Value<String?> lugarNome = const Value.absent(),
+                Value<FormaPagamento?> formaPagamento = const Value.absent(),
+                Value<String?> cartaoId = const Value.absent(),
+                Value<String?> observacao = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ServicosCompanion(
+                id: id,
+                criadoEm: criadoEm,
+                atualizadoEm: atualizadoEm,
+                excluidoEm: excluidoEm,
+                pendente: pendente,
+                veiculoId: veiculoId,
+                tipo: tipo,
+                data: data,
+                odometro: odometro,
+                categorias: categorias,
+                detalhes: detalhes,
+                valorCentavos: valorCentavos,
+                pecasCentavos: pecasCentavos,
+                maoDeObraCentavos: maoDeObraCentavos,
+                lugarId: lugarId,
+                lugarNome: lugarNome,
+                formaPagamento: formaPagamento,
+                cartaoId: cartaoId,
+                observacao: observacao,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime criadoEm,
+                required DateTime atualizadoEm,
+                Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<bool> pendente = const Value.absent(),
+                required String veiculoId,
+                required String tipo,
+                required DateTime data,
+                Value<int?> odometro = const Value.absent(),
+                required String categorias,
+                Value<String?> detalhes = const Value.absent(),
+                required int valorCentavos,
+                Value<int?> pecasCentavos = const Value.absent(),
+                Value<int?> maoDeObraCentavos = const Value.absent(),
+                Value<String?> lugarId = const Value.absent(),
+                Value<String?> lugarNome = const Value.absent(),
+                Value<FormaPagamento?> formaPagamento = const Value.absent(),
+                Value<String?> cartaoId = const Value.absent(),
+                Value<String?> observacao = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ServicosCompanion.insert(
+                id: id,
+                criadoEm: criadoEm,
+                atualizadoEm: atualizadoEm,
+                excluidoEm: excluidoEm,
+                pendente: pendente,
+                veiculoId: veiculoId,
+                tipo: tipo,
+                data: data,
+                odometro: odometro,
+                categorias: categorias,
+                detalhes: detalhes,
+                valorCentavos: valorCentavos,
+                pecasCentavos: pecasCentavos,
+                maoDeObraCentavos: maoDeObraCentavos,
+                lugarId: lugarId,
+                lugarNome: lugarNome,
+                formaPagamento: formaPagamento,
+                cartaoId: cartaoId,
+                observacao: observacao,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ServicosTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({veiculoId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (veiculoId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.veiculoId,
+                                referencedTable: $$ServicosTableReferences
+                                    ._veiculoIdTable(db),
+                                referencedColumn: $$ServicosTableReferences
+                                    ._veiculoIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ServicosTableProcessedTableManager =
+    ProcessedTableManager<
+      _$BancoLocal,
+      $ServicosTable,
+      ServicoLinha,
+      $$ServicosTableFilterComposer,
+      $$ServicosTableOrderingComposer,
+      $$ServicosTableAnnotationComposer,
+      $$ServicosTableCreateCompanionBuilder,
+      $$ServicosTableUpdateCompanionBuilder,
+      (ServicoLinha, $$ServicosTableReferences),
+      ServicoLinha,
+      PrefetchHooks Function({bool veiculoId})
+    >;
 typedef $$PreferenciasTableCreateCompanionBuilder =
     PreferenciasCompanion Function({
       required String chave,
@@ -6099,6 +7899,8 @@ class $BancoLocalManager {
       $$RecargasTableTableManager(_db, _db.recargas);
   $$CartoesTableTableManager get cartoes =>
       $$CartoesTableTableManager(_db, _db.cartoes);
+  $$ServicosTableTableManager get servicos =>
+      $$ServicosTableTableManager(_db, _db.servicos);
   $$PreferenciasTableTableManager get preferencias =>
       $$PreferenciasTableTableManager(_db, _db.preferencias);
 }

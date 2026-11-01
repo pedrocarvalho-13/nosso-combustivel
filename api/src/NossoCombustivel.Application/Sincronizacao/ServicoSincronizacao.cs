@@ -3,6 +3,7 @@ using NossoCombustivel.Application.Postos;
 using NossoCombustivel.Domain;
 using NossoCombustivel.Domain.Cartoes;
 using NossoCombustivel.Domain.Registros;
+using NossoCombustivel.Domain.Servicos;
 using NossoCombustivel.Domain.Veiculos;
 
 namespace NossoCombustivel.Application.Sincronizacao;
@@ -88,6 +89,25 @@ public sealed class ServicoSincronizacao(IRepositorioSincronizacao repositorio, 
             });
         }
 
+        var servicosEnviados = lote.Servicos ?? [];
+        var servicos = (await repositorio.ObterServicosAsync(servicosEnviados.Select(s => s.Id).ToList(), cancelamento))
+            .ToDictionary(s => s.Id);
+        foreach (var dto in servicosEnviados)
+        {
+            Tentar(dto.Id, rejeitados, () =>
+            {
+                var existente = servicos.GetValueOrDefault(dto.Id);
+                ExigirCarroPermitido(existente?.VeiculoId ?? dto.VeiculoId, permitidos);
+                var dados = new DadosServico(dto.Tipo, dto.Data, dto.Odometro, dto.Categorias, dto.Detalhes, dto.ValorTotal,
+                    dto.ValorPecas, dto.ValorMaoDeObra, dto.LugarId, dto.LugarNome, dto.FormaPagamento, dto.CartaoId,
+                    dto.Observacao, dto.AtualizadoEm, dto.ExcluidoEm);
+                if (existente is null)
+                    repositorio.Adicionar(Servico.Criar(dto.Id, dto.VeiculoId, usuarioId, dados, dto.CriadoEm, agora));
+                else
+                    existente.Aplicar(dados, agora);
+            });
+        }
+
         await repositorio.SalvarAsync(cancelamento);
         return new RespostaEnvio(rejeitados);
     }
@@ -102,7 +122,10 @@ public sealed class ServicoSincronizacao(IRepositorioSincronizacao repositorio, 
         var abastecimentos = await repositorio.AbastecimentosAlteradosAsync(idsDosVeiculos, aPartir, cancelamento);
         var recargas = await repositorio.RecargasAlteradasAsync(idsDosVeiculos, aPartir, cancelamento);
         var cartoes = await repositorio.CartoesAlteradosAsync(usuarioId, aPartir, cancelamento);
-        var idsDosPostos = abastecimentos.Where(a => a.PostoId is not null).Select(a => a.PostoId!.Value).Distinct().ToList();
+        var servicos = await repositorio.ServicosAlteradosAsync(idsDosVeiculos, aPartir, cancelamento);
+        var idsDosPostos = abastecimentos.Where(a => a.PostoId is not null).Select(a => a.PostoId!.Value)
+            .Concat(servicos.Where(s => s.LugarId is not null).Select(s => s.LugarId!.Value))
+            .Distinct().ToList();
         var postosUsados = idsDosPostos.Count == 0 ? [] : await postos.ObterAsync(idsDosPostos, cancelamento);
 
         return new RespostaBusca(
@@ -111,7 +134,8 @@ public sealed class ServicoSincronizacao(IRepositorioSincronizacao repositorio, 
                 abastecimentos.Select(ParaDto).ToList(),
                 recargas.Select(ParaDto).ToList(),
                 cartoes.Select(ParaDto).ToList(),
-                postosUsados.Select(p => new PostoSync(p.Id, p.Nome, p.Bandeira, p.Endereco, p.Latitude, p.Longitude)).ToList()),
+                postosUsados.Select(p => new PostoSync(p.Id, p.Nome, p.Bandeira, p.Endereco, p.Latitude, p.Longitude)).ToList(),
+                servicos.Select(ParaDto).ToList()),
             cursor);
     }
 
@@ -150,6 +174,11 @@ public sealed class ServicoSincronizacao(IRepositorioSincronizacao repositorio, 
     private static RecargaSync ParaDto(Recarga r) => new(
         r.Id, r.VeiculoId, r.Data, r.Odometro, r.Local, r.Kwh, r.PrecoKwh, r.ValorTotal,
         r.CargaCompleta, r.CriadoEm, r.AtualizadoEm, r.ExcluidoEm, r.FormaPagamento, r.CartaoId, r.ContaNaMedia);
+
+    private static ServicoSync ParaDto(Servico s) => new(
+        s.Id, s.VeiculoId, s.Tipo, s.Data, s.Odometro, s.ListaCategorias, s.Detalhes, s.ValorTotal, s.ValorPecas,
+        s.ValorMaoDeObra, s.LugarId, s.LugarNome, s.FormaPagamento, s.CartaoId, s.Observacao, s.CriadoEm,
+        s.AtualizadoEm, s.ExcluidoEm);
 
     private static CartaoSync ParaDto(Cartao c) => new(c.Id, c.Nome, c.DiaFechamento, c.CriadoEm, c.AtualizadoEm, c.ExcluidoEm, c.Banco);
 }

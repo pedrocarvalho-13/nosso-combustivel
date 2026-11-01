@@ -53,3 +53,45 @@ public sealed class RepositorioCapacidades(NossoCombustivelDbContext banco, IRel
         }
     }
 }
+
+public sealed class IntervaloManutencao
+{
+    public required string Chave { get; init; }
+    public int? Km { get; init; }
+    public int? Meses { get; init; }
+    public int? KmSevero { get; init; }
+    public int? MesesSevero { get; init; }
+    public string? Observacao { get; init; }
+    public DateTimeOffset CriadoEm { get; init; }
+}
+
+public sealed class RepositorioIntervalos(NossoCombustivelDbContext banco, IRelogio relogio) : IRepositorioIntervalos
+{
+    public async Task<IntervaloSugerido?> ObterAsync(string chave, CancellationToken cancelamento)
+    {
+        var linha = await banco.Intervalos.AsNoTracking().FirstOrDefaultAsync(i => i.Chave == chave, cancelamento);
+        return linha is null ? null : new IntervaloSugerido(linha.Km, linha.Meses, linha.KmSevero, linha.MesesSevero, linha.Observacao);
+    }
+
+    public async Task SalvarAsync(string chave, IntervaloSugerido intervalo, CancellationToken cancelamento)
+    {
+        banco.Intervalos.Add(new IntervaloManutencao
+        {
+            Chave = chave,
+            Km = intervalo.Km,
+            Meses = intervalo.Meses,
+            KmSevero = intervalo.KmSevero,
+            MesesSevero = intervalo.MesesSevero,
+            Observacao = intervalo.Observacao,
+            CriadoEm = relogio.Agora
+        });
+        try
+        {
+            await banco.SaveChangesAsync(cancelamento);
+        }
+        catch (DbUpdateException)
+        {
+            banco.ChangeTracker.Clear();
+        }
+    }
+}

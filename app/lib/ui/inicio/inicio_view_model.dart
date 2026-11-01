@@ -8,6 +8,7 @@ import '../../domain/calculos/calculo_resumo.dart';
 import '../../domain/cartao.dart';
 import '../../domain/registro_energia.dart';
 import '../../domain/veiculo.dart';
+import '../../domain/servico.dart';
 
 class ConsumoInicio {
   const ConsumoInicio({
@@ -81,6 +82,7 @@ class InicioEstado {
     required this.consumos,
     required this.ultimos,
     required this.meses,
+    this.manutencaoMesCentavos = 0,
   });
 
   final Veiculo veiculo;
@@ -94,6 +96,7 @@ class InicioEstado {
   final List<ConsumoInicio> consumos;
   final List<RegistroLinhaDoTempo> ultimos;
   final List<MesGasto> meses;
+  final int manutencaoMesCentavos;
 
   int get indiceDoMesAtual => meses.indexWhere((m) => m.tipo == TipoMes.atual);
 }
@@ -103,6 +106,7 @@ const quedaParaDestacar = 0.15;
 final inicioViewModelProvider = Provider<AsyncValue<InicioEstado?>>((ref) {
   final registros = ref.watch(registrosDoAtivoProvider).value ?? const <RegistroEnergia>[];
   final cartoes = {for (final c in ref.watch(cartoesProvider).value ?? const <Cartao>[]) c.id: c};
+  final manutencoes = ref.watch(manutencoesDoAtivoProvider).value ?? const <Servico>[];
   final agora = ref.watch(relogioProvider)();
   final dias = ref.watch(periodoMediaProvider).value ?? 30;
   final meta = ref.watch(metaMensalProvider).value;
@@ -122,7 +126,9 @@ final inicioViewModelProvider = Provider<AsyncValue<InicioEstado?>>((ref) {
       inicio: CalculoResumo.inicioDaSemana(agora),
       fim: agora.add(const Duration(days: 1)),
     );
-    final gastoMes = CalculoFatura.gastoDoMes(registros, cartoes, agora);
+    final gastos = <GastoComPagamento>[...registros, ...manutencoes];
+    final gastoMes = CalculoFatura.gastoDoMes(gastos, cartoes, agora);
+    final manutencaoMes = CalculoFatura.gastoDoMes(manutencoes, cartoes, agora);
     final projecaoPorData = CalculoResumo.projecaoDoMes(registros: registros, agora: agora);
 
     final ciclosCombustivel = CalculoConsumo.ciclosDeAbastecimento(registros.whereType<Abastecimento>());
@@ -140,7 +146,8 @@ final inicioViewModelProvider = Provider<AsyncValue<InicioEstado?>>((ref) {
       semanaCentavos: semana.gastoCentavos,
       custoPorKm: _custoPorKm(ciclosCombustivel, ciclosEletricos),
       consumos: consumos,
-      meses: _meses(veiculo, registros, cartoes, agora),
+      meses: _meses(veiculo, registros, gastos, cartoes, agora),
+      manutencaoMesCentavos: manutencaoMes,
       ultimos: [
         for (final registro in registros.take(3))
           () {
@@ -196,13 +203,19 @@ List<ConsumoInicio> _consumos(
   return consumos;
 }
 
-List<MesGasto> _meses(Veiculo veiculo, List<RegistroEnergia> registros, Map<String, Cartao> cartoes, DateTime agora) {
+List<MesGasto> _meses(
+  Veiculo veiculo,
+  List<RegistroEnergia> registros,
+  List<GastoComPagamento> gastos,
+  Map<String, Cartao> cartoes,
+  DateTime agora,
+) {
   const mesesParaTras = 11;
   final atual = DateTime(agora.year, agora.month);
   final seguinte = DateTime(agora.year, agora.month + 1);
-  final primeiro = registros.isEmpty
+  final primeiro = gastos.isEmpty
       ? atual
-      : registros.map((r) => CalculoFatura.mesDoGasto(r, cartoes)).reduce((a, b) => a.isBefore(b) ? a : b);
+      : gastos.map((r) => CalculoFatura.mesDoGasto(r, cartoes)).reduce((a, b) => a.isBefore(b) ? a : b);
   final limite = DateTime(agora.year, agora.month - mesesParaTras);
   var mes = primeiro.isBefore(limite) ? limite : (primeiro.isAfter(atual) ? atual : primeiro);
 
@@ -211,7 +224,7 @@ List<MesGasto> _meses(Veiculo veiculo, List<RegistroEnergia> registros, Map<Stri
     meses.add(MesGasto(
       mes: mes,
       tipo: mes == atual ? TipoMes.atual : TipoMes.passado,
-      totalCentavos: CalculoFatura.gastoDoMes(registros, cartoes, mes),
+      totalCentavos: CalculoFatura.gastoDoMes(gastos, cartoes, mes),
       kmRodados: CalculoResumo.doPeriodo(
         registros: registros,
         odometroInicial: veiculo.odometroInicial,
@@ -222,7 +235,7 @@ List<MesGasto> _meses(Veiculo veiculo, List<RegistroEnergia> registros, Map<Stri
     mes = DateTime(mes.year, mes.month + 1);
   }
 
-  final noSeguinte = registros.where((r) => CalculoFatura.mesDoGasto(r, cartoes) == seguinte).toList();
+  final noSeguinte = gastos.where((r) => CalculoFatura.mesDoGasto(r, cartoes) == seguinte).toList();
   if (noSeguinte.isNotEmpty) {
     meses.add(MesGasto(
       mes: seguinte,

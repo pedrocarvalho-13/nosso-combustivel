@@ -14,14 +14,17 @@ class LoteLocal {
     required this.abastecimentos,
     required this.recargas,
     this.cartoes = const [],
+    this.servicos = const [],
   });
 
   final List<VeiculoLinha> veiculos;
   final List<AbastecimentoLinha> abastecimentos;
   final List<RecargaLinha> recargas;
   final List<CartaoLinha> cartoes;
+  final List<ServicoLinha> servicos;
 
-  bool get vazio => veiculos.isEmpty && abastecimentos.isEmpty && recargas.isEmpty && cartoes.isEmpty;
+  bool get vazio =>
+      veiculos.isEmpty && abastecimentos.isEmpty && recargas.isEmpty && cartoes.isEmpty && servicos.isEmpty;
 
   Map<String, dynamic> paraJson() => {
         'veiculos': [
@@ -91,6 +94,27 @@ class LoteLocal {
               ..._datas(c.criadoEm, c.atualizadoEm, c.excluidoEm),
             },
         ],
+        'servicos': [
+          for (final s in servicos)
+            {
+              'id': s.id,
+              'veiculoId': s.veiculoId,
+              'tipo': s.tipo,
+              'data': _data(s.data),
+              'odometro': s.odometro,
+              'categorias': s.categorias.isEmpty ? <String>[] : s.categorias.split(','),
+              'detalhes': s.detalhes,
+              'valorTotal': s.valorCentavos / 100,
+              'valorPecas': s.pecasCentavos == null ? null : s.pecasCentavos! / 100,
+              'valorMaoDeObra': s.maoDeObraCentavos == null ? null : s.maoDeObraCentavos! / 100,
+              'lugarId': s.lugarId,
+              'lugarNome': s.lugarNome,
+              'formaPagamento': s.formaPagamento?.name,
+              'cartaoId': s.cartaoId,
+              'observacao': s.observacao,
+              ..._datas(s.criadoEm, s.atualizadoEm, s.excluidoEm),
+            },
+        ],
       };
 
   static double? _decimal(int? milesimos) => milesimos == null ? null : milesimos / 1000;
@@ -124,13 +148,16 @@ class SincronizacaoLocal {
       cartoes: await (_banco.select(_banco.cartoes)
             ..where((c) => c.usuarioId.equals(usuarioId) & c.pendente.equals(true)))
           .get(),
+      servicos: await (_banco.select(_banco.servicos)
+            ..where((s) => s.veiculoId.isIn(ids) & s.pendente.equals(true)))
+          .get(),
     );
   }
 
   Stream<int> observarQuantidadePendente(String usuarioId) async* {
     yield await _contarPendentes(usuarioId);
     final mudancas = _banco.tableUpdates(
-      TableUpdateQuery.onAllTables([_banco.veiculos, _banco.abastecimentos, _banco.recargas, _banco.cartoes]),
+      TableUpdateQuery.onAllTables([_banco.veiculos, _banco.abastecimentos, _banco.recargas, _banco.cartoes, _banco.servicos]),
     );
     await for (final _ in mudancas) {
       yield await _contarPendentes(usuarioId);
@@ -154,6 +181,10 @@ class SincronizacaoLocal {
         for (final c in lote.cartoes) {
           await (_banco.update(_banco.cartoes)..where((t) => t.id.equals(c.id) & t.atualizadoEm.equals(c.atualizadoEm)))
               .write(const CartoesCompanion(pendente: Value(false)));
+        }
+        for (final s in lote.servicos) {
+          await (_banco.update(_banco.servicos)..where((t) => t.id.equals(s.id) & t.atualizadoEm.equals(s.atualizadoEm)))
+              .write(const ServicosCompanion(pendente: Value(false)));
         }
       });
 
@@ -244,6 +275,32 @@ class SincronizacaoLocal {
                 pendente: const Value(false),
               ));
         }
+        for (final json in ((alteracoes['servicos'] as List?) ?? const []).cast<Map<String, dynamic>>()) {
+          final local = await (_banco.select(_banco.servicos)..where((t) => t.id.equals(json['id'] as String))).getSingleOrNull();
+          if (_localMaisNovo(local?.pendente, local?.atualizadoEm, json)) continue;
+          await _banco.into(_banco.servicos).insertOnConflictUpdate(ServicosCompanion.insert(
+                id: json['id'] as String,
+                veiculoId: json['veiculoId'] as String,
+                tipo: json['tipo'] as String,
+                data: _lerData(json['data'])!,
+                odometro: Value(json['odometro'] as int?),
+                categorias: ((json['categorias'] as List?) ?? const []).cast<String>().join(','),
+                detalhes: Value(json['detalhes'] as String?),
+                valorCentavos: ((json['valorTotal'] as num) * 100).round(),
+                pecasCentavos: Value(json['valorPecas'] == null ? null : ((json['valorPecas'] as num) * 100).round()),
+                maoDeObraCentavos:
+                    Value(json['valorMaoDeObra'] == null ? null : ((json['valorMaoDeObra'] as num) * 100).round()),
+                lugarId: Value(json['lugarId'] as String?),
+                lugarNome: Value(json['lugarNome'] as String?),
+                formaPagamento: Value(_formaPagamento(json['formaPagamento'])),
+                cartaoId: Value(json['cartaoId'] as String?),
+                observacao: Value(json['observacao'] as String?),
+                criadoEm: _lerData(json['criadoEm'])!,
+                atualizadoEm: _lerData(json['atualizadoEm'])!,
+                excluidoEm: Value(_lerData(json['excluidoEm'])),
+                pendente: const Value(false),
+              ));
+        }
       });
 
   Future<DateTime?> cursor(String usuarioId) async {
@@ -265,7 +322,11 @@ class SincronizacaoLocal {
 
   Future<int> _contarPendentes(String usuarioId) async {
     final lote = await pendentes(usuarioId);
-    return lote.veiculos.length + lote.abastecimentos.length + lote.recargas.length + lote.cartoes.length;
+    return lote.veiculos.length +
+        lote.abastecimentos.length +
+        lote.recargas.length +
+        lote.cartoes.length +
+        lote.servicos.length;
   }
 
   static bool _localMaisNovo(bool? pendente, DateTime? atualizadoEm, Map<String, dynamic> json) =>

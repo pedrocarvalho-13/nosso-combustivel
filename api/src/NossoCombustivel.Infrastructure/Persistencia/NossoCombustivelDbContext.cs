@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NossoCombustivel.Domain.Cartoes;
 using NossoCombustivel.Domain.Postos;
 using NossoCombustivel.Domain.Registros;
+using NossoCombustivel.Domain.Servicos;
 using NossoCombustivel.Domain.Veiculos;
 using NossoCombustivel.Infrastructure.Identidade;
 
@@ -18,8 +19,10 @@ public sealed class NossoCombustivelDbContext(DbContextOptions<NossoCombustivelD
     public DbSet<Abastecimento> Abastecimentos => Set<Abastecimento>();
     public DbSet<Recarga> Recargas => Set<Recarga>();
     public DbSet<CapacidadeVeiculo> Capacidades => Set<CapacidadeVeiculo>();
+    public DbSet<IntervaloManutencao> Intervalos => Set<IntervaloManutencao>();
     public DbSet<Cartao> Cartoes => Set<Cartao>();
     public DbSet<Posto> Postos => Set<Posto>();
+    public DbSet<Servico> Servicos => Set<Servico>();
     public DbSet<AreaBuscada> AreasBuscadas => Set<AreaBuscada>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

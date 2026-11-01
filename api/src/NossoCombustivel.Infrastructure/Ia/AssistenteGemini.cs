@@ -40,6 +40,37 @@ public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opc
         return texto is null ? null : JsonSerializer.Deserialize<CapacidadeEstimada>(texto, Json);
     }
 
+    public async Task<IntervaloSugerido?> EstimarIntervaloAsync(
+        VeiculoConsultado veiculo, string servico, string? detalhe, CancellationToken cancelamento)
+    {
+        var tipo = veiculo.TipoVeiculo == TipoVeiculo.Moto ? "moto" : "carro";
+        var ano = veiculo.Ano is null ? "" : $", ano modelo {veiculo.Ano}";
+        var extra = string.IsNullOrWhiteSpace(detalhe) ? "" : $" ({detalhe})";
+        var instrucao =
+            "Você é especialista em manutenção preventiva de veículos vendidos no Brasil e conhece os manuais dos fabricantes.\n" +
+            $"Veículo: {tipo} {veiculo.Marca} {veiculo.Modelo}{ano}. Tipo de energia: {veiculo.TipoEnergia}.\n" +
+            $"Serviço: {servico}{extra}.\n" +
+            "Informe o intervalo recomendado pelo fabricante para repetir esse serviço, em quilômetros e em meses, " +
+            "para uso normal e para uso severo (trânsito para e anda, trajetos curtos, estrada de terra, carro parado muito tempo).\n" +
+            "No caso do óleo, considere o tipo de óleo informado. Use null quando o serviço não tiver intervalo por km ou por tempo, " +
+            "ou quando não tiver segurança razoável. Em observacao, uma frase curta em português explicando a recomendação.";
+        var esquema = new JsonObject
+        {
+            ["type"] = "OBJECT",
+            ["properties"] = new JsonObject
+            {
+                ["km"] = Inteiro(),
+                ["meses"] = Inteiro(),
+                ["kmSevero"] = Inteiro(),
+                ["mesesSevero"] = Inteiro(),
+                ["observacao"] = new JsonObject { ["type"] = "STRING", ["nullable"] = true }
+            },
+            ["required"] = new JsonArray("km", "meses", "kmSevero", "mesesSevero", "observacao")
+        };
+        var texto = await GerarAsync([new JsonObject { ["text"] = instrucao }], esquema, cancelamento);
+        return texto is null ? null : JsonSerializer.Deserialize<IntervaloSugerido>(texto, Json);
+    }
+
     public async Task<LeituraFoto?> LerFotoAsync(byte[] imagem, string tipoMime, TipoLeitura tipo, CancellationToken cancelamento)
     {
         var instrucao = tipo switch
@@ -195,6 +226,8 @@ public sealed class AssistenteGemini(HttpClient http, IOptions<OpcoesGemini> opc
         Em descricao, diga em uma frase onde está o hodômetro e qual número você leu.
         Use null se o hodômetro total não estiver visível com clareza. Não invente valores.
         """;
+
+    private static JsonObject Inteiro() => new() { ["type"] = "INTEGER", ["nullable"] = true };
 
     private static JsonObject Numero() => new() { ["type"] = "NUMBER", ["nullable"] = true };
 
